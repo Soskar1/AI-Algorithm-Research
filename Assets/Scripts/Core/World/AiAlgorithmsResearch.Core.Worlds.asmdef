@@ -1,0 +1,16 @@
+{
+    "name": "AiAlgorithmsResearch.Core.Worlds",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1fc1ec92b2defc6478b3f9f3713f0a48"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
