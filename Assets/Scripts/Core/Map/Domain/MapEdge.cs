@@ -1,40 +1,44 @@
 ﻿using System;
+using UnityEngine;
 
-namespace AiAlgorithmsResearch.Core.Map.Domain
+namespace AiAlgorithmsResearch.Core.Maps.Domain
 {
     internal sealed class MapEdge : IEquatable<MapEdge>
     {
-        public MapNode First { get; }
-        public MapNode Second { get; }
+        public Vector2Int First { get; }
+        public Vector2Int Second { get; }
 
-        public MapEdge(MapNode a, MapNode b)
+        public MapEdge(Vector2Int first, Vector2Int second)
         {
-            if (a.GetHashCode() <= b.GetHashCode())
+            if (Compare(first, second) <= 0)
             {
-                First = a;
-                Second = b;
+                First = first;
+                Second = second;
             }
             else
             {
-                First = b;
-                Second = a;
+                First = second;
+                Second = first;
             }
+        }
+
+        private static int Compare(Vector2Int x, Vector2Int y)
+        {
+            var cx = x.x.CompareTo(y.x);
+            return cx != 0 ? cx : x.y.CompareTo(y.y);
         }
 
         public bool Equals(MapEdge other)
         {
-            if (other is null)
-            {
-                return false;
-            }
-
+            if (other is null) return false;
             return First.Equals(other.First) && Second.Equals(other.Second);
         }
 
         public override bool Equals(object obj) => obj is MapEdge other && Equals(other);
-        public override int GetHashCode() => HashCode.Combine(First, Second);
 
-        public static bool operator ==(MapEdge left, MapEdge right) => Equals(left, right);
-        public static bool operator !=(MapEdge left, MapEdge right) => !Equals(left, right);
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(First, Second);
+        }
     }
 }

@@ -1,14 +1,15 @@
+using AiAlgorithmsResearch.Core.Maps.Api;
 using System;
 using UnityEngine;
 
-namespace AiAlgorithmsResearch.Core.Map.Domain
+namespace AiAlgorithmsResearch.Core.Maps.Domain
 {
-    internal struct MapNode : IEquatable<MapNode>
+    internal class MapNode : IEquatable<MapNode>
     {
-        public Vector2 Position { get; }
+        public Vector2Int Position { get; }
         public MapNodeType Type { get; private set; }
 
-        public MapNode(Vector2 position, MapNodeType type)
+        public MapNode(Vector2Int position, MapNodeType type)
         {
             Position = position;
             Type = type;
