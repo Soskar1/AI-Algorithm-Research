@@ -2,7 +2,8 @@
     "name": "AiAlgorithmsResearch.Core.Worlds",
     "rootNamespace": "",
     "references": [
-        "GUID:1fc1ec92b2defc6478b3f9f3713f0a48"
+        "GUID:1fc1ec92b2defc6478b3f9f3713f0a48",
+        "GUID:6dd6e719f4e79064494101b415b5ba44"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
