@@ -5,5 +5,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
     public interface ICombatAction
     {
         IEntityView Actor { get; }
+        CombatActionId Id { get; }
     }
 }

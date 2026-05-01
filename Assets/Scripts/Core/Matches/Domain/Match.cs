@@ -8,6 +8,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Domain
         public MatchState State { get; private set; }
         public MatchWinner Winner { get; private set; }
         public IBattle Battle { get; private set; }
+        public IBattleParticipant CurrentParticipant => Battle.Current;
 
         public Match()
         {

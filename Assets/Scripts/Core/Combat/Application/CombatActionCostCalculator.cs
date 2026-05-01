@@ -21,6 +21,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             {
                 WaitAction => 0,
                 AttackAction => 2,
+                TeleportAction => 2,
                 MoveAction moveAction => GetMoveCost(moveAction),
                 _ => throw new ArgumentOutOfRangeException(nameof(action))
             };

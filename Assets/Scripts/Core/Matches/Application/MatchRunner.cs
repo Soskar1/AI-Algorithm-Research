@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AiAlgorithmsResearch.Core.Combat.Api;
+using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Matches.Api;
 using AiAlgorithmsResearch.Core.Matches.Domain;
 
@@ -8,16 +9,26 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
     internal sealed class MatchRunner : IMatchRunner
     {
         private readonly IBattleInitializer _battleInitializer;
+        private readonly IActionCooldownEditor _cooldownEditor;
+        private readonly IEntityEnergyEditor _energyEditor;
         private readonly TeamId _teamA;
         private readonly TeamId _teamB;
 
         private Match _match;
 
-        public MatchRunner(IBattleInitializer battleInitializer, TeamId teamA, TeamId teamB)
+        public MatchRunner(
+            TeamId teamA,
+            TeamId teamB,
+            IBattleInitializer battleInitializer,
+            IActionCooldownEditor cooldownEditor,
+            IEntityEnergyEditor energyEditor
+            )
         {
-            _battleInitializer = battleInitializer;
             _teamA = teamA;
             _teamB = teamB;
+            _battleInitializer = battleInitializer;
+            _cooldownEditor = cooldownEditor;
+            _energyEditor = energyEditor;
         }
 
         public IMatchView StartMatch(BattleInitializationRequest battleRequest)
@@ -40,10 +51,14 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             if (_match == null || _match.State != MatchState.Running)
                 return;
 
+            var current = _match.CurrentParticipant;
+
+            _cooldownEditor.TickCooldowns(current.Entity);
+            _energyEditor.RegenerateEnergy(current.Entity);
+
             // TODO:
-            // 1. get current participant
-            // 2. ask AI agent for action
-            // 3. execute action
+            // 1. ask AI agent for action
+            // 2. execute action
 
             CheckWinCondition();
 

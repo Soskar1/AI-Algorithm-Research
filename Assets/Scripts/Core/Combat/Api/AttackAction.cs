@@ -5,6 +5,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
     public readonly struct AttackAction : ICombatAction
     {
         public IEntityView Actor { get; }
+        public CombatActionId Id => CombatActionIds.Attack;
         public IEntityView Target { get; }
         public int BaseDamage { get; }
         public int Range { get; }

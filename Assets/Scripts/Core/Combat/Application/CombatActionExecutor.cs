@@ -11,14 +11,25 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
         private readonly IEntityHealthEditor _healthEditor;
         private readonly IEntityEnergyEditor _energyEditor;
         private readonly ICombatActionCostCalculator _costCalculator;
+        private readonly IActionCooldowns _cooldowns;
+        private readonly IActionCooldownEditor _cooldownEditor;
 
-        public CombatActionExecutor(IWorldView worldView, IWorldEditor worldEditor, IEntityHealthEditor healthEditor, IEntityEnergyEditor energyEditor, ICombatActionCostCalculator costCalculator)
+        public CombatActionExecutor(
+            IWorldView worldView,
+            IWorldEditor worldEditor,
+            IEntityHealthEditor healthEditor,
+            IEntityEnergyEditor energyEditor,
+            ICombatActionCostCalculator costCalculator,
+            IActionCooldowns cooldowns,
+            IActionCooldownEditor cooldownEditor)
         {
             _worldView = worldView;
             _worldEditor = worldEditor;
             _healthEditor = healthEditor;
             _energyEditor = energyEditor;
             _costCalculator = costCalculator;
+            _cooldowns = cooldowns;
+            _cooldownEditor = cooldownEditor;
         }
 
         public bool TryExecute(ICombatAction action)
@@ -36,11 +47,15 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 
         private bool CanExecute(ICombatAction action)
         {
+            if (_cooldowns.IsOnCooldown(action.Actor, action.Id))
+                return false;
+
             return action switch
             {
                 WaitAction => true,
                 MoveAction moveAction => CanExecuteMove(moveAction),
                 AttackAction attackAction => CanExecuteAttack(attackAction),
+                TeleportAction teleportAction => CanExecuteTeleport(teleportAction),
                 _ => false
             };
         }
@@ -50,13 +65,9 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             return action switch
             {
                 WaitAction => true,
-
-                MoveAction moveAction => _worldEditor.TryMoveEntity(
-                    moveAction.Actor,
-                    moveAction.TargetPosition),
-
+                MoveAction moveAction => ApplyMove(moveAction),
                 AttackAction attackAction => ApplyAttack(attackAction),
-
+                TeleportAction teleportAction => ApplyTeleport(teleportAction),
                 _ => false
             };
         }
@@ -79,11 +90,38 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             return distance <= action.Range;
         }
 
+        private bool CanExecuteTeleport(TeleportAction action)
+        {
+            return _worldView.TryGetEntityPosition(action.Actor, out _);
+        }
+
+        private bool ApplyMove(MoveAction action)
+        {
+            return _worldEditor.TryMoveEntity(action.Actor, action.TargetPosition);
+        }
+
         private bool ApplyAttack(AttackAction action)
         {
             var damage = action.BaseDamage + action.Actor.Strength;
 
             _healthEditor.DealDamage(action.Target, damage);
+
+            return true;
+        }
+
+        private bool ApplyTeleport(TeleportAction action)
+        {
+            var moved = _worldEditor.TryMoveEntity(
+                action.Actor,
+                action.TargetPosition);
+
+            if (!moved)
+                return false;
+
+            _cooldownEditor.PutOnCooldown(
+                action.Actor,
+                CombatActionIds.Teleport,
+                turns: 4);
 
             return true;
         }
