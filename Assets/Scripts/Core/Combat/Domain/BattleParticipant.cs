@@ -7,11 +7,13 @@ namespace AiAlgorithmsResearch.Core.Combat.Domain
     {
         public IEntityView Entity { get; }
         public int Initiative { get; }
+        public TeamId TeamId { get; }
 
-        public BattleParticipant(IEntityView entity, int initiative)
+        public BattleParticipant(IEntityView entity, int initiative, TeamId teamId)
         {
             Entity = entity;
             Initiative = initiative;
+            TeamId = teamId;
         }
     }
 }

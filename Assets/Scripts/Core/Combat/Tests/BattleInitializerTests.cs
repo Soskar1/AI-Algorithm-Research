@@ -16,6 +16,9 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
 {
     public sealed class BattleInitializerTests
     {
+        private static readonly TeamId TeamA = new(1);
+        private static readonly TeamId TeamB = new(2);
+
         private IWorldEditor _worldEditor;
         private IMapEditor _mapEditor;
         private FakeInitiativeRoller _initiativeRoller;
@@ -49,7 +52,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var request = new BattleInitializationRequest(
                 new[]
                 {
-                    new BattleParticipantSetup(entity, position)
+                    new BattleParticipantSetup(entity, position, TeamA)
                 });
 
             var battle = _battleInitializer.StartBattle(request);
@@ -57,6 +60,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             Assert.NotNull(battle);
             Assert.AreEqual(1, battle.TurnOrder.Count);
             Assert.AreSame(entity, battle.Current.Entity);
+            Assert.AreEqual(TeamA, battle.Current.TeamId);
             Assert.AreEqual(10, battle.Current.Initiative);
         }
 
@@ -71,7 +75,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var request = new BattleInitializationRequest(
                 new[]
                 {
-                    new BattleParticipantSetup(entity, blockedPosition)
+                    new BattleParticipantSetup(entity, blockedPosition, TeamA)
                 });
 
             var battle = _battleInitializer.StartBattle(request);
@@ -97,8 +101,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var request = new BattleInitializationRequest(
                 new[]
                 {
-                    new BattleParticipantSetup(slowEntity, slowPosition),
-                    new BattleParticipantSetup(fastEntity, fastPosition)
+                    new BattleParticipantSetup(slowEntity, slowPosition, TeamA),
+                    new BattleParticipantSetup(fastEntity, fastPosition, TeamB)
                 });
 
             var battle = _battleInitializer.StartBattle(request);
@@ -107,9 +111,11 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             Assert.AreEqual(2, battle.TurnOrder.Count);
 
             Assert.AreSame(fastEntity, battle.TurnOrder[0].Entity);
+            Assert.AreEqual(TeamB, battle.TurnOrder[0].TeamId);
             Assert.AreEqual(18, battle.TurnOrder[0].Initiative);
 
             Assert.AreSame(slowEntity, battle.TurnOrder[1].Entity);
+            Assert.AreEqual(TeamA, battle.TurnOrder[1].TeamId);
             Assert.AreEqual(5, battle.TurnOrder[1].Initiative);
 
             Assert.AreSame(fastEntity, battle.Current.Entity);
@@ -128,8 +134,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var request = new BattleInitializationRequest(
                 new[]
                 {
-                    new BattleParticipantSetup(firstEntity, position),
-                    new BattleParticipantSetup(secondEntity, position)
+                    new BattleParticipantSetup(firstEntity, position, TeamA),
+                    new BattleParticipantSetup(secondEntity, position, TeamB)
                 });
 
             var battle = _battleInitializer.StartBattle(request);
