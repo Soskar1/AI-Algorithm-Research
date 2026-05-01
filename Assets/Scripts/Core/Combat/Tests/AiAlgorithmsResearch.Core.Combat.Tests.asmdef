@@ -1,0 +1,27 @@
+{
+    "name": "AiAlgorithmsResearch.Core.Combat.Tests",
+    "rootNamespace": "",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "AiAlgorithmsResearch.Core.Combat",
+        "AiAlgorithmsResearch.Core.Maps",
+        "AiAlgorithmsResearch.Core.Worlds",
+        "AiAlgorithmsResearch.Core.Entities"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
