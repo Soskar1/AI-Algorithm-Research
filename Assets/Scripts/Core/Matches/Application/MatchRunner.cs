@@ -11,6 +11,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
         private readonly IBattleInitializer _battleInitializer;
         private readonly IActionCooldownEditor _cooldownEditor;
         private readonly IEntityEnergyEditor _energyEditor;
+        private readonly IStunStatusEditor _stunStatusEditor;
         private readonly TeamId _teamA;
         private readonly TeamId _teamB;
 
@@ -21,7 +22,8 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             TeamId teamB,
             IBattleInitializer battleInitializer,
             IActionCooldownEditor cooldownEditor,
-            IEntityEnergyEditor energyEditor
+            IEntityEnergyEditor energyEditor,
+            IStunStatusEditor stunEditor
             )
         {
             _teamA = teamA;
@@ -29,6 +31,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             _battleInitializer = battleInitializer;
             _cooldownEditor = cooldownEditor;
             _energyEditor = energyEditor;
+            _stunStatusEditor = stunEditor;
         }
 
         public IMatchView StartMatch(BattleInitializationRequest battleRequest)
@@ -56,6 +59,12 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             _cooldownEditor.TickCooldowns(current.Entity);
             _energyEditor.RegenerateEnergy(current.Entity);
 
+            if (_stunStatusEditor.ConsumeStun(current.Entity))
+            {
+                _match.NextTurn();
+                return;
+            }
+
             // TODO:
             // 1. ask AI agent for action
             // 2. execute action
@@ -64,7 +73,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
 
             if (_match.State == MatchState.Running)
             {
-                _match.Battle.NextTurn();
+                _match.NextTurn();
             }
         }
 

@@ -13,6 +13,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
         private readonly ICombatActionCostCalculator _costCalculator;
         private readonly IActionCooldowns _cooldowns;
         private readonly IActionCooldownEditor _cooldownEditor;
+        private readonly IStunStatusEditor _stunStatusEditor;
 
         public CombatActionExecutor(
             IWorldView worldView,
@@ -21,7 +22,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             IEntityEnergyEditor energyEditor,
             ICombatActionCostCalculator costCalculator,
             IActionCooldowns cooldowns,
-            IActionCooldownEditor cooldownEditor)
+            IActionCooldownEditor cooldownEditor,
+            IStunStatusEditor stunStatusEditor)
         {
             _worldView = worldView;
             _worldEditor = worldEditor;
@@ -30,6 +32,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             _costCalculator = costCalculator;
             _cooldowns = cooldowns;
             _cooldownEditor = cooldownEditor;
+            _stunStatusEditor = stunStatusEditor;
         }
 
         public bool TryExecute(ICombatAction action)
@@ -57,6 +60,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
                 AttackAction attackAction => CanExecuteAttack(attackAction),
                 TeleportAction teleportAction => CanExecuteTeleport(teleportAction),
                 HealAction healAction => CanExecuteHeal(healAction),
+                StunAction stunAction => CanExecuteStun(stunAction),
                 _ => false
             };
         }
@@ -70,6 +74,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
                 AttackAction attackAction => ApplyAttack(attackAction),
                 TeleportAction teleportAction => ApplyTeleport(teleportAction),
                 HealAction healAction => ApplyHeal(healAction),
+                StunAction stunAction => ApplyStun(stunAction),
                 _ => false
             };
         }
@@ -100,6 +105,19 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
         private bool CanExecuteHeal(HealAction action)
         {
             return action.Actor.Health.Current < action.Actor.Health.Max;
+        }
+
+        private bool CanExecuteStun(StunAction action)
+        {
+            if (!_worldView.TryGetEntityPosition(action.Actor, out var actorPosition))
+                return false;
+
+            if (!_worldView.TryGetEntityPosition(action.Target, out var targetPosition))
+                return false;
+
+            var distance = GridDistance.Manhattan(actorPosition, targetPosition);
+
+            return distance == 1;
         }
 
         private bool ApplyMove(MoveAction action)
@@ -135,6 +153,15 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             _healthEditor.Heal(action.Actor, action.Amount);
 
             _cooldownEditor.PutOnCooldown(action.Actor, CombatActionIds.Heal, turns: 3);
+
+            return true;
+        }
+
+        private bool ApplyStun(StunAction action)
+        {
+            _stunStatusEditor.StunForNextTurn(action.Target);
+
+            _cooldownEditor.PutOnCooldown(action.Actor, CombatActionIds.Stun, turns: 3);
 
             return true;
         }

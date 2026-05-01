@@ -7,5 +7,6 @@
         public static readonly CombatActionId Attack = new("attack");
         public static readonly CombatActionId Teleport = new("teleport");
         public static readonly CombatActionId Heal = new("heal");
+        public static readonly CombatActionId Stun = new("stun");
     }
 }

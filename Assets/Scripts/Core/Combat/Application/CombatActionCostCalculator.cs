@@ -24,6 +24,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
                 AttackAction => 2,
                 TeleportAction => 2,
                 HealAction => 2,
+                StunAction => 2,
                 _ => throw new ArgumentOutOfRangeException(nameof(action))
             };
         }

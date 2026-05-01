@@ -28,5 +28,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Domain
             State = MatchState.Finished;
             Winner = winner;
         }
+
+        public void NextTurn() => Battle.NextTurn();
     }
 }
