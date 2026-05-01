@@ -1,0 +1,17 @@
+{
+    "name": "AiAlgorithmsResearch.Core.AI",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3b1ff7df020774649a34109e124b8784",
+        "GUID:6dd6e719f4e79064494101b415b5ba44"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
