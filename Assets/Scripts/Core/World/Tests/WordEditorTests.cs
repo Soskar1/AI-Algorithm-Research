@@ -32,7 +32,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
         public void AddEntity_WhenTileExistsAndIsFree_AddsEntity()
         {
             var position = new Vector2Int(1, 1);
-            var entity = new TestEntity(health: 10, energy: 5);
+            var entity = new TestEntity();
 
             AddFreeTile(position);
 
@@ -49,7 +49,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
         [Test]
         public void AddEntity_WhenTileDoesNotExist_ReturnsFalse()
         {
-            var entity = new TestEntity(health: 10, energy: 5);
+            var entity = new TestEntity();
 
             var result = _worldEditor.TryAddEntity(entity, new Vector2Int(99, 99));
 
@@ -61,7 +61,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
         public void AddEntity_WhenTileIsObstacle_ReturnsFalse()
         {
             var position = new Vector2Int(1, 1);
-            var entity = new TestEntity(health: 10, energy: 5);
+            var entity = new TestEntity();
 
             AddObstacleTile(position);
 
@@ -75,8 +75,8 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
         public void AddEntity_WhenPositionIsOccupied_ReturnsFalse()
         {
             var position = new Vector2Int(1, 1);
-            var firstEntity = new TestEntity(health: 10, energy: 5);
-            var secondEntity = new TestEntity(health: 20, energy: 7);
+            var firstEntity = new TestEntity();
+            var secondEntity = new TestEntity();
 
             AddFreeTile(position);
             _worldEditor.TryAddEntity(firstEntity, position);
@@ -93,7 +93,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
         {
             var start = new Vector2Int(1, 1);
             var target = new Vector2Int(2, 1);
-            var entity = new TestEntity(health: 10, energy: 5);
+            var entity = new TestEntity();
 
             AddFreeTile(start);
             AddFreeTile(target);
@@ -112,7 +112,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
         public void MoveEntity_WhenEntityDoesNotExist_ReturnsFalse()
         {
             var target = new Vector2Int(2, 1);
-            var entity = new TestEntity(health: 10, energy: 5);
+            var entity = new TestEntity();
 
             AddFreeTile(target);
 
@@ -127,7 +127,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
         {
             var start = new Vector2Int(1, 1);
             var target = new Vector2Int(99, 99);
-            var entity = new TestEntity(health: 10, energy: 5);
+            var entity = new TestEntity();
 
             AddFreeTile(start);
             _worldEditor.TryAddEntity(entity, start);
@@ -143,7 +143,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
         {
             var start = new Vector2Int(1, 1);
             var target = new Vector2Int(2, 1);
-            var entity = new TestEntity(health: 10, energy: 5);
+            var entity = new TestEntity();
 
             AddFreeTile(start);
             AddObstacleTile(target);
@@ -161,8 +161,8 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
             var firstPosition = new Vector2Int(1, 1);
             var secondPosition = new Vector2Int(2, 1);
 
-            var firstEntity = new TestEntity(health: 10, energy: 5);
-            var secondEntity = new TestEntity(health: 20, energy: 7);
+            var firstEntity = new TestEntity();
+            var secondEntity = new TestEntity();
 
             AddFreeTile(firstPosition);
             AddFreeTile(secondPosition);
@@ -204,14 +204,9 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
 
         private sealed class TestEntity : IEntityView
         {
-            public int Health { get; }
-            public int Energy { get; }
+            IHealthView IEntityView.Health => throw new System.NotImplementedException();
 
-            public TestEntity(int health, int energy)
-            {
-                Health = health;
-                Energy = energy;
-            }
+            IEnergyView IEntityView.Energy => throw new System.NotImplementedException();
         }
     }
 }

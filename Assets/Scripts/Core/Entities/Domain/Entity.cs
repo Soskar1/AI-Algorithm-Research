@@ -4,23 +4,22 @@ namespace AiAlgorithmsResearch.Core.Entities.Domain
 {
     internal sealed class Entity : IEntityView
     {
-        public int Health { get; private set; }
-        public int Energy { get; private set; }
+        private readonly Health _health;
+        private readonly Energy _energy;
 
-        public Entity(int health, int energy)
+        public IHealthView Health => _health;
+        public IEnergyView Energy => _energy;
+
+        public Entity(Health health, Energy energy)
         {
-            Health = health;
-            Energy = energy;
+            _health = health;
+            _energy = energy;
         }
 
-        public void ChangeHealth(int amount)
-        {
-            Health += amount;
-        }
+        public void TakeDamage(int amount) => _health.TakeDamage(amount);
+        public void Heal(int amount) => _health.Heal(amount);
 
-        public void ChangeEnergy(int amount)
-        {
-            Energy += amount;
-        }
+        public bool TrySpendEnergy(int amount) => _energy.TrySpend(amount);
+        public void RegenerateEnergy() => _energy.Regenerate();
     }
 }
