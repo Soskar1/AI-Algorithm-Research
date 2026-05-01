@@ -20,9 +20,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             return action switch
             {
                 WaitAction => 0,
+                MoveAction moveAction => GetMoveCost(moveAction),
                 AttackAction => 2,
                 TeleportAction => 2,
-                MoveAction moveAction => GetMoveCost(moveAction),
+                HealAction => 2,
                 _ => throw new ArgumentOutOfRangeException(nameof(action))
             };
         }

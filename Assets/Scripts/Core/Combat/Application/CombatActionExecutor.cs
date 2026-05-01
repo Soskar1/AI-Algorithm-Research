@@ -56,6 +56,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
                 MoveAction moveAction => CanExecuteMove(moveAction),
                 AttackAction attackAction => CanExecuteAttack(attackAction),
                 TeleportAction teleportAction => CanExecuteTeleport(teleportAction),
+                HealAction healAction => CanExecuteHeal(healAction),
                 _ => false
             };
         }
@@ -68,6 +69,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
                 MoveAction moveAction => ApplyMove(moveAction),
                 AttackAction attackAction => ApplyAttack(attackAction),
                 TeleportAction teleportAction => ApplyTeleport(teleportAction),
+                HealAction healAction => ApplyHeal(healAction),
                 _ => false
             };
         }
@@ -95,6 +97,11 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             return _worldView.TryGetEntityPosition(action.Actor, out _);
         }
 
+        private bool CanExecuteHeal(HealAction action)
+        {
+            return action.Actor.Health.Current < action.Actor.Health.Max;
+        }
+
         private bool ApplyMove(MoveAction action)
         {
             return _worldEditor.TryMoveEntity(action.Actor, action.TargetPosition);
@@ -118,10 +125,16 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             if (!moved)
                 return false;
 
-            _cooldownEditor.PutOnCooldown(
-                action.Actor,
-                CombatActionIds.Teleport,
-                turns: 4);
+            _cooldownEditor.PutOnCooldown(action.Actor, CombatActionIds.Teleport, turns: 4);
+
+            return true;
+        }
+
+        private bool ApplyHeal(HealAction action)
+        {
+            _healthEditor.Heal(action.Actor, action.Amount);
+
+            _cooldownEditor.PutOnCooldown(action.Actor, CombatActionIds.Heal, turns: 3);
 
             return true;
         }
