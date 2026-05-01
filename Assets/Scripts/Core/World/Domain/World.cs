@@ -61,5 +61,19 @@ namespace AiAlgorithmsResearch.Core.Worlds.Domain
         {
             return Map.TryGetNode(position, out readonlyNode);
         }
+
+        public bool TryGetEntityPosition(IEntityView entity, out Vector2Int position)
+        {
+            var worldEntity = _entities.FirstOrDefault(worldEntity => ReferenceEquals(worldEntity.Entity, entity));
+
+            if (worldEntity == null)
+            {
+                position = default;
+                return false;
+            }
+
+            position = worldEntity.Position;
+            return true;
+        }
     }
 }
