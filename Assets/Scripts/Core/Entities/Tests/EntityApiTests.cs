@@ -14,7 +14,7 @@ namespace AiAlgorithmsResearch.Core.Entities.Tests
         [SetUp]
         public void SetUp()
         {
-            _entity = new Entity(new Health(max: 100), new Energy(max: 10, regenerationPerTurn: 3), 1);
+            _entity = new Entity(new Health(max: 100), new Energy(max: 10, regenerationPerTurn: 3), 1, 2);
 
             _energyEditor = new EntityEnergyEditor();
             _healthEditor = new EntityHealthEditor();
@@ -31,6 +31,7 @@ namespace AiAlgorithmsResearch.Core.Entities.Tests
             Assert.AreEqual(3, _entity.Energy.RegenerationPerTurn);
 
             Assert.AreEqual(1, _entity.Speed);
+            Assert.AreEqual(2, _entity.Strength);
         }
 
         [Test]
