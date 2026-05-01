@@ -4,5 +4,6 @@ namespace AiAlgorithmsResearch.Core.Entities.Api
     {
         IHealthView Health { get; }
         IEnergyView Energy { get; }
+        public int Speed { get; }
     }
 }

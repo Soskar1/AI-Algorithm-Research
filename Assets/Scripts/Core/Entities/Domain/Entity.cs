@@ -6,14 +6,17 @@ namespace AiAlgorithmsResearch.Core.Entities.Domain
     {
         private readonly Health _health;
         private readonly Energy _energy;
+        public int Speed { get; }
 
         public IHealthView Health => _health;
         public IEnergyView Energy => _energy;
 
-        public Entity(Health health, Energy energy)
+
+        public Entity(Health health, Energy energy, int speed)
         {
             _health = health;
             _energy = energy;
+            Speed = speed;
         }
 
         public void TakeDamage(int amount) => _health.TakeDamage(amount);

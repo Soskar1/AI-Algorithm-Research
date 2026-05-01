@@ -204,6 +204,8 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
 
         private sealed class TestEntity : IEntityView
         {
+            public int Speed => throw new System.NotImplementedException();
+
             IHealthView IEntityView.Health => throw new System.NotImplementedException();
 
             IEnergyView IEntityView.Energy => throw new System.NotImplementedException();
