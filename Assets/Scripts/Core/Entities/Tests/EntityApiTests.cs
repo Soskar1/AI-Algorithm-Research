@@ -14,14 +14,22 @@ namespace AiAlgorithmsResearch.Core.Entities.Tests
         [SetUp]
         public void SetUp()
         {
-            _entity = new Entity(new Health(max: 100), new Energy(max: 10, regenerationPerTurn: 3), 1, 2);
+            IEntityFactory entityFactory = new EntityFactory();
+
+            _entity = entityFactory.CreateEntity(
+                new EntityDefinition(
+                    maxHealth: 100,
+                    maxEnergy: 10,
+                    energyRegenerationPerTurn: 3,
+                    speed: 1,
+                    strength: 2));
 
             _energyEditor = new EntityEnergyEditor();
             _healthEditor = new EntityHealthEditor();
         }
 
         [Test]
-        public void Entity_WhenCreated_HasFullHealthAndEnergy()
+        public void Entity_WhenCreated_HasExpectedStats()
         {
             Assert.AreEqual(100, _entity.Health.Current);
             Assert.AreEqual(100, _entity.Health.Max);
@@ -120,13 +128,15 @@ namespace AiAlgorithmsResearch.Core.Entities.Tests
         [Test]
         public void DealDamage_WhenAmountIsNegative_Throws()
         {
-            Assert.Throws<System.ArgumentOutOfRangeException>(() => _healthEditor.DealDamage(_entity, -1));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() =>
+                _healthEditor.DealDamage(_entity, -1));
         }
 
         [Test]
         public void Heal_WhenAmountIsNegative_Throws()
         {
-            Assert.Throws<System.ArgumentOutOfRangeException>(() => _healthEditor.Heal(_entity, -1));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() =>
+                _healthEditor.Heal(_entity, -1));
         }
     }
 }

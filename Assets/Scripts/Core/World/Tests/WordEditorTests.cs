@@ -208,6 +208,8 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
 
             public int Strength => throw new System.NotImplementedException();
 
+            public Entities.Api.EntityId Id => throw new System.NotImplementedException();
+
             IHealthView IEntityView.Health => throw new System.NotImplementedException();
 
             IEnergyView IEntityView.Energy => throw new System.NotImplementedException();
