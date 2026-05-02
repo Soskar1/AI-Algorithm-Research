@@ -8,7 +8,7 @@ namespace AiAlgorithmsResearch.Core.Maps.Api
 {
     public static class MapInstaller
     {
-        public static ContainerBuilder Install(this ContainerBuilder containerBuilder)
+        public static ContainerBuilder InstallMaps(this ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterType(typeof(Map), Lifetime.Singleton, Resolution.Lazy);
             containerBuilder.RegisterFactory<IReadOnlyTileMap>(container => container.Resolve<Map>(), Lifetime.Singleton, Resolution.Lazy);

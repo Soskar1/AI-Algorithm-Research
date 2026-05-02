@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using AiAlgorithmsResearch.Core.Ai.Api;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Matches.Api;
 using AiAlgorithmsResearch.Core.Matches.Domain;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AiAlgorithmsResearch.Core.Matches.Application
 {
@@ -12,8 +14,12 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
         private readonly IActionCooldownEditor _cooldownEditor;
         private readonly IEntityEnergyEditor _energyEditor;
         private readonly IStunStatusEditor _stunStatusEditor;
+        private readonly ICombatActionProvider _actionProvider;
+        private readonly ICombatActionExecutor _actionExecutor;
         private readonly TeamId _teamA;
         private readonly TeamId _teamB;
+
+        private IReadOnlyDictionary<TeamId, ICombatAgent> _agentsByTeam;
 
         private Match _match;
 
@@ -23,7 +29,8 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             IBattleInitializer battleInitializer,
             IActionCooldownEditor cooldownEditor,
             IEntityEnergyEditor energyEditor,
-            IStunStatusEditor stunEditor
+            IStunStatusEditor stunEditor,
+            ICombatActionExecutor combatActionExecutor
             )
         {
             _teamA = teamA;
@@ -32,16 +39,19 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             _cooldownEditor = cooldownEditor;
             _energyEditor = energyEditor;
             _stunStatusEditor = stunEditor;
+            _actionExecutor = combatActionExecutor;
         }
 
-        public IMatchView StartMatch(BattleInitializationRequest battleRequest)
+        public IMatchView StartMatch(MatchInitializationRequest request)
         {
-            var battle = _battleInitializer.StartBattle(battleRequest);
+            var battle = _battleInitializer.StartBattle(request.BattleRequest);
 
             if (battle == null)
             {
                 return null;
             }
+
+            _agentsByTeam = request.AgentsByTeam;
 
             _match = new Match();
             _match.Start(battle);
@@ -52,7 +62,9 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
         public void Tick()
         {
             if (_match == null || _match.State != MatchState.Running)
+            {
                 return;
+            }
 
             var current = _match.CurrentParticipant;
 
@@ -69,12 +81,29 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             // 1. ask AI agent for action
             // 2. execute action
 
+            if (!_agentsByTeam.TryGetValue(current.TeamId, out var agent))
+            {
+                return;
+            }
+
+            var actions = _actionProvider.GetAvailableActions(_match.Battle, current);
+
+            var combatAgentContext = new CombatAgentContext(current.Entity, actions);
+            var action = agent.ChooseAction(combatAgentContext);
+
+            _actionExecutor.TryExecute(action);
+
             CheckWinCondition();
 
             if (_match.State == MatchState.Running)
             {
                 _match.NextTurn();
             }
+        }
+
+        private bool TryGetAgent(TeamId teamId, out ICombatAgent agent)
+        {
+            return _agentsByTeam.TryGetValue(teamId, out agent);
         }
 
         private void CheckWinCondition()
