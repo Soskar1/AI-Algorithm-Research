@@ -1,10 +1,11 @@
 ﻿using AiAlgorithmsResearch.Core.Maps.Api;
+using AiAlgorithmsResearch.Core.Worlds.Api;
 using AiAlgorithmsResearch.Core.Worlds.Domain;
 using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Worlds.Application
 {
-    internal sealed class WorldGenerator
+    internal sealed class WorldGenerator : IWorldGenerator
     {
         private readonly World _world;
 
@@ -13,7 +14,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Application
             _world = world;
         }
 
-        public void GenerateRectangle(int width, int height)
+        public void Generate(int width, int height)
         {
             for (var x = 0; x < width; x++)
             {
