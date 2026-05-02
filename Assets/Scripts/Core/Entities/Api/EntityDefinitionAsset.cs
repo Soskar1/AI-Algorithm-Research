@@ -1,10 +1,9 @@
-﻿using AiAlgorithmsResearch.Core.Entities.Api;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace AiAlgorithmsResearch.Core.Entities.Infrastructure
+namespace AiAlgorithmsResearch.Core.Entities.Api
 {
     [CreateAssetMenu(menuName = "Research/Entities/Entity Definition")]
-    internal class EntityDefinitionAsset : ScriptableObject
+    public class EntityDefinitionAsset : ScriptableObject
     {
         [SerializeField] private int _maxHealth = 100;
         [SerializeField] private int _maxEnergy = 10;

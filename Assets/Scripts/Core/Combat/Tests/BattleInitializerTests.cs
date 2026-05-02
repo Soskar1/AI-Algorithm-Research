@@ -52,7 +52,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var request = new BattleInitializationRequest(
                 new[]
                 {
-                    new BattleParticipantSetup(entity, position, TeamA)
+                    new BattleParticipantSetup(entity, position, TeamA, null)
                 });
 
             var battle = _battleInitializer.StartBattle(request);
@@ -75,7 +75,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var request = new BattleInitializationRequest(
                 new[]
                 {
-                    new BattleParticipantSetup(entity, blockedPosition, TeamA)
+                    new BattleParticipantSetup(entity, blockedPosition, TeamA, null)
                 });
 
             var battle = _battleInitializer.StartBattle(request);
@@ -101,8 +101,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var request = new BattleInitializationRequest(
                 new[]
                 {
-                    new BattleParticipantSetup(slowEntity, slowPosition, TeamA),
-                    new BattleParticipantSetup(fastEntity, fastPosition, TeamB)
+                    new BattleParticipantSetup(slowEntity, slowPosition, TeamA, null),
+                    new BattleParticipantSetup(fastEntity, fastPosition, TeamB, null)
                 });
 
             var battle = _battleInitializer.StartBattle(request);
@@ -134,8 +134,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var request = new BattleInitializationRequest(
                 new[]
                 {
-                    new BattleParticipantSetup(firstEntity, position, TeamA),
-                    new BattleParticipantSetup(secondEntity, position, TeamB)
+                    new BattleParticipantSetup(firstEntity, position, TeamA, null),
+                    new BattleParticipantSetup(secondEntity, position, TeamB, null)
                 });
 
             var battle = _battleInitializer.StartBattle(request);

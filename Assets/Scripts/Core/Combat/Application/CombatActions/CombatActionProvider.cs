@@ -1,20 +1,17 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
-using AiAlgorithmsResearch.Core.Maps.Api;
+using AiAlgorithmsResearch.Core.Combat.Domain;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Combat.Application
 {
     internal sealed class CombatActionProvider : ICombatActionProvider
     {
         private readonly IWorldView _worldView;
-        private readonly IActionCooldowns _cooldowns;
 
-        public CombatActionProvider(IWorldView worldView, IActionCooldowns cooldowns)
+        public CombatActionProvider(IWorldView worldView)
         {
             _worldView = worldView;
-            _cooldowns = cooldowns;
         }
 
         public IReadOnlyCollection<ICombatAction> GetAvailableActions(IBattle battle, IBattleParticipant participant)
@@ -25,104 +22,48 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
                 new WaitAction(actor)
             };
 
+            var possibleActions = GetActions(battle, participant);
+            actions.AddRange(possibleActions);
+
+            return actions;
+        }
+
+        private IEnumerable<ICombatAction> GetActions(IBattle battle, IBattleParticipant battleParticipant)
+        {
+            List<ICombatAction> combatActions = new();
+            foreach (var action in battleParticipant.ActionDefinitions)
+            {
+                var actions = GetActions(battle, battleParticipant, action);
+                combatActions.AddRange(actions);
+            }
+
+            return combatActions;
+        }
+
+        private IEnumerable<ICombatAction> GetActions(IBattle battle, IBattleParticipant battleParticipant, ICombatActionDefinition actionDefinition)
+        {
             // Add other actions later:
             // Attack
             // Heal
             // Teleport
             // Stun
 
-            if (!_worldView.TryGetEntityPosition(actor, out var position))
-                return actions;
-
-            var moveActions = AddMoveActions(battle, participant, position);
-            actions.AddRange(moveActions);
-
-            return actions;
-        }
-
-        private IEnumerable<ICombatAction> AddMoveActions(IBattle battle, IBattleParticipant participant, Vector2Int position)
-        {
-            var actor = participant.Entity;
-
-            var closestEnemyPosition = TryGetClosestEnemyPosition(battle, participant, position);
-
-            if (closestEnemyPosition == null)
-                return null;
-
-            var currentDistance = GridDistance.Manhattan(position, closestEnemyPosition.Value);
-
-            var directions = new[]
+            switch (actionDefinition)
             {
-                new Vector2Int(1, 0),
-                new Vector2Int(-1, 0),
-                new Vector2Int(0, 1),
-                new Vector2Int(0, -1)
-            };
+                case MoveActionDefinition moveAction:
+                    if (!_worldView.TryGetEntityPosition(battleParticipant.Entity, out var position))
+                    {
+                        return null;
+                    }
 
-            var moveActions = new List<ICombatAction>();
-            foreach (var direction in directions)
-            {
-                var target = position + direction;
+                    return moveAction.GetMoveAction(_worldView, battle, battleParticipant, position);
 
-                if (!IsValidTile(target))
-                    continue;
+                case AttackActionDefinition attackAction:
+                    return null;
 
-                if (IsOccupied(target))
-                    continue;
-
-                var newDistance = GridDistance.Manhattan(target, closestEnemyPosition.Value);
-
-                if (newDistance >= currentDistance)
-                    continue;
-
-                moveActions.Add(new MoveAction(actor, target));
+                default:
+                    return null;
             }
-
-            return moveActions;
-        }
-
-        private Vector2Int? TryGetClosestEnemyPosition(IBattle battle, IBattleParticipant participant, Vector2Int actorPosition)
-        {
-            Vector2Int? closest = null;
-            var bestDistance = int.MaxValue;
-
-            foreach (var other in battle.TurnOrder)
-            {
-                if (other.TeamId == participant.TeamId)
-                    continue;
-
-                if (!_worldView.TryGetEntityPosition(other.Entity, out var enemyPosition))
-                    continue;
-
-                var distance = GridDistance.Manhattan(actorPosition, enemyPosition);
-
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    closest = enemyPosition;
-                }
-            }
-
-            return closest;
-        }
-
-        private bool IsValidTile(Vector2Int position)
-        {
-            if (!_worldView.Map.TryGetNode(position, out var node))
-                return false;
-
-            return node.Type != MapNodeType.Obstacle;
-        }
-
-        private bool IsOccupied(Vector2Int position)
-        {
-            foreach (var entity in _worldView.Entities)
-            {
-                if (entity.Position == position)
-                    return true;
-            }
-
-            return false;
         }
     }
 }

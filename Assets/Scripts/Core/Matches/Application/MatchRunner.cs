@@ -77,10 +77,6 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
                 return;
             }
 
-            // TODO:
-            // 1. ask AI agent for action
-            // 2. execute action
-
             if (!_agentsByTeam.TryGetValue(current.TeamId, out var agent))
             {
                 return;
@@ -99,11 +95,6 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             {
                 _match.NextTurn();
             }
-        }
-
-        private bool TryGetAgent(TeamId teamId, out ICombatAgent agent)
-        {
-            return _agentsByTeam.TryGetValue(teamId, out agent);
         }
 
         private void CheckWinCondition()

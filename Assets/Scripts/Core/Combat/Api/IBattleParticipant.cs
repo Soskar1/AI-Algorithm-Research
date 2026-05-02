@@ -1,4 +1,5 @@
 ﻿using AiAlgorithmsResearch.Core.Entities.Api;
+using System.Collections.Generic;
 
 namespace AiAlgorithmsResearch.Core.Combat.Api
 {
@@ -7,5 +8,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
         IEntityView Entity { get; }
         TeamId TeamId { get; }
         int Initiative { get; }
+        IReadOnlyCollection<ICombatActionDefinition> ActionDefinitions { get; }
     }
 }

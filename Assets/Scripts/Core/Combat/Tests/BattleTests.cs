@@ -19,8 +19,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
 
             var battle = new Battle(new List<BattleParticipant>
             {
-                new BattleParticipant(firstEntity, initiative: 20, TeamA),
-                new BattleParticipant(secondEntity, initiative: 10, TeamB)
+                new BattleParticipant(firstEntity, initiative: 20, TeamA, null),
+                new BattleParticipant(secondEntity, initiative: 10, TeamB, null)
             });
 
             Assert.AreSame(firstEntity, battle.Current.Entity);
@@ -35,8 +35,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
 
             var battle = new Battle(new List<BattleParticipant>
             {
-                new BattleParticipant(firstEntity, initiative: 20, TeamA),
-                new BattleParticipant(secondEntity, initiative: 10, TeamB)
+                new BattleParticipant(firstEntity, initiative: 20, TeamA, null),
+                new BattleParticipant(secondEntity, initiative: 10, TeamB, null)
             });
 
             battle.NextTurn();
@@ -53,8 +53,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
 
             var battle = new Battle(new List<BattleParticipant>
             {
-                new BattleParticipant(firstEntity, initiative: 20, TeamA),
-                new BattleParticipant(secondEntity, initiative: 10, TeamB)
+                new BattleParticipant(firstEntity, initiative: 20, TeamA, null),
+                new BattleParticipant(secondEntity, initiative: 10, TeamB, null)
             });
 
             battle.NextTurn();

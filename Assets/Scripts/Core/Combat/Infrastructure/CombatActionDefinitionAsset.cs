@@ -1,5 +1,4 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
-using AiAlgorithmsResearch.Core.Combat.Domain;
 using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Combat.Infrastructure

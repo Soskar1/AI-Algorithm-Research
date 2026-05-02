@@ -37,7 +37,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
                 .Select(participant => new BattleParticipant(
                     participant.Entity,
                     _initiativeRoller.Roll(participant.Entity),
-                    participant.TeamId))
+                    participant.TeamId,
+                    participant.ActionDefinitions))
                 .OrderByDescending(participant => participant.Initiative)
                 .ToList();
 
