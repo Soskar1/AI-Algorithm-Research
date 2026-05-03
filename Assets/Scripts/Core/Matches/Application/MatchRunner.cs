@@ -4,6 +4,7 @@ using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Matches.Api;
 using AiAlgorithmsResearch.Core.Matches.Domain;
 using AiAlgorithmsResearch.Core.Worlds.Api;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,16 +19,13 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
         private readonly ICombatActionExecutor _actionExecutor;
         private readonly IWorldView _worldView;
         private readonly IAiEngine _aiEngine;
-        private readonly TeamId _teamA;
-        private readonly TeamId _teamB;
-
-        private IReadOnlyDictionary<TeamId, ICombatAgent> _agentsByTeam;
 
         private Match _match;
+        private TeamId _teamA;
+        private TeamId _teamB;
+        private IReadOnlyDictionary<TeamId, ICombatAgent> _agentsByTeam;
 
         public MatchRunner(
-            TeamId teamA,
-            TeamId teamB,
             IBattleInitializer battleInitializer,
             IActionCooldownEditor cooldownEditor,
             IEntityEnergyEditor energyEditor,
@@ -37,8 +35,6 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             IAiEngine aiEngine
             )
         {
-            _teamA = teamA;
-            _teamB = teamB;
             _battleInitializer = battleInitializer;
             _cooldownEditor = cooldownEditor;
             _energyEditor = energyEditor;
@@ -58,6 +54,13 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             }
 
             _agentsByTeam = request.AgentsByTeam;
+            var teams = _agentsByTeam.Keys.ToList();
+            if (teams.Count != 2)
+            {
+                throw new Exception("Only two teams allowed");
+            }
+            _teamA = teams[0];
+            _teamB = teams[1];
 
             _match = new Match();
             _match.Start(battle);

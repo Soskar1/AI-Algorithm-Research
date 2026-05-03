@@ -2,6 +2,7 @@ using AiAlgorithmsResearch.Core.Ai.ApiS;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Maps.Api;
+using AiAlgorithmsResearch.Core.Matches.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using Reflex.Core;
 using UnityEngine;
@@ -17,7 +18,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 .InstallEntities()
                 .InstallWorlds()
                 .InstallCombat()
-                .InstallAi();
+                .InstallAi()
+                .InstallMatches();
         }
     }
 }
