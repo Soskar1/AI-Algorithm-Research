@@ -12,7 +12,7 @@ namespace AiAlgorithmsResearch.Core.Entities.Application
             var energy = new Energy(definition.MaxEnergy, definition.EnergyRegenerationPerTurn);
             var id = new EntityId(Guid.NewGuid());
 
-            return new Entity(id, health, energy, definition.Speed, definition.Strength);
+            return new Entity(id, health, energy, definition.Speed, definition.Strength, definition.DisplayName);
         }
     }
 }

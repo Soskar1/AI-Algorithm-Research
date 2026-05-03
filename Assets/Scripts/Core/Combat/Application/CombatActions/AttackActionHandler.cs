@@ -1,7 +1,6 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
-using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Combat.Application
 {
@@ -45,8 +44,9 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 
             _healthEditor.DealDamage(attack.Target, damage);
 
-            var targetLog = _combatLogger.GetEntityRepresentation(attack.Target);
-            _combatLogger.Log(action.Actor, $"is dealing {damage} damage to {targetLog}. {attack.Target.Id} Health: {attack.Target.Health.Current}");
+            var targetWithPositionLog = _combatLogger.GetEntityRepresentation(attack.Target);
+            var targetId = _combatLogger.GetEntityIdString(attack.Target);
+            _combatLogger.Log(action.Actor, $"is dealing {damage} damage to {targetWithPositionLog}. {targetId} Health: {attack.Target.Health.Current}");
 
             return true;
         }

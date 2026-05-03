@@ -71,6 +71,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             public IEnergyView Energy => null;
             public int Speed => 0;
             public int Strength => 0;
+
+            public string DisplayName => throw new System.NotImplementedException();
         }
     }
 }

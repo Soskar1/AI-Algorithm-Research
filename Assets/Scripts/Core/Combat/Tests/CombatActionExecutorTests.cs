@@ -278,6 +278,11 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
 
         private class MockCombatLogger : ICombatLogger
         {
+            public string GetEntityIdString(IEntityView entity)
+            {
+                return string.Empty;
+            }
+
             public string GetEntityRepresentation(IEntityView entity)
             {
                 return string.Empty;

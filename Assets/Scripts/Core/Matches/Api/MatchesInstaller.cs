@@ -20,7 +20,8 @@ namespace AiAlgorithmsResearch.Core.Matches.Api
                     builder.Resolve<IStunStatusEditor>(),
                     builder.Resolve<ICombatActionExecutor>(),
                     builder.Resolve<IWorldView>(),
-                    builder.Resolve<IAiEngine>()
+                    builder.Resolve<IAiEngine>(),
+                    builder.Resolve<ICombatLogger>()
                     ), Lifetime.Singleton, Resolution.Lazy);
 
             return builder;

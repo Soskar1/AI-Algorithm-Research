@@ -75,7 +75,6 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 return;
 
             _matchRunner.Tick();
-            Debug.Log("Running");
 
             if (_matchView.State == MatchState.Finished)
             {

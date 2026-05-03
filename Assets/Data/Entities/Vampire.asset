@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3ea7cb263be7164c9e3c69536f04227, type: 3}
   m_Name: Vampire
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Entities::AiAlgorithmsResearch.Core.Entities.Api.EntityDefinitionAsset
+  _id: Vampire
+  _displayName: Vampire
   _maxHealth: 5
   _maxEnergy: 5
   _energyRegenPerTurn: 2

@@ -25,7 +25,15 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             if (!_worldView.TryGetEntityPosition(entity, out var entityPosition))
                 return string.Empty;
 
-            return $"{entity.Id}, ({entityPosition})";
+            var entityId = GetEntityIdString(entity);
+
+            return $"{entityId}, ({entityPosition})";
+        }
+
+        public string GetEntityIdString(IEntityView entity)
+        {
+            var id = entity.Id.ToString().Substring(0, 4);
+            return $"{entity.DisplayName}-{id}";
         }
     }
 }

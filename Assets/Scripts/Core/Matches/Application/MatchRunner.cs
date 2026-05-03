@@ -6,7 +6,10 @@ using AiAlgorithmsResearch.Core.Matches.Domain;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace AiAlgorithmsResearch.Core.Matches.Application
 {
@@ -19,11 +22,14 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
         private readonly ICombatActionExecutor _actionExecutor;
         private readonly IWorldView _worldView;
         private readonly IAiEngine _aiEngine;
+        private readonly ICombatLogger _combatLogger;
 
         private Match _match;
         private TeamId _teamA;
         private TeamId _teamB;
         private IReadOnlyDictionary<TeamId, ICombatAgent> _agentsByTeam;
+
+        private int _currentTurn = 0;
 
         public MatchRunner(
             IBattleInitializer battleInitializer,
@@ -32,7 +38,8 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             IStunStatusEditor stunEditor,
             ICombatActionExecutor combatActionExecutor,
             IWorldView worldView,
-            IAiEngine aiEngine
+            IAiEngine aiEngine,
+            ICombatLogger combatLogger
             )
         {
             _battleInitializer = battleInitializer;
@@ -42,6 +49,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             _actionExecutor = combatActionExecutor;
             _worldView = worldView;
             _aiEngine = aiEngine;
+            _combatLogger = combatLogger;
         }
 
         public IMatchView StartMatch(MatchInitializationRequest request)
@@ -77,17 +85,24 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
 
             var current = _match.CurrentParticipant;
 
+            var entityLog = _combatLogger.GetEntityRepresentation(current.Entity);
+            Debug.Log($"[{_currentTurn}] {entityLog} started it's turn");
+
             _cooldownEditor.TickCooldowns(current.Entity);
             _energyEditor.RegenerateEnergy(current.Entity);
 
             if (_stunStatusEditor.ConsumeStun(current.Entity))
             {
+                _combatLogger.Log(current.Entity, "skipping it's turn due to stun status");
                 _match.NextTurn();
+                ++_currentTurn;
                 return;
             }
 
             if (!_agentsByTeam.TryGetValue(current.TeamId, out var agent))
             {
+                Debug.LogError($"Agent for {current.TeamId.Value} team is not found!");
+                ++_currentTurn;
                 return;
             }
 
@@ -100,12 +115,24 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             var combatAgentContext = new CombatAgentContext(current, _worldView, _match.Battle);
             var action = _aiEngine.ProduceMove(agent, combatAgentContext);
 
-            _actionExecutor.TryExecute(action);
+            var executionResult = _actionExecutor.TryExecute(action);
+
+            if (!executionResult)
+            {
+                Debug.LogError($"[{_currentTurn}] {entityLog} failed to execute {action.Id.Value} action...");
+            }
+            else
+            {
+                entityLog = _combatLogger.GetEntityRepresentation(current.Entity);
+                Debug.Log($"[{_currentTurn}] {entityLog} executed it's action. Checking win condition...");
+            }
 
             CheckWinCondition();
 
             if (_match.State == MatchState.Running)
             {
+                Debug.Log("No winner!");
+                ++_currentTurn;
                 _match.NextTurn();
             }
         }

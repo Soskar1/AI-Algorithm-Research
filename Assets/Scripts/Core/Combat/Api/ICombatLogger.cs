@@ -6,5 +6,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
     {
         void Log(IEntityView entity, string text);
         string GetEntityRepresentation(IEntityView entity);
+        string GetEntityIdString(IEntityView entity);
     }
 }

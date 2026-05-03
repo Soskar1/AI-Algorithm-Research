@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3ea7cb263be7164c9e3c69536f04227, type: 3}
   m_Name: SkeletonWarrior
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Entities::AiAlgorithmsResearch.Core.Entities.Api.EntityDefinitionAsset
+  _id: SkeletonWarrior
+  _displayName: Skeleton Warrior
   _maxHealth: 7
   _maxEnergy: 5
   _energyRegenPerTurn: 2

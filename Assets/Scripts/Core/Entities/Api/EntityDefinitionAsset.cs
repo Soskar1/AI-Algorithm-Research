@@ -6,6 +6,7 @@ namespace AiAlgorithmsResearch.Core.Entities.Api
     public class EntityDefinitionAsset : ScriptableObject
     {
         [SerializeField] private string _id;
+        [SerializeField] private string _displayName;
         [SerializeField] private int _maxHealth = 100;
         [SerializeField] private int _maxEnergy = 10;
         [SerializeField] private int _energyRegenPerTurn = 2;
@@ -15,7 +16,7 @@ namespace AiAlgorithmsResearch.Core.Entities.Api
 
         public EntityDefinition ToDefinition()
         {
-            return new EntityDefinition(_maxHealth, _maxEnergy, _energyRegenPerTurn, _speed, _strength);
+            return new EntityDefinition(_maxHealth, _maxEnergy, _energyRegenPerTurn, _speed, _strength, _displayName);
         }
     }
 }

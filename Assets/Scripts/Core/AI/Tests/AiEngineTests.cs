@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AiAlgorithmsResearch.Core.Ai.Api;
+﻿using AiAlgorithmsResearch.Core.Ai.Api;
 using AiAlgorithmsResearch.Core.Ai.Application;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Combat.Application;
+using AiAlgorithmsResearch.Core.Combat.Domain;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Entities.Application;
 using AiAlgorithmsResearch.Core.Maps.Api;
@@ -13,6 +12,8 @@ using AiAlgorithmsResearch.Core.Worlds.Api;
 using AiAlgorithmsResearch.Core.Worlds.Application;
 using AiAlgorithmsResearch.Core.Worlds.Domain;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Ai.Tests
@@ -25,6 +26,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
         private IEntityFactory _entityFactory;
         private IBattleInitializer _battleInitializer;
         private IAiEngine _aiEngine;
+        private IActionCooldowns _actionCooldowns;
 
         [SetUp]
         public void SetUp()
@@ -40,6 +42,8 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
             _entityFactory = new EntityFactory();
             _battleInitializer = new BattleInitializer(_worldEditor, new FakeInitiativeRoller());
 
+            _actionCooldowns = new ActionCooldowns();
+
             var candidateProvider = new CombatActionCandidateProvider(
                 new ICombatActionCandidateGenerator[]
                 {
@@ -48,7 +52,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
                     new HealActionCandidateGenerator(),
                     new TeleportActionCandidateGenerator(),
                     new StunActionCandidateGenerator()
-                });
+                }, _actionCooldowns);
 
             _aiEngine = new AiEngine(candidateProvider);
         }

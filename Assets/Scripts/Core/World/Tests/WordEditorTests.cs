@@ -210,6 +210,8 @@ namespace AiAlgorithmsResearch.Core.Worlds.Tests
 
             public Entities.Api.EntityId Id => throw new System.NotImplementedException();
 
+            public string DisplayName => throw new System.NotImplementedException();
+
             IHealthView IEntityView.Health => throw new System.NotImplementedException();
 
             IEnergyView IEntityView.Energy => throw new System.NotImplementedException();
