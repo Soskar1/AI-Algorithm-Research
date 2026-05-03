@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Combat.Infrastructure
 {
-    [CreateAssetMenu(menuName = "Research/Combat/Move Action")]
-    internal class MoveCombatActionDefinitionAsset : CombatActionDefinitionAsset
+    [CreateAssetMenu(menuName = "Research/Combat/Teleport Action")]
+    internal class TeleportCombatActionDefinitionAsset : CombatActionDefinitionAsset
     {
         public override ICombatActionDefinition ToCombatActionDefinition()
         {
-            return new MoveActionDefinition();
+            return new TeleportActionDefinition();
         }
     }
 }

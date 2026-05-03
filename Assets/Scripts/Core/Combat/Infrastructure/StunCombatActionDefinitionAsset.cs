@@ -3,15 +3,14 @@ using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Combat.Infrastructure
 {
-    [CreateAssetMenu(menuName = "Research/Combat/Attack Action")]
-    internal class AttackCombatActionDefinitionAsset : CombatActionDefinitionAsset
+    [CreateAssetMenu(menuName = "Research/Combat/Stun Action")]
+    internal class StunCombatActionDefinitionAsset : CombatActionDefinitionAsset
     {
-        [SerializeField] private int _baseDamage;
         [SerializeField] private int _range;
 
         public override ICombatActionDefinition ToCombatActionDefinition()
         {
-            return new AttackActionDefinition(_baseDamage, _range);
+            return new StunActionDefinition(_range);
         }
     }
 }
