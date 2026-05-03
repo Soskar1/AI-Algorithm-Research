@@ -6,7 +6,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
     {
         public ICombatAgent CreateRandomAgent()
         {
-            return new RandomCombatAgent(new UnityRandomNumberGenerator());
+            return new RandomCombatAgent();
         }
     }
 }
