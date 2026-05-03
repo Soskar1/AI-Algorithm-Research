@@ -1,8 +1,6 @@
-﻿using AiAlgorithmsResearch.Core.Combat.Api;
-
-namespace AiAlgorithmsResearch.Core.Combat.Domain
+﻿namespace AiAlgorithmsResearch.Core.Combat.Api
 {
-    internal class AttackActionDefinition : ICombatActionDefinition
+    public class AttackActionDefinition : ICombatActionDefinition
     {
         public CombatActionId Id => CombatActionIds.Attack;
 

@@ -1,8 +1,6 @@
-﻿using AiAlgorithmsResearch.Core.Combat.Api;
-
-namespace AiAlgorithmsResearch.Core.Combat.Domain
+﻿namespace AiAlgorithmsResearch.Core.Combat.Api
 {
-    internal sealed class HealActionDefinition : ICombatActionDefinition
+    public sealed class HealActionDefinition : ICombatActionDefinition
     {
         public CombatActionId Id => CombatActionIds.Heal;
 

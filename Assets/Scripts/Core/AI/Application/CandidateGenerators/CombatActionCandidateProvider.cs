@@ -1,0 +1,40 @@
+﻿using AiAlgorithmsResearch.Core.Ai.Api;
+using AiAlgorithmsResearch.Core.Combat.Api;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace AiAlgorithmsResearch.Core.AI.Application
+{
+    internal sealed class CombatActionCandidateProvider
+    {
+        private readonly Dictionary<CombatActionId, ICombatActionCandidateGenerator> _generators;
+
+        public CombatActionCandidateProvider(IEnumerable<ICombatActionCandidateGenerator> generators)
+        {
+            _generators = generators.ToDictionary(generator => generator.ActionId, generator => generator);
+        }
+
+        public IList<ICombatAction> GetCandidates(CombatAgentContext context)
+        {
+            var candidates = new List<ICombatAction>();
+
+            foreach (var definition in context.AvailableActions)
+            {
+                if (!_generators.TryGetValue(definition.Id, out var generator))
+                    continue;
+
+                var generated = generator.GetCandidates(definition, context);
+
+                if (generated == null)
+                    continue;
+
+                candidates.AddRange(generated);
+            }
+
+            if (candidates.Count == 0)
+                candidates.Add(new WaitAction(context.Actor));
+
+            return candidates;
+        }
+    }
+}

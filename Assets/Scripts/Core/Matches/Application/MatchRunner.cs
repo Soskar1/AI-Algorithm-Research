@@ -3,6 +3,7 @@ using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Matches.Api;
 using AiAlgorithmsResearch.Core.Matches.Domain;
+using AiAlgorithmsResearch.Core.Worlds.Api;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,8 +15,9 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
         private readonly IActionCooldownEditor _cooldownEditor;
         private readonly IEntityEnergyEditor _energyEditor;
         private readonly IStunStatusEditor _stunStatusEditor;
-        private readonly ICombatActionProvider _actionProvider;
         private readonly ICombatActionExecutor _actionExecutor;
+        private readonly IWorldView _worldView;
+        private readonly IAiEngine _aiEngine;
         private readonly TeamId _teamA;
         private readonly TeamId _teamB;
 
@@ -30,7 +32,9 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             IActionCooldownEditor cooldownEditor,
             IEntityEnergyEditor energyEditor,
             IStunStatusEditor stunEditor,
-            ICombatActionExecutor combatActionExecutor
+            ICombatActionExecutor combatActionExecutor,
+            IWorldView worldView,
+            IAiEngine aiEngine
             )
         {
             _teamA = teamA;
@@ -40,6 +44,8 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             _energyEditor = energyEditor;
             _stunStatusEditor = stunEditor;
             _actionExecutor = combatActionExecutor;
+            _worldView = worldView;
+            _aiEngine = aiEngine;
         }
 
         public IMatchView StartMatch(MatchInitializationRequest request)
@@ -82,10 +88,14 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
                 return;
             }
 
-            var actions = _actionProvider.GetAvailableActions(_match.Battle, current);
+            var actions = new List<ICombatActionDefinition>();
+            foreach (var actionDefinition in current.ActionDefinitions)
+            {
+                actions.Add(actionDefinition);
+            }
 
-            var combatAgentContext = new CombatAgentContext(current.Entity, actions);
-            var action = agent.ChooseAction(combatAgentContext);
+            var combatAgentContext = new CombatAgentContext(current.Entity, actions, _worldView, _match.Battle, current.TeamId);
+            var action = _aiEngine.ProduceMove(agent, combatAgentContext);
 
             _actionExecutor.TryExecute(action);
 

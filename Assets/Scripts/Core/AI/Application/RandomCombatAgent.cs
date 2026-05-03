@@ -1,6 +1,6 @@
-﻿using System.Linq;
-using AiAlgorithmsResearch.Core.Ai.Api;
+﻿using AiAlgorithmsResearch.Core.Ai.Api;
 using AiAlgorithmsResearch.Core.Combat.Api;
+using System.Collections.Generic;
 
 namespace AiAlgorithmsResearch.Core.Ai.Application
 {
@@ -13,16 +13,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             _random = random;
         }
 
-        public ICombatAction ChooseAction(CombatAgentContext context)
+        public ICombatAction ChooseAction(IList<ICombatAction> actions)
         {
-            if (context.AvailableActions == null || context.AvailableActions.Count == 0)
-            {
-                return new WaitAction(context.Actor);
-            }
+            var index = _random.Range(0, actions.Count);
 
-            var index = _random.Range(0, context.AvailableActions.Count);
-
-            return context.AvailableActions.ElementAt(index);
+            return actions[index];
         }
     }
 }
