@@ -23,6 +23,8 @@ namespace AiAlgorithmsResearch.Core.Ai.Api
                     builder.Resolve<CombatActionCandidateProvider>()),
                 Lifetime.Singleton, Resolution.Lazy);
 
+            builder.RegisterFactory<ICombatAgentFactory>(builder => new CombatAgentFactory(), Lifetime.Singleton, Resolution.Lazy);
+
             return builder;
         }
     }
