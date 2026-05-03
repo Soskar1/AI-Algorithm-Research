@@ -4,7 +4,7 @@ using Reflex.Core;
 using Reflex.Enums;
 using System.Collections.Generic;
 
-namespace AiAlgorithmsResearch.Core.Ai.ApiS
+namespace AiAlgorithmsResearch.Core.Ai.Api
 {
     public static class AiInstaller
     {

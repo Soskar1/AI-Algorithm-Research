@@ -1,4 +1,4 @@
-using AiAlgorithmsResearch.Core.Ai.ApiS;
+using AiAlgorithmsResearch.Core.Ai.Api;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Maps.Api;
