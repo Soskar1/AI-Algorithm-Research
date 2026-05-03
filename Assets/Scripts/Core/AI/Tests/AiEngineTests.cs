@@ -83,8 +83,9 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
             var actorParticipant = FindParticipant(battle, actor);
             var context = new CombatAgentContext(actorParticipant, _worldView, battle);
 
-            var action = _aiEngine.ProduceMove(new FirstActionAgent(), context);
-
+            var plan = _aiEngine.ProduceMove(new FirstActionAgent(), context);
+            var action = plan.Actions[0];
+            
             Assert.IsInstanceOf<AttackAction>(action);
 
             var attack = (AttackAction)action;
@@ -114,10 +115,10 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
             var actorParticipant = FindParticipant(battle, actor);
             var context = new CombatAgentContext(actorParticipant, _worldView, battle);
 
-            var action = _aiEngine.ProduceMove(new FirstActionAgent(), context);
+            var plan = _aiEngine.ProduceMove(new FirstActionAgent(), context);
 
-            Assert.IsInstanceOf<WaitAction>(action);
-            Assert.AreSame(actor, action.Actor);
+            Assert.IsInstanceOf<WaitAction>(plan.Actions[0]);
+            Assert.AreSame(actor, plan.Actions[0].Actor);
         }
 
         [Test]
@@ -213,9 +214,9 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
 
         private sealed class FirstActionAgent : ICombatAgent
         {
-            public ICombatAction ChooseAction(IList<ICombatAction> actions)
+            public CombatPlan ChoosePlan(IList<ICombatAction> actions)
             {
-                return actions[0];
+                return CombatPlan.Single(actions[0]);
             }
         }
 
@@ -223,10 +224,10 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
         {
             public IList<ICombatAction> ReceivedActions { get; private set; }
 
-            public ICombatAction ChooseAction(IList<ICombatAction> actions)
+            public CombatPlan ChoosePlan(IList<ICombatAction> actions)
             {
                 ReceivedActions = actions;
-                return actions[0];
+                return CombatPlan.Single(actions[0]);
             }
         }
     }

@@ -6,9 +6,7 @@ using AiAlgorithmsResearch.Core.Matches.Domain;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace AiAlgorithmsResearch.Core.Matches.Application
@@ -113,21 +111,28 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             }
 
             var combatAgentContext = new CombatAgentContext(current, _worldView, _match.Battle);
-            var action = _aiEngine.ProduceMove(agent, combatAgentContext);
+            var plan = _aiEngine.ProduceMove(agent, combatAgentContext);
 
-            var executionResult = _actionExecutor.TryExecute(action);
-
-            if (!executionResult)
+            foreach (var action in plan.Actions)
             {
-                Debug.LogError($"[{_currentTurn}] {entityLog} failed to execute {action.Id.Value} action...");
-            }
-            else
-            {
-                entityLog = _combatLogger.GetEntityRepresentation(current.Entity);
-                Debug.Log($"[{_currentTurn}] {entityLog} executed it's action. Checking win condition...");
-            }
+                var executionResult = _actionExecutor.TryExecute(action);
 
-            CheckWinCondition();
+                if (!executionResult)
+                {
+                    Debug.LogError($"[{_currentTurn}] {entityLog} failed to execute {action.Id.Value} action...");
+                }
+                else
+                {
+                    entityLog = _combatLogger.GetEntityRepresentation(current.Entity);
+                    Debug.Log($"[{_currentTurn}] {entityLog} executed it's action. Checking win condition...");
+                }
+
+                var matchEnded = CheckWinCondition();
+                if (matchEnded)
+                {
+                    break;
+                }
+            }
 
             if (_match.State == MatchState.Running)
             {
@@ -137,15 +142,16 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             }
         }
 
-        private void CheckWinCondition()
+        private bool CheckWinCondition()
         {
             var teamAAlive = IsTeamAlive(_teamA);
             var teamBAlive = IsTeamAlive(_teamB);
 
             if (teamAAlive && teamBAlive)
-                return;
+                return false;
 
             _match.Finish(teamAAlive ? MatchWinner.TeamA : MatchWinner.TeamB);
+            return true;
         }
 
         private bool IsTeamAlive(TeamId teamId)

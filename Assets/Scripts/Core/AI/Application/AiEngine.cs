@@ -1,5 +1,4 @@
 ﻿using AiAlgorithmsResearch.Core.Ai.Api;
-using AiAlgorithmsResearch.Core.Combat.Api;
 
 namespace AiAlgorithmsResearch.Core.Ai.Application
 {
@@ -12,10 +11,10 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             _actionProvider = actionProvider;
         }
 
-        public ICombatAction ProduceMove(ICombatAgent combatAgent, CombatAgentContext combatAgentContext)
+        public CombatPlan ProduceMove(ICombatAgent combatAgent, CombatAgentContext combatAgentContext)
         {
             var actionCandidates = _actionProvider.GetCandidates(combatAgentContext);
-            return combatAgent.ChooseAction(actionCandidates);
+            return combatAgent.ChoosePlan(actionCandidates);
         }
     }
 }
