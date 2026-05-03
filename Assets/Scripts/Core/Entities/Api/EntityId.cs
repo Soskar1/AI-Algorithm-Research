@@ -10,5 +10,10 @@ namespace AiAlgorithmsResearch.Core.Entities.Api
         {
             Value = value;
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

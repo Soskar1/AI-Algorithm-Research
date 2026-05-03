@@ -27,6 +27,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
             builder.RegisterFactory<IActionCooldowns>(builder => builder.Resolve<ActionCooldowns>(), Lifetime.Singleton, Resolution.Lazy);
             builder.RegisterFactory<IActionCooldownEditor>(builder => builder.Resolve<ActionCooldowns>(), Lifetime.Singleton, Resolution.Lazy);
 
+            builder.RegisterFactory<ICombatLogger>(builder => new CombatLogger(builder.Resolve<IWorldView>()), Lifetime.Singleton, Resolution.Lazy);
+
             builder.RegisterFactory<ICombatActionExecutor>(builder =>
             {
                 var worldView = builder.Resolve<IWorldView>();
@@ -36,16 +38,17 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
                 var energyEditor = builder.Resolve<IEntityEnergyEditor>();
                 var actionCooldowns = builder.Resolve<IActionCooldowns>();
                 var actionCooldownsEditor = builder.Resolve<IActionCooldownEditor>();
+                var combatLogger = builder.Resolve<ICombatLogger>();
 
                 return new CombatActionExecutor(
                     new Dictionary<CombatActionId, ICombatActionHandler>()
                     {
-                        [CombatActionIds.Wait] = new WaitActionHandler(),
-                        [CombatActionIds.Move] = new MoveActionHandler(worldView, worldEditor),
-                        [CombatActionIds.Attack] = new AttackActionHandler(worldView, healthEditor),
-                        [CombatActionIds.Teleport] = new TeleportActionHandler(worldView, worldEditor),
-                        [CombatActionIds.Heal] = new HealActionHandler(healthEditor),
-                        [CombatActionIds.Stun] = new StunActionHandler(worldView, stunStatusEditor)
+                        [CombatActionIds.Wait] = new WaitActionHandler(combatLogger),
+                        [CombatActionIds.Move] = new MoveActionHandler(worldView, worldEditor, combatLogger),
+                        [CombatActionIds.Attack] = new AttackActionHandler(worldView, healthEditor, combatLogger),
+                        [CombatActionIds.Teleport] = new TeleportActionHandler(worldView, worldEditor, combatLogger),
+                        [CombatActionIds.Heal] = new HealActionHandler(healthEditor, combatLogger),
+                        [CombatActionIds.Stun] = new StunActionHandler(worldView, stunStatusEditor, combatLogger)
                     }, energyEditor, actionCooldowns, actionCooldownsEditor);
             }, Lifetime.Singleton, Resolution.Lazy);
 

@@ -7,13 +7,15 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
     {
         private readonly IWorldView _worldView;
         private readonly IStunStatusEditor _stunStatusEditor;
+        private readonly ICombatLogger _combatLogger;
 
         public CombatActionId ActionId => CombatActionIds.Stun;
 
-        public StunActionHandler(IWorldView worldView, IStunStatusEditor stunStatusEditor)
+        public StunActionHandler(IWorldView worldView, IStunStatusEditor stunStatusEditor, ICombatLogger combatLogger)
         {
             _worldView = worldView;
             _stunStatusEditor = stunStatusEditor;
+            _combatLogger = combatLogger;
         }
 
         public bool CanExecute(ICombatAction action)
@@ -35,6 +37,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
         {
             var stun = (StunAction)action;
             _stunStatusEditor.StunForNextTurn(stun.Target);
+
+            var targetLog = _combatLogger.GetEntityRepresentation(stun.Target);
+            _combatLogger.Log(action.Actor, $"stunned {targetLog}.");
+
             return true;
         }
 

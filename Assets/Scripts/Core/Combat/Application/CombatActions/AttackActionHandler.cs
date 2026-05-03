@@ -1,6 +1,7 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
+using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Combat.Application
 {
@@ -8,13 +9,15 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
     {
         private readonly IWorldView _worldView;
         private readonly IEntityHealthEditor _healthEditor;
+        private readonly ICombatLogger _combatLogger;
 
         public CombatActionId ActionId => CombatActionIds.Attack;
 
-        public AttackActionHandler(IWorldView worldView, IEntityHealthEditor healthEditor)
+        public AttackActionHandler(IWorldView worldView, IEntityHealthEditor healthEditor, ICombatLogger combatLogger)
         {
             _worldView = worldView;
             _healthEditor = healthEditor;
+            _combatLogger = combatLogger;
         }
 
         public bool CanExecute(ICombatAction action)
@@ -41,6 +44,9 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             var damage = attack.BaseDamage + attack.Actor.Strength;
 
             _healthEditor.DealDamage(attack.Target, damage);
+
+            var targetLog = _combatLogger.GetEntityRepresentation(attack.Target);
+            _combatLogger.Log(action.Actor, $"is dealing {damage} damage to {targetLog}. {attack.Target.Id} Health: {attack.Target.Health.Current}");
 
             return true;
         }

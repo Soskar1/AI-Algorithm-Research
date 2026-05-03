@@ -54,14 +54,16 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             _stunStatus = stunStatus;
             _stunStatusEditor = stunStatus;
 
+            var logger = new MockCombatLogger();
+
             var handlers = new Dictionary<CombatActionId, ICombatActionHandler>
             {
-                [CombatActionIds.Wait] = new WaitActionHandler(),
-                [CombatActionIds.Move] = new MoveActionHandler(_worldView, _worldEditor),
-                [CombatActionIds.Attack] = new AttackActionHandler(_worldView, _healthEditor),
-                [CombatActionIds.Teleport] = new TeleportActionHandler(_worldView, _worldEditor),
-                [CombatActionIds.Heal] = new HealActionHandler(_healthEditor),
-                [CombatActionIds.Stun] = new StunActionHandler(_worldView, _stunStatusEditor)
+                [CombatActionIds.Wait] = new WaitActionHandler(logger),
+                [CombatActionIds.Move] = new MoveActionHandler(_worldView, _worldEditor, logger),
+                [CombatActionIds.Attack] = new AttackActionHandler(_worldView, _healthEditor, logger),
+                [CombatActionIds.Teleport] = new TeleportActionHandler(_worldView, _worldEditor, logger),
+                [CombatActionIds.Heal] = new HealActionHandler(_healthEditor, logger),
+                [CombatActionIds.Stun] = new StunActionHandler(_worldView, _stunStatusEditor, logger)
             };
 
             _executor = new CombatActionExecutor(handlers, _energyEditor, _cooldowns, _cooldownEditor);
@@ -272,6 +274,19 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         private void AddFreeTile(Vector2Int position)
         {
             _mapEditor.AddTile(position, MapNodeType.Free);
+        }
+
+        private class MockCombatLogger : ICombatLogger
+        {
+            public string GetEntityRepresentation(IEntityView entity)
+            {
+                return string.Empty;
+            }
+
+            public void Log(IEntityView entity, string text)
+            {
+
+            }
         }
     }
 }
