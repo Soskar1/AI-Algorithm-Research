@@ -30,16 +30,15 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             {
                 var teamEntities = _configuration.Teams[team];
 
-                foreach ((var position, var entityDefinition) in teamEntities) {
+                foreach ((var position, var entityDefinitionId) in teamEntities) {
+                    var entityDefinition = _configuration.EntityDefinitionsById[entityDefinitionId];
                     var entity = _entityFactory.CreateEntity(entityDefinition);
-                    var actionDefinitions = _configuration.ActionsByEntity[entityDefinition];
+                    var actionDefinitions = _configuration.ActionsByEntity[entityDefinitionId];
                     var battleParticipantSetup = new BattleParticipantSetup(entity, position, team, actionDefinitions);
 
                     battleParticipants.Add(battleParticipantSetup);
                 }
             }
-
-            // TODO: Maybe we need to add here ICombatAgent factory
 
             var battleRequest = new BattleInitializationRequest(battleParticipants);
             _matchInitializationRequest = new MatchInitializationRequest(battleRequest, _configuration.AgentsByTeam);

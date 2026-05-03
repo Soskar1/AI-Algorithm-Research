@@ -8,8 +8,21 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Domain
 {
     internal class BenchmarkConfiguration
     {
-        public IReadOnlyDictionary<TeamId, IReadOnlyDictionary<Vector2Int, EntityDefinition>> Teams { get; }
+        public IReadOnlyDictionary<TeamId, IReadOnlyDictionary<Vector2Int, EntityDefinitionId>> Teams { get; }
+        public IReadOnlyDictionary<EntityDefinitionId, EntityDefinition> EntityDefinitionsById { get; }
+        public IReadOnlyDictionary<EntityDefinitionId, IReadOnlyCollection<ICombatActionDefinition>> ActionsByEntity { get; }
         public IReadOnlyDictionary<TeamId, ICombatAgent> AgentsByTeam { get; }
-        public IReadOnlyDictionary<EntityDefinition, IReadOnlyCollection<ICombatActionDefinition>> ActionsByEntity { get; }
+
+        public BenchmarkConfiguration(
+            IReadOnlyDictionary<TeamId, IReadOnlyDictionary<Vector2Int, EntityDefinitionId>> teams,
+            IReadOnlyDictionary<EntityDefinitionId, EntityDefinition> entityDefinitionsById,
+            IReadOnlyDictionary<EntityDefinitionId, IReadOnlyCollection<ICombatActionDefinition>> actionsByEntity,
+            IReadOnlyDictionary<TeamId, ICombatAgent> agentsByTeam)
+        {
+            Teams = teams;
+            EntityDefinitionsById = entityDefinitionsById;
+            ActionsByEntity = actionsByEntity;
+            AgentsByTeam = agentsByTeam;
+        }
     }
 }

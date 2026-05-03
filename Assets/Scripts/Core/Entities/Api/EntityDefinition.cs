@@ -1,4 +1,6 @@
-﻿namespace AiAlgorithmsResearch.Core.Entities.Api
+﻿using System.Security.Cryptography;
+
+namespace AiAlgorithmsResearch.Core.Entities.Api
 {
     public readonly struct EntityDefinition
     {

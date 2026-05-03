@@ -1,5 +1,4 @@
-﻿using AiAlgorithmsResearch.Core.Combat.Infrastructure;
-using AiAlgorithmsResearch.Core.Entities.Api;
+﻿using AiAlgorithmsResearch.Core.Entities.Api;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,5 +9,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
     {
         [SerializeField] private EntityDefinitionAsset _entityDefinition;
         [SerializeField] private List<CombatActionDefinitionAsset> _combatActions;
+
+        public EntityDefinitionAsset EntityDefinition => _entityDefinition;
+        public List<CombatActionDefinitionAsset> CombatActions => _combatActions;
     }
 }
