@@ -3,7 +3,7 @@ using AiAlgorithmsResearch.Core.Combat.Api;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AiAlgorithmsResearch.Core.AI.Application
+namespace AiAlgorithmsResearch.Core.Ai.Application
 {
     internal sealed class CombatActionCandidateProvider
     {

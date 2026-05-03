@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace AiAlgorithmsResearch.Core.AI.Application
+namespace AiAlgorithmsResearch.Core.Ai.Application
 {
     internal static class Targeting
     {

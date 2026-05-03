@@ -1,10 +1,9 @@
 ﻿using AiAlgorithmsResearch.Core.Ai.Api;
-using AiAlgorithmsResearch.Core.AI.Application;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Assets.Scripts.Core.AI.Application
+namespace AiAlgorithmsResearch.Core.Ai.Application
 {
     internal sealed class TeleportActionCandidateGenerator : ICombatActionCandidateGenerator
     {

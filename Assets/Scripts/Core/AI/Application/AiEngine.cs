@@ -1,7 +1,7 @@
 ﻿using AiAlgorithmsResearch.Core.Ai.Api;
 using AiAlgorithmsResearch.Core.Combat.Api;
 
-namespace AiAlgorithmsResearch.Core.AI.Application
+namespace AiAlgorithmsResearch.Core.Ai.Application
 {
     internal class AiEngine : IAiEngine
     {

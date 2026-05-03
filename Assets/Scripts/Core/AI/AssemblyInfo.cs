@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("AiAlgorithmsResearch.Core.AI.Tests")]
+[assembly: InternalsVisibleTo("AiAlgorithmsResearch.Core.Ai.Tests")]

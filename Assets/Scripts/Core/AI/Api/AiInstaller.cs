@@ -1,0 +1,32 @@
+﻿using AiAlgorithmsResearch.Core.Ai.Api;
+using AiAlgorithmsResearch.Core.Ai.Application;
+using Reflex.Core;
+using Reflex.Enums;
+using System.Collections.Generic;
+
+namespace AiAlgorithmsResearch.Core.Ai.ApiS
+{
+    public static class AiInstaller
+    {
+        public static ContainerBuilder InstallAi(this ContainerBuilder builder)
+        {
+            builder.RegisterFactory(builder => new CombatActionCandidateProvider(new List<ICombatActionCandidateGenerator>()
+            {
+                new AttackActionCandidateGenerator(),
+                new MoveActionCandidateGenerator(),
+                new HealActionCandidateGenerator(),
+                new StunActionCandidateGenerator(),
+                new TeleportActionCandidateGenerator()
+            }), Lifetime.Singleton, Resolution.Lazy);
+
+            builder.RegisterFactory<IAiEngine>(
+                builder => new AiEngine(
+                    builder.Resolve<CombatActionCandidateProvider>()),
+                Lifetime.Singleton, Resolution.Lazy);
+
+            builder.RegisterFactory<IRandomNumberGenerator>(builder => new UnityRandomNumberGenerator(), Lifetime.Singleton, Resolution.Lazy);
+
+            return builder;
+        }
+    }
+}

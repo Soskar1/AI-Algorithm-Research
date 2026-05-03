@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using AiAlgorithmsResearch.Core.Ai.Api;
 using AiAlgorithmsResearch.Core.Ai.Application;
-using AiAlgorithmsResearch.Core.AI.Application;
+using AiAlgorithmsResearch.Core.Ai.Application;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using NUnit.Framework;

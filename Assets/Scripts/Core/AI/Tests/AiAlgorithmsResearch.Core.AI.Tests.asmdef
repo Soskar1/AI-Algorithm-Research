@@ -1,10 +1,10 @@
 {
-    "name": "AiAlgorithmsResearch.Core.AI.Tests",
+    "name": "AiAlgorithmsResearch.Core.Ai.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "AiAlgorithmsResearch.Core.AI",
+        "AiAlgorithmsResearch.Core.Ai",
         "AiAlgorithmsResearch.Core.Combat",
         "AiAlgorithmsResearch.Core.Entities"
     ],
