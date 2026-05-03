@@ -97,7 +97,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
                 actions.Add(actionDefinition);
             }
 
-            var combatAgentContext = new CombatAgentContext(current.Entity, actions, _worldView, _match.Battle, current.TeamId);
+            var combatAgentContext = new CombatAgentContext(current, _worldView, _match.Battle);
             var action = _aiEngine.ProduceMove(agent, combatAgentContext);
 
             _actionExecutor.TryExecute(action);

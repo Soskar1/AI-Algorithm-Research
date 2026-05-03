@@ -6,7 +6,9 @@
         "UnityEditor.TestRunner",
         "AiAlgorithmsResearch.Core.Ai",
         "AiAlgorithmsResearch.Core.Combat",
-        "AiAlgorithmsResearch.Core.Entities"
+        "AiAlgorithmsResearch.Core.Entities",
+        "AiAlgorithmsResearch.Core.Maps",
+        "AiAlgorithmsResearch.Core.Worlds"
     ],
     "includePlatforms": [
         "Editor"

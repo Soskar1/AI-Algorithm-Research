@@ -3,3 +3,4 @@
 [assembly: InternalsVisibleTo("AiAlgorithmsResearch.Core.Maps.Tests")]
 [assembly: InternalsVisibleTo("AiAlgorithmsResearch.Core.Worlds.Tests")]
 [assembly: InternalsVisibleTo("AiAlgorithmsResearch.Core.Combat.Tests")]
+[assembly: InternalsVisibleTo("AiAlgorithmsResearch.Core.Ai.Tests")]

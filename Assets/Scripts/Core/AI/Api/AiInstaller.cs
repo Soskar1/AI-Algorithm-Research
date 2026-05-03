@@ -1,5 +1,4 @@
-﻿using AiAlgorithmsResearch.Core.Ai.Api;
-using AiAlgorithmsResearch.Core.Ai.Application;
+﻿using AiAlgorithmsResearch.Core.Ai.Application;
 using Reflex.Core;
 using Reflex.Enums;
 using System.Collections.Generic;
@@ -19,12 +18,10 @@ namespace AiAlgorithmsResearch.Core.Ai.Api
                 new TeleportActionCandidateGenerator()
             }), Lifetime.Singleton, Resolution.Lazy);
 
-            builder.RegisterFactory<IAiEngine>(
-                builder => new AiEngine(
+            builder.RegisterFactory<IAiEngine>(builder =>
+                new AiEngine(
                     builder.Resolve<CombatActionCandidateProvider>()),
                 Lifetime.Singleton, Resolution.Lazy);
-
-            builder.RegisterFactory<IRandomNumberGenerator>(builder => new UnityRandomNumberGenerator(), Lifetime.Singleton, Resolution.Lazy);
 
             return builder;
         }
