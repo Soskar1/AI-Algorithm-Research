@@ -1,3 +1,5 @@
+using AiAlgorithmsResearch.Core.Ai.ApiS;
+using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Maps.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
@@ -13,7 +15,9 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             containerBuilder
                 .InstallMaps()
                 .InstallEntities()
-                .InstallWorlds();
+                .InstallWorlds()
+                .InstallCombat()
+                .InstallAi();
         }
     }
 }
