@@ -44,10 +44,5 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 
             return movedEntity;
         }
-
-        public int GetCooldown(ICombatAction action)
-        {
-            return 0;
-        }
     }
 }

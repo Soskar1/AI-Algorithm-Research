@@ -44,7 +44,5 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 
             return teleportResult;
         }
-
-        public int GetCooldown(ICombatAction action) => 4;
     }
 }

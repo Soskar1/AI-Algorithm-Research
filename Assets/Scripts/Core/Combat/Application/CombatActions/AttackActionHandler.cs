@@ -45,10 +45,5 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 
             return true;
         }
-
-        public int GetCooldown(ICombatAction action)
-        {
-            return 0;
-        }
     }
 }
