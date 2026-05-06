@@ -55,18 +55,19 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             _stunStatusEditor = stunStatus;
 
             var logger = new MockCombatLogger();
+            var runtimeState = new RuntimeCombatState(world, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor);
 
             var handlers = new Dictionary<CombatActionId, ICombatActionHandler>
             {
                 [CombatActionIds.Wait] = new WaitActionHandler(logger),
-                [CombatActionIds.Move] = new MoveActionHandler(_worldView, _worldEditor, logger),
-                [CombatActionIds.Attack] = new AttackActionHandler(_worldView, _healthEditor, logger),
-                [CombatActionIds.Teleport] = new TeleportActionHandler(_worldView, _worldEditor, logger),
-                [CombatActionIds.Heal] = new HealActionHandler(_healthEditor, logger),
-                [CombatActionIds.Stun] = new StunActionHandler(_worldView, _stunStatusEditor, logger)
+                [CombatActionIds.Move] = new MoveActionHandler(runtimeState, runtimeState, logger),
+                [CombatActionIds.Attack] = new AttackActionHandler(runtimeState, runtimeState, logger),
+                [CombatActionIds.Teleport] = new TeleportActionHandler(runtimeState, runtimeState, logger),
+                [CombatActionIds.Heal] = new HealActionHandler(runtimeState, runtimeState, logger),
+                [CombatActionIds.Stun] = new StunActionHandler(runtimeState, runtimeState, logger)
             };
 
-            _executor = new CombatActionExecutor(handlers, _energyEditor, _cooldowns, _cooldownEditor);
+            _executor = new CombatActionExecutor(handlers, runtimeState, runtimeState);
         }
 
         [Test]

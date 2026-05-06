@@ -1,5 +1,4 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
-using AiAlgorithmsResearch.Core.Entities.Api;
 using System.Collections.Generic;
 
 namespace AiAlgorithmsResearch.Core.Combat.Application
@@ -7,20 +6,18 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
     internal sealed class CombatActionExecutor : ICombatActionExecutor
     {
         private readonly Dictionary<CombatActionId, ICombatActionHandler> _handlers;
-        private readonly IEntityEnergyEditor _energyEditor;
-        private readonly IActionCooldowns _cooldowns;
-        private readonly IActionCooldownEditor _cooldownEditor;
+
+        private readonly ICombatStateEditor _stateEditor;
+        private readonly ICombatStateView _stateView;
 
         public CombatActionExecutor(
             Dictionary<CombatActionId, ICombatActionHandler> handlers,
-            IEntityEnergyEditor energyEditor,
-            IActionCooldowns cooldowns,
-            IActionCooldownEditor cooldownEditor)
+            ICombatStateView stateView,
+            ICombatStateEditor stateEditor)
         {
             _handlers = handlers;
-            _energyEditor = energyEditor;
-            _cooldowns = cooldowns;
-            _cooldownEditor = cooldownEditor;
+            _stateEditor = stateEditor;
+            _stateView = stateView;
         }
 
         public bool TryExecute(ICombatAction action)
@@ -28,13 +25,13 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             if (!_handlers.TryGetValue(action.Id, out var handler))
                 return false;
 
-            if (_cooldowns.IsOnCooldown(action.Actor, action.Id))
+            if (_stateView.IsOnCooldown(action.Actor.Id, action.Id))
                 return false;
 
             if (!handler.CanExecute(action))
                 return false;
 
-            if (!_energyEditor.TrySpendEnergy(action.Actor, action.Cost))
+            if (!_stateEditor.TrySpendEnergy(action.Actor.Id, action.Cost))
                 return false;
 
             if (!handler.Apply(action))
@@ -43,7 +40,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             var cooldown = action.Cooldown;
 
             if (cooldown > 0)
-                _cooldownEditor.PutOnCooldown(action.Actor, action.Id, cooldown);
+                _stateEditor.PutOnCooldown(action.Actor.Id, action.Id, cooldown);
 
             return true;
         }

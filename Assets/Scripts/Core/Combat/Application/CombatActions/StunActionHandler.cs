@@ -5,16 +5,16 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 {
     internal sealed class StunActionHandler : ICombatActionHandler
     {
-        private readonly IWorldView _worldView;
-        private readonly IStunStatusEditor _stunStatusEditor;
+        private readonly ICombatStateView _stateView;
+        private readonly ICombatStateEditor _stateEditor;
         private readonly ICombatLogger _combatLogger;
 
         public CombatActionId ActionId => CombatActionIds.Stun;
 
-        public StunActionHandler(IWorldView worldView, IStunStatusEditor stunStatusEditor, ICombatLogger combatLogger)
+        public StunActionHandler(ICombatStateView stateView, ICombatStateEditor stateEditor, ICombatLogger combatLogger)
         {
-            _worldView = worldView;
-            _stunStatusEditor = stunStatusEditor;
+            _stateView = stateView;
+            _stateEditor = stateEditor;
             _combatLogger = combatLogger;
         }
 
@@ -22,10 +22,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
         {
             var stun = (StunAction)action;
 
-            if (!_worldView.TryGetEntityPosition(stun.Actor, out var actorPosition))
+            if (!_stateView.TryGetPosition(stun.Actor.Id, out var actorPosition))
                 return false;
 
-            if (!_worldView.TryGetEntityPosition(stun.Target, out var targetPosition))
+            if (!_stateView.TryGetPosition(stun.Target.Id, out var targetPosition))
                 return false;
 
             return GridDistance.Manhattan(actorPosition, targetPosition) == 1;
@@ -34,7 +34,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
         public bool Apply(ICombatAction action)
         {
             var stun = (StunAction)action;
-            _stunStatusEditor.StunForNextTurn(stun.Target);
+            _stateEditor.StunForNextTurn(stun.Target.Id);
 
             var targetLog = _combatLogger.GetEntityRepresentation(stun.Target);
             _combatLogger.Log(action.Actor, $"stunned {targetLog}.");

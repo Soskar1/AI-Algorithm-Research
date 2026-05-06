@@ -10,13 +10,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
     {
         private readonly IActionCooldowns _actionCooldowns;
         private readonly IStunStatus _stunStatus;
-        private readonly IBattle _battle;
 
-        public CombatStateFactory(IActionCooldowns actionCooldowns, IStunStatus stunStatus, IBattle battle)
+        public CombatStateFactory(IActionCooldowns actionCooldowns, IStunStatus stunStatus)
         {
             _actionCooldowns = actionCooldowns;
             _stunStatus = stunStatus;
-            _battle = battle;
         }
 
         public CombatState Create(CombatAgentContext context)
@@ -28,7 +26,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 var entityView = worldEntity.Entity;
                 var cooldowns = _actionCooldowns.CopyEntityCooldowns(entityView);
                 var isStunned = _stunStatus.IsStunned(entityView);
-                var teamId = _battle.EntityTeams[entityView];
+                var teamId = context.Battle.EntityTeams[entityView];
 
                 var simulationEntity = new SimulationEntityState(entityView, teamId, worldEntity.Position, cooldowns, isStunned);
                 simulationEntities.Add(entityView.Id, simulationEntity);

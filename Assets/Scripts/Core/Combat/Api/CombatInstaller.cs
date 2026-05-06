@@ -29,27 +29,36 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
 
             builder.RegisterFactory<ICombatLogger>(builder => new CombatLogger(builder.Resolve<IWorldView>()), Lifetime.Singleton, Resolution.Lazy);
 
+            builder.RegisterFactory(builder =>
+                new RuntimeCombatState(
+                    builder.Resolve<IWorldView>(),
+                    builder.Resolve<IWorldEditor>(),
+                    builder.Resolve<IEntityHealthEditor>(),
+                    builder.Resolve<IEntityEnergyEditor>(),
+                    builder.Resolve<IActionCooldowns>(),
+                    builder.Resolve<IActionCooldownEditor>(),
+                    builder.Resolve<IStunStatusEditor>()
+                ), Lifetime.Singleton, Resolution.Lazy);
+
+            builder.RegisterFactory<ICombatStateView>(builder => builder.Resolve<RuntimeCombatState>(), Lifetime.Singleton, Resolution.Lazy);
+            builder.RegisterFactory<ICombatStateEditor>(builder => builder.Resolve<RuntimeCombatState>(), Lifetime.Singleton, Resolution.Lazy);
+
             builder.RegisterFactory<ICombatActionExecutor>(builder =>
             {
-                var worldView = builder.Resolve<IWorldView>();
-                var worldEditor = builder.Resolve<IWorldEditor>();
-                var healthEditor = builder.Resolve<IEntityHealthEditor>();
-                var stunStatusEditor = builder.Resolve<IStunStatusEditor>();
-                var energyEditor = builder.Resolve<IEntityEnergyEditor>();
-                var actionCooldowns = builder.Resolve<IActionCooldowns>();
-                var actionCooldownsEditor = builder.Resolve<IActionCooldownEditor>();
+                var combatStateView = builder.Resolve<ICombatStateView>();
+                var combatStateEditor = builder.Resolve<ICombatStateEditor>();
                 var combatLogger = builder.Resolve<ICombatLogger>();
 
                 return new CombatActionExecutor(
                     new Dictionary<CombatActionId, ICombatActionHandler>()
                     {
                         [CombatActionIds.Wait] = new WaitActionHandler(combatLogger),
-                        [CombatActionIds.Move] = new MoveActionHandler(worldView, worldEditor, combatLogger),
-                        [CombatActionIds.Attack] = new AttackActionHandler(worldView, healthEditor, combatLogger),
-                        [CombatActionIds.Teleport] = new TeleportActionHandler(worldView, worldEditor, combatLogger),
-                        [CombatActionIds.Heal] = new HealActionHandler(healthEditor, combatLogger),
-                        [CombatActionIds.Stun] = new StunActionHandler(worldView, stunStatusEditor, combatLogger)
-                    }, energyEditor, actionCooldowns, actionCooldownsEditor);
+                        [CombatActionIds.Move] = new MoveActionHandler(combatStateView, combatStateEditor, combatLogger),
+                        [CombatActionIds.Attack] = new AttackActionHandler(combatStateView, combatStateEditor, combatLogger),
+                        [CombatActionIds.Teleport] = new TeleportActionHandler(combatStateView, combatStateEditor, combatLogger),
+                        [CombatActionIds.Heal] = new HealActionHandler(combatStateView, combatStateEditor, combatLogger),
+                        [CombatActionIds.Stun] = new StunActionHandler(combatStateView, combatStateEditor, combatLogger)
+                    }, combatStateView, combatStateEditor);
             }, Lifetime.Singleton, Resolution.Lazy);
 
             return builder;
