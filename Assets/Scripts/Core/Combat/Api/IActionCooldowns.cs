@@ -1,4 +1,5 @@
 ﻿using AiAlgorithmsResearch.Core.Entities.Api;
+using System.Collections.Generic;
 
 namespace AiAlgorithmsResearch.Core.Combat.Api
 {
@@ -6,5 +7,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
     {
         bool IsOnCooldown(IEntityView entity, CombatActionId actionId);
         int GetRemainingCooldown(IEntityView entity, CombatActionId actionId);
+        IDictionary<CombatActionId, int> CopyEntityCooldowns(IEntityView entity);
     }
 }

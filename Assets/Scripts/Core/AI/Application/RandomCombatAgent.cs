@@ -7,6 +7,8 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 {
     internal sealed class RandomCombatAgent : ICombatAgent
     {
+        private readonly CombatStateFactory _combatStateFactory;
+
         public CombatPlan ChoosePlan(IList<ICombatAction> actions, CombatAgentContext context)
         {
             const int maxAttempts = 3;

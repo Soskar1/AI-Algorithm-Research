@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using AiAlgorithmsResearch.Core.Entities.Api;
+using System.Collections.Generic;
 
 namespace AiAlgorithmsResearch.Core.Combat.Api
 {
@@ -7,6 +8,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
         IReadOnlyList<IBattleParticipant> TurnOrder { get; }
 
         IBattleParticipant Current { get; }
+
+        IReadOnlyDictionary<IEntityView, TeamId> EntityTeams { get; }
 
         void NextTurn();
     }
