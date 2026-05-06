@@ -14,7 +14,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
             return new List<ICombatAction>()
             {
-                new HealAction(context.Actor, heal.Amount)
+                new HealAction(context.Actor, heal.Amount, definition.Cooldown)
             };
         }
     }

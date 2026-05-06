@@ -34,15 +34,13 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             if (!handler.CanExecute(action))
                 return false;
 
-            var cost = handler.GetCost(action);
-
-            if (!_energyEditor.TrySpendEnergy(action.Actor, cost))
+            if (!_energyEditor.TrySpendEnergy(action.Actor, action.Cost))
                 return false;
 
             if (!handler.Apply(action))
                 return false;
 
-            var cooldown = handler.GetCooldown(action);
+            var cooldown = action.Cooldown;
 
             if (cooldown > 0)
                 _cooldownEditor.PutOnCooldown(action.Actor, action.Id, cooldown);

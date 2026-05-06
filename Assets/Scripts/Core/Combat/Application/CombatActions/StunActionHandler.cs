@@ -31,8 +31,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             return GridDistance.Manhattan(actorPosition, targetPosition) == 1;
         }
 
-        public int GetCost(ICombatAction action) => 2;
-
         public bool Apply(ICombatAction action)
         {
             var stun = (StunAction)action;

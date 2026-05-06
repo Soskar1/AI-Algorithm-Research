@@ -1,7 +1,9 @@
 ﻿using AiAlgorithmsResearch.Core.Ai.Api;
 using AiAlgorithmsResearch.Core.Combat.Api;
+using AiAlgorithmsResearch.Core.Worlds.Api;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Ai.Application
 {
@@ -24,9 +26,12 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 return Enumerable.Empty<ICombatAction>();
             }
 
+            var distance = GridDistance.Manhattan(actorPosition, moveTarget);
+            var cost = Mathf.CeilToInt(distance / 2f);
+
             return new List<ICombatAction>()
             {
-                new MoveAction(context.Actor, moveTarget)
+                new MoveAction(context.Actor, moveTarget, cost)
             };
         }
     }

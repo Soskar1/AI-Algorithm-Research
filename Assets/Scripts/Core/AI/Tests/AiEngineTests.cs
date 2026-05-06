@@ -65,7 +65,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
 
             var actorActions = new ICombatActionDefinition[]
             {
-                new AttackActionDefinition(baseDamage: 5, range: 1)
+                new AttackActionDefinition(baseDamage: 5, range: 1, baseCost: 2)
             };
 
             var battle = StartBattle(
@@ -102,7 +102,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
 
             var actorActions = new ICombatActionDefinition[]
             {
-                new AttackActionDefinition(baseDamage: 5, range: 1)
+                new AttackActionDefinition(baseDamage: 5, range: 1, baseCost: 2)
             };
 
             var battle = StartBattle(
@@ -129,8 +129,8 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
 
             var actorActions = new ICombatActionDefinition[]
             {
-                new AttackActionDefinition(baseDamage: 5, range: 1),
-                new HealActionDefinition(amount: 5)
+                new AttackActionDefinition(baseDamage: 5, range: 1, baseCost: 2),
+                new HealActionDefinition(amount: 5, baseCost: 2, cooldown: 1)
             };
 
             var battle = StartBattle(
@@ -214,7 +214,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
 
         private sealed class FirstActionAgent : ICombatAgent
         {
-            public CombatPlan ChoosePlan(IList<ICombatAction> actions)
+            public CombatPlan ChoosePlan(IList<ICombatAction> actions, CombatAgentContext context)
             {
                 return CombatPlan.Single(actions[0]);
             }
@@ -224,7 +224,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Tests
         {
             public IList<ICombatAction> ReceivedActions { get; private set; }
 
-            public CombatPlan ChoosePlan(IList<ICombatAction> actions)
+            public CombatPlan ChoosePlan(IList<ICombatAction> actions, CombatAgentContext context)
             {
                 ReceivedActions = actions;
                 return CombatPlan.Single(actions[0]);

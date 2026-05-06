@@ -6,5 +6,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
     {
         IEntityView Actor { get; }
         CombatActionId Id { get; }
+        int Cost { get; }
+        int Cooldown { get; }
     }
 }

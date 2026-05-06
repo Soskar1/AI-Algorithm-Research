@@ -3,5 +3,7 @@
     public interface ICombatActionDefinition
     {
         CombatActionId Id { get; }
+        int BaseCost { get; }
+        int Cooldown { get; }
     }
 }

@@ -6,11 +6,14 @@
 
         public int BaseDamage { get; }
         public int Range { get; }
+        public int BaseCost { get; }
+        public int Cooldown => 0;
 
-        public AttackActionDefinition(int baseDamage, int range)
+        public AttackActionDefinition(int baseDamage, int range, int baseCost)
         {
             BaseDamage = baseDamage;
             Range = range;
+            BaseCost = baseCost;
         }
     }
 }

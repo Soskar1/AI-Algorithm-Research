@@ -34,7 +34,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 if (distance > attack.Range)
                     continue;
 
-                candidates.Add(new AttackAction(context.Actor, participant.Entity, attack.BaseDamage, attack.Range));
+                candidates.Add(new AttackAction(context.Actor, participant.Entity, attack.BaseDamage, attack.Range, definition.BaseCost));
             }
 
             return candidates;

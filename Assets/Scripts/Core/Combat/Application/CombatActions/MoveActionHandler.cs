@@ -1,6 +1,5 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
-using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Combat.Application
 {
@@ -23,18 +22,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
         {
             var move = (MoveAction)action;
             return _worldView.TryGetEntityPosition(move.Actor, out _);
-        }
-
-        public int GetCost(ICombatAction action)
-        {
-            var move = (MoveAction)action;
-
-            if (!_worldView.TryGetEntityPosition(move.Actor, out var currentPosition))
-                return int.MaxValue;
-
-            var distance = GridDistance.Manhattan(currentPosition, move.TargetPosition);
-
-            return Mathf.CeilToInt(distance / 2f);
         }
 
         public bool Apply(ICombatAction action)

@@ -8,10 +8,11 @@ namespace AiAlgorithmsResearch.Core.Combat.Infrastructure
     {
         [SerializeField] private int _baseDamage;
         [SerializeField] private int _range;
+        [SerializeField] private int _baseCost;
 
         public override ICombatActionDefinition ToCombatActionDefinition()
         {
-            return new AttackActionDefinition(_baseDamage, _range);
+            return new AttackActionDefinition(_baseDamage, _range, _baseCost);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
             return new List<ICombatAction>()
             {
-                new TeleportAction(context.Actor, teleportTarget)
+                new TeleportAction(context.Actor, teleportTarget, definition.BaseCost, definition.Cooldown)
             };
         }
     }

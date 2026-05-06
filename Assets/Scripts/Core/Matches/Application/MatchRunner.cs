@@ -124,7 +124,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
                 else
                 {
                     entityLog = _combatLogger.GetEntityRepresentation(current.Entity);
-                    Debug.Log($"[{_currentTurn}] {entityLog} executed it's action. Checking win condition...");
+                    Debug.Log($"[{_currentTurn}] {entityLog} executed it's action.");
                 }
 
                 var matchEnded = CheckWinCondition();

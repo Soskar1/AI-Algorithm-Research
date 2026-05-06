@@ -32,11 +32,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             return GridDistance.Manhattan(actorPosition, targetPosition) <= attack.Range;
         }
 
-        public int GetCost(ICombatAction action)
-        {
-            return 2;
-        }
-
         public bool Apply(ICombatAction action)
         {
             var attack = (AttackAction)action;

@@ -7,11 +7,28 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 {
     internal sealed class RandomCombatAgent : ICombatAgent
     {
-        public CombatPlan ChoosePlan(IList<ICombatAction> actions)
+        public CombatPlan ChoosePlan(IList<ICombatAction> actions, CombatAgentContext context)
         {
-            var index = Random.Range(0, actions.Count);
+            const int maxAttempts = 3;
+            var currentAttempt = 0;
+            var energyToSpend = context.Actor.Energy.Current;
 
-            return CombatPlan.Single(actions[index]);
+            var actionsToExecute = new List<ICombatAction>();
+            while (currentAttempt < maxAttempts && energyToSpend > 0)
+            {
+                var index = Random.Range(0, actions.Count);
+                var action = actions[index];
+
+                if (energyToSpend > action.Cost)
+                {
+                    actionsToExecute.Add(action);
+                    energyToSpend -= action.Cost;
+                }
+
+                ++currentAttempt;
+            }
+
+            return new CombatPlan(actionsToExecute);
         }
     }
 }

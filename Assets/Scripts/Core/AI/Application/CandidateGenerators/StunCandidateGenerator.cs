@@ -34,7 +34,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 if (distance > stun.Range)
                     continue;
 
-                candidates.Add(new StunAction(context.Actor, participant.Entity));
+                candidates.Add(new StunAction(context.Actor, participant.Entity, definition.BaseCost, definition.Cooldown));
             }
 
             return candidates;

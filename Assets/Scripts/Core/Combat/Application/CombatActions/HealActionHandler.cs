@@ -22,11 +22,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             return heal.Actor.Health.Current < heal.Actor.Health.Max;
         }
 
-        public int GetCost(ICombatAction action)
-        {
-            return 2;
-        }
-
         public bool Apply(ICombatAction action)
         {
             var heal = (HealAction)action;

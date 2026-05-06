@@ -14,7 +14,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
         public CombatPlan ProduceMove(ICombatAgent combatAgent, CombatAgentContext combatAgentContext)
         {
             var actionCandidates = _actionProvider.GetCandidates(combatAgentContext);
-            return combatAgent.ChoosePlan(actionCandidates);
+            return combatAgent.ChoosePlan(actionCandidates, combatAgentContext);
         }
     }
 }

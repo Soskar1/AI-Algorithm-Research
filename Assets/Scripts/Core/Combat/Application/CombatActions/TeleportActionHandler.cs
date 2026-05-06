@@ -24,8 +24,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             return _worldView.TryGetEntityPosition(teleport.Actor, out _);
         }
 
-        public int GetCost(ICombatAction action) => 2;
-
         public bool Apply(ICombatAction action)
         {
             var teleport = (TeleportAction)action;

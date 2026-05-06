@@ -14,15 +14,11 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 
         public bool CanExecute(ICombatAction action) => true;
 
-        public int GetCost(ICombatAction action) => 0;
-
         public bool Apply(ICombatAction action)
         {
             _combatLogger.Log(action.Actor, $"skipped turn.");
 
             return true;
         }
-
-        public int GetCooldown(ICombatAction action) => 0;
     }
 }

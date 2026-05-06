@@ -5,6 +5,6 @@ namespace AiAlgorithmsResearch.Core.Ai.Api
 {
     public interface ICombatAgent
     {
-        CombatPlan ChoosePlan(IList<ICombatAction> actions);
+        CombatPlan ChoosePlan(IList<ICombatAction> actions, CombatAgentContext context);
     }
 }

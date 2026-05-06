@@ -90,7 +90,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             AddEntity(actor, start);
             AddFreeTile(target);
 
-            var result = _executor.TryExecute(new MoveAction(actor, target));
+            var result = _executor.TryExecute(new MoveAction(actor, target, 1));
 
             Assert.IsTrue(result);
             Assert.IsTrue(_worldView.TryGetEntityPosition(actor, out var position));
@@ -108,7 +108,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             AddEntity(actor, start);
             AddFreeTile(target);
 
-            var result = _executor.TryExecute(new MoveAction(actor, target));
+            var result = _executor.TryExecute(new MoveAction(actor, target, 2));
 
             Assert.IsFalse(result);
             Assert.IsTrue(_worldView.TryGetEntityPosition(actor, out var position));
@@ -126,7 +126,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             AddEntity(target, new Vector2Int(2, 1));
 
             var result = _executor.TryExecute(
-                new AttackAction(actor, target, baseDamage: 5, range: 1));
+                new AttackAction(actor, target, baseDamage: 5, range: 1, cost: 2));
 
             Assert.IsTrue(result);
             Assert.AreEqual(93, target.Health.Current);
@@ -143,7 +143,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             AddEntity(target, new Vector2Int(4, 1));
 
             var result = _executor.TryExecute(
-                new AttackAction(actor, target, baseDamage: 5, range: 1));
+                new AttackAction(actor, target, baseDamage: 5, range: 1, cost: 2));
 
             Assert.IsFalse(result);
             Assert.AreEqual(100, target.Health.Current);
@@ -160,7 +160,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             AddEntity(actor, start);
             AddFreeTile(target);
 
-            var result = _executor.TryExecute(new TeleportAction(actor, target));
+            var result = _executor.TryExecute(new TeleportAction(actor, target, cost: 2, cooldown: 4));
 
             Assert.IsTrue(result);
             Assert.IsTrue(_worldView.TryGetEntityPosition(actor, out var position));
@@ -181,7 +181,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
 
             _cooldownEditor.PutOnCooldown(actor, CombatActionIds.Teleport, 4);
 
-            var result = _executor.TryExecute(new TeleportAction(actor, target));
+            var result = _executor.TryExecute(new TeleportAction(actor, target, cost: 1, cooldown: 1));
 
             Assert.IsFalse(result);
             Assert.IsTrue(_worldView.TryGetEntityPosition(actor, out var position));
@@ -196,7 +196,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
 
             _healthEditor.DealDamage(actor, 20);
 
-            var result = _executor.TryExecute(new HealAction(actor));
+            var result = _executor.TryExecute(new HealAction(actor, cost: 2, cooldown: 3));
 
             Assert.IsTrue(result);
             Assert.AreEqual(85, actor.Health.Current);
@@ -209,7 +209,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var actor = CreateEntity();
 
-            var result = _executor.TryExecute(new HealAction(actor));
+            var result = _executor.TryExecute(new HealAction(actor, cost: 2, cooldown: 1));
 
             Assert.IsFalse(result);
             Assert.AreEqual(100, actor.Health.Current);
@@ -225,7 +225,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             AddEntity(actor, new Vector2Int(1, 1));
             AddEntity(target, new Vector2Int(2, 1));
 
-            var result = _executor.TryExecute(new StunAction(actor, target));
+            var result = _executor.TryExecute(new StunAction(actor, target, cost: 2, cooldown: 3));
 
             Assert.IsTrue(result);
             Assert.IsTrue(_stunStatus.IsStunned(target));
@@ -242,7 +242,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             AddEntity(actor, new Vector2Int(1, 1));
             AddEntity(target, new Vector2Int(3, 1));
 
-            var result = _executor.TryExecute(new StunAction(actor, target));
+            var result = _executor.TryExecute(new StunAction(actor, target, cost: 2, cooldown: 1));
 
             Assert.IsFalse(result);
             Assert.IsFalse(_stunStatus.IsStunned(target));
