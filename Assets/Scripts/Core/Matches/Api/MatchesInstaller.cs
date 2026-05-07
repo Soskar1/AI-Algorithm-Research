@@ -1,5 +1,4 @@
-﻿using AiAlgorithmsResearch.Core.Ai.Api;
-using AiAlgorithmsResearch.Core.Combat.Api;
+﻿using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Matches.Application;
 using AiAlgorithmsResearch.Core.Worlds.Api;
@@ -19,7 +18,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Api
                     builder.Resolve<IEntityEnergyEditor>(),
                     builder.Resolve<IStunStatusEditor>(),
                     builder.Resolve<ICombatActionExecutor>(),
-                    builder.Resolve<IWorldView>(),
+                    builder.Resolve<IWorldEditor>(),
                     builder.Resolve<ICombatLogger>(),
                     builder.Resolve<IRuntimeCombatStateFactory>()
                     ), Lifetime.Singleton, Resolution.Lazy);

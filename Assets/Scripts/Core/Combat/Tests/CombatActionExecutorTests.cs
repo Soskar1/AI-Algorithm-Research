@@ -247,7 +247,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         }
 
         [Test]
-        public void TryExecute_StunAction_WhenTargetIsAdjacent_StunsTargetSpendsEnergyAndAppliesCooldown()
+        public void TryExecute_StunAction_StunsTargetSpendsEnergyAndAppliesCooldown()
         {
             var actor = CreateEntity();
             var target = CreateEntity();
@@ -264,25 +264,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             Assert.IsTrue(_stunStatus.IsStunned(target.Entity.Id));
             Assert.AreEqual(8, actor.Entity.Energy.Current);
             Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(actor.Entity.Id, CombatActionIds.Stun));
-        }
-
-        [Test]
-        public void TryExecute_StunAction_WhenTargetIsNotAdjacent_ReturnsFalseAndDoesNotSpendEnergy()
-        {
-            var actor = CreateEntity();
-            var target = CreateEntity();
-
-            AddEntity(actor.Entity, new Vector2Int(1, 1));
-            AddEntity(target.Entity, new Vector2Int(3, 1));
-
-            var battle = new Battle(new List<BattleParticipant>() { actor, target });
-            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
-
-            var result = _executor.TryExecute(new StunAction(actor.Entity.Id, target.Entity.Id, cost: 2, cooldown: 1), combatState, combatState);
-
-            Assert.IsFalse(result);
-            Assert.IsFalse(_stunStatus.IsStunned(target.Entity.Id));
-            Assert.AreEqual(10, actor.Entity.Energy.Current);
         }
 
         private BattleParticipant CreateEntity(

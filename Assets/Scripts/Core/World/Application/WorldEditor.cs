@@ -17,7 +17,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Application
 
         public void Clear()
         {
-            throw new System.NotImplementedException();
+            _world.Clear();
         }
 
         public bool TryAddEntity(IEntityView entity, Vector2Int position)
