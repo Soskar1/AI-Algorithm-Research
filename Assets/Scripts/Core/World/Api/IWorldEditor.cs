@@ -7,5 +7,6 @@ namespace AiAlgorithmsResearch.Core.Worlds.Api
     {
         bool TryAddEntity(IEntityView entity, Vector2Int position);
         bool TryMoveEntity(IEntityView entity, Vector2Int newPosition);
+        void Clear();
     }
 }

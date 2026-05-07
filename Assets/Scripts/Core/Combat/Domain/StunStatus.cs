@@ -22,5 +22,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Domain
         {
             return _stunnedEntities.Remove(entity);
         }
+
+        public void Clear()
+        {
+            _stunnedEntities.Clear();
+        }
     }
 }

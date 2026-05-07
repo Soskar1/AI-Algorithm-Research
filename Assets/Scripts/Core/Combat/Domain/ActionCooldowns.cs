@@ -65,5 +65,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Domain
 
             return new Dictionary<CombatActionId, int>();
         }
+
+        public void Clear()
+        {
+            _cooldowns.Clear();
+        }
     }
 }

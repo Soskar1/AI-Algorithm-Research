@@ -18,7 +18,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
         private readonly IEntityEnergyEditor _energyEditor;
         private readonly IStunStatusEditor _stunStatusEditor;
         private readonly ICombatActionExecutor _actionExecutor;
-        private readonly IWorldView _worldView;
+        private readonly IWorldEditor _worldEditor;
         private readonly ICombatLogger _combatLogger;
         private readonly IRuntimeCombatStateFactory _runtimeCombatStateFactory;
 
@@ -38,7 +38,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             IEntityEnergyEditor energyEditor,
             IStunStatusEditor stunEditor,
             ICombatActionExecutor combatActionExecutor,
-            IWorldView worldView,
+            IWorldEditor worldEditor,
             ICombatLogger combatLogger,
             IRuntimeCombatStateFactory runtimeCombatStateFactory
             )
@@ -48,13 +48,17 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             _energyEditor = energyEditor;
             _stunStatusEditor = stunEditor;
             _actionExecutor = combatActionExecutor;
-            _worldView = worldView;
+            _worldEditor = worldEditor;
             _combatLogger = combatLogger;
             _runtimeCombatStateFactory = runtimeCombatStateFactory;
         }
 
         public IMatchView StartMatch(MatchInitializationRequest request)
         {
+            _cooldownEditor.Clear();
+            _stunStatusEditor.Clear();
+            _worldEditor.Clear();
+
             var battle = _battleInitializer.StartBattle(request.BattleRequest);
 
             if (battle == null)

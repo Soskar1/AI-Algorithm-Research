@@ -6,5 +6,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
     {
         void StunForNextTurn(EntityId entity);
         bool ConsumeStun(EntityId entity);
+        void Clear();
     }
 }

@@ -75,5 +75,10 @@ namespace AiAlgorithmsResearch.Core.Worlds.Domain
             position = worldEntity.Position;
             return true;
         }
+
+        public void Clear()
+        {
+            _entities.Clear();
+        }
     }
 }

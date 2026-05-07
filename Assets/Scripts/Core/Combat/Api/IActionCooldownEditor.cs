@@ -6,5 +6,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
     {
         void PutOnCooldown(EntityId entity, CombatActionId actionId, int turns);
         void TickCooldowns(EntityId entity);
+        void Clear();
     }
 }   

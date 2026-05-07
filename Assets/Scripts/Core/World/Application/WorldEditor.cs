@@ -15,6 +15,11 @@ namespace AiAlgorithmsResearch.Core.Worlds.Application
             _world = world;
         }
 
+        public void Clear()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public bool TryAddEntity(IEntityView entity, Vector2Int position)
         {
             if (!_world.TryGetNode(position, out var node))
