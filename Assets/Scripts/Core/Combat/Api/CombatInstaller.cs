@@ -39,10 +39,9 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
                     builder.Resolve<IStunStatus>()),
                 Lifetime.Singleton, Resolution.Lazy);
 
+            builder.RegisterFactory<ICombatLogger>(builder => new CombatLogger(), Lifetime.Singleton, Resolution.Lazy);
             builder.RegisterFactory<ICombatActionExecutor>(builder =>
             {
-                var combatStateView = builder.Resolve<ICombatStateView>();
-                var combatStateEditor = builder.Resolve<ICombatStateEditor>();
                 var combatLogger = builder.Resolve<ICombatLogger>();
 
                 return new CombatActionExecutor(

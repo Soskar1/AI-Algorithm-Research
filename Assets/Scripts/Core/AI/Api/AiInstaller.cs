@@ -1,4 +1,5 @@
 ﻿using AiAlgorithmsResearch.Core.Ai.Application;
+using AiAlgorithmsResearch.Core.Maps.Api;
 using Reflex.Core;
 using Reflex.Enums;
 using System.Collections.Generic;
@@ -9,19 +10,20 @@ namespace AiAlgorithmsResearch.Core.Ai.Api
     {
         public static ContainerBuilder InstallAi(this ContainerBuilder builder)
         {
-            builder.RegisterFactory(builder =>
-                new CombatActionCandidateProvider(
-                    new List<ICombatActionCandidateGenerator>()
-                    {
-                        new AttackActionCandidateGenerator(),
-                        new MoveActionCandidateGenerator(),
-                        new HealActionCandidateGenerator(),
-                        new StunActionCandidateGenerator(),
-                        new TeleportActionCandidateGenerator()
-                    }
-            ), Lifetime.Singleton, Resolution.Lazy);
+            builder.RegisterFactory<ICombatAgentFactory>(builder =>
+                {
+                    var provider = new CombatActionCandidateProvider(new List<ICombatActionCandidateGenerator>()
+                        {
+                            new AttackActionCandidateGenerator(),
+                            new MoveActionCandidateGenerator(),
+                            new HealActionCandidateGenerator(),
+                            new StunActionCandidateGenerator(),
+                            new TeleportActionCandidateGenerator()
+                        });
 
-            builder.RegisterFactory<ICombatAgentFactory>(builder => new CombatAgentFactory(), Lifetime.Singleton, Resolution.Lazy);
+                    var map = builder.Resolve<IReadOnlyTileMap>();
+                    return new CombatAgentFactory(provider, map);
+                }, Lifetime.Singleton, Resolution.Lazy);
 
             return builder;
         }

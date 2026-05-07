@@ -10,17 +10,25 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
         private readonly SimulationStateFactory _combatStateFactory;
         private readonly CombatActionCandidateProvider _combatActionCandidateProvider;
 
+        public RandomCombatAgent(SimulationStateFactory combatStateFactory, CombatActionCandidateProvider combatActionCandidateProvider)
+        {
+            _combatStateFactory = combatStateFactory;
+            _combatActionCandidateProvider = combatActionCandidateProvider;
+        }
+
         public CombatPlan ChoosePlan(ICombatStateView stateView, EntityId executor)
         {
             var simulation = _combatStateFactory.Create(stateView);
             var energy = simulation.GetEnergy(executor);
 
-            _combatActionCandidateProvider.GetCandidates(simulation, executor);
+            var actions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
+
+            return CombatPlan.Single(actions[0]);
 
             // TODO
 
-            var actionsToExecute = new List<ICombatAction>();
-            return new CombatPlan(actionsToExecute);
+            //var actionsToExecute = new List<ICombatAction>();
+            //return new CombatPlan(actionsToExecute);
         }
     }
 }

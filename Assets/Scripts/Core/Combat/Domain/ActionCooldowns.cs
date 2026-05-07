@@ -58,8 +58,12 @@ namespace AiAlgorithmsResearch.Core.Combat.Domain
 
         public IDictionary<CombatActionId, int> CopyEntityCooldowns(EntityId entity)
         {
-            var cooldowns = _cooldowns[entity];
-            return new Dictionary<CombatActionId, int>(cooldowns);
+            if (_cooldowns.TryGetValue(entity, out var cooldowns))
+            {
+                return new Dictionary<CombatActionId, int>(cooldowns);
+            }
+
+            return new Dictionary<CombatActionId, int>();
         }
     }
 }
