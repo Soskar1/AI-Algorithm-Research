@@ -2,6 +2,7 @@
 {
     internal enum CombatAgentType
     {
-        Random
+        Random,
+        StateMachine
     }
 }

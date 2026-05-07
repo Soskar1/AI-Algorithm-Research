@@ -19,7 +19,7 @@ MonoBehaviour:
     - _position: {x: 5, y: 5}
       _battleParticipant: {fileID: 11400000, guid: 4f98d8422c6ec91499f3b56adbdbdba3, type: 2}
   - _teamId: 1
-    _agentType: 0
+    _agentType: 1
     _entities:
     - _position: {x: 6, y: 5}
       _battleParticipant: {fileID: 11400000, guid: 4f98d8422c6ec91499f3b56adbdbdba3, type: 2}

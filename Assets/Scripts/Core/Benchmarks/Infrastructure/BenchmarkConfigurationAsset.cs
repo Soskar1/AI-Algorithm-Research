@@ -28,6 +28,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 agentsByTeam[teamId] = team.AgentType switch
                 {
                     CombatAgentType.Random => agentFactory.CreateRandomAgent(),
+                    CombatAgentType.StateMachine => agentFactory.CreateStateMachineAgent(),
                     _ => throw new ArgumentOutOfRangeException()
                 };
 

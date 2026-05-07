@@ -1,5 +1,4 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
-using AiAlgorithmsResearch.Core.Worlds.Api;
 
 namespace AiAlgorithmsResearch.Core.Combat.Application
 {
@@ -24,7 +23,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             if (!stateView.TryGetPosition(stun.TargetId, out var targetPosition))
                 return false;
 
-            return GridDistance.Manhattan(actorPosition, targetPosition) == 1;
+            return true;
         }
 
         public bool Apply(ICombatAction action, ICombatStateView stateView, ICombatStateEditor stateEditor)

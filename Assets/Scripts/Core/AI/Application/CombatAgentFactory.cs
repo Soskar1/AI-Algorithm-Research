@@ -22,5 +22,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             var simulationFactory = new SimulationStateFactory(_map);
             return new RandomCombatAgent(simulationFactory, _provider, _executor);
         }
+
+        public ICombatAgent CreateStateMachineAgent()
+        {
+            var simulationFactory = new SimulationStateFactory(_map);
+            return new StateMachineCombatAgent(simulationFactory, _provider, _executor);
+        }
     }
 }
