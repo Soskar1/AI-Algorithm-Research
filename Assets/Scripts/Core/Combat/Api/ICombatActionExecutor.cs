@@ -2,6 +2,6 @@
 {
     public interface ICombatActionExecutor
     {
-        bool TryExecute(ICombatAction action);
+        bool TryExecute(ICombatAction action, ICombatStateView stateView, ICombatStateEditor stateEditor);
     }
 }

@@ -4,7 +4,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
 {
     public interface IStunStatusEditor
     {
-        void StunForNextTurn(IEntityView entity);
-        bool ConsumeStun(IEntityView entity);
+        void StunForNextTurn(EntityId entity);
+        bool ConsumeStun(EntityId entity);
     }
 }

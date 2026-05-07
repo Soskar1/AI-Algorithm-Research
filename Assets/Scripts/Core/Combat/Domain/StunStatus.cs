@@ -6,19 +6,19 @@ namespace AiAlgorithmsResearch.Core.Combat.Domain
 {
     internal sealed class StunStatus : IStunStatus, IStunStatusEditor
     {
-        private readonly HashSet<IEntityView> _stunnedEntities = new();
+        private readonly HashSet<EntityId> _stunnedEntities = new();
 
-        public bool IsStunned(IEntityView entity)
+        public bool IsStunned(EntityId entity)
         {
             return _stunnedEntities.Contains(entity);
         }
 
-        public void StunForNextTurn(IEntityView entity)
+        public void StunForNextTurn(EntityId entity)
         {
             _stunnedEntities.Add(entity);
         }
 
-        public bool ConsumeStun(IEntityView entity)
+        public bool ConsumeStun(EntityId entity)
         {
             return _stunnedEntities.Remove(entity);
         }

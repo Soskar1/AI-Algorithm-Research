@@ -5,42 +5,41 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 {
     internal sealed class AttackActionHandler : ICombatActionHandler
     {
-        private readonly ICombatStateView _stateView;
-        private readonly ICombatStateEditor _stateEditor;
         private readonly ICombatLogger _combatLogger;
 
         public CombatActionId ActionId => CombatActionIds.Attack;
 
-        public AttackActionHandler(ICombatStateView stateView, ICombatStateEditor stateEditor, ICombatLogger logger)
+        public AttackActionHandler(ICombatLogger logger)
         {
-            _stateView = stateView;
-            _stateEditor = stateEditor;
             _combatLogger = logger;
         }
 
-        public bool CanExecute(ICombatAction action)
+        public bool CanExecute(ICombatAction action, ICombatStateView stateView)
         {
             var attack = (AttackAction)action;
 
-            if (!_stateView.TryGetPosition(attack.Actor.Id, out var actorPosition))
+            if (!stateView.TryGetPosition(attack.ExecutorId, out var actorPosition))
                 return false;
 
-            if (!_stateView.TryGetPosition(attack.Target.Id, out var targetPosition))
+            if (!stateView.TryGetPosition(attack.Target, out var targetPosition))
                 return false;
 
             return GridDistance.Manhattan(actorPosition, targetPosition) <= attack.Range;
         }
 
-        public bool Apply(ICombatAction action)
+        public bool Apply(ICombatAction action, ICombatStateView stateView, ICombatStateEditor stateEditor)
         {
             var attack = (AttackAction)action;
-            var damage = attack.BaseDamage + attack.Actor.Strength;
 
-            _stateEditor.DealDamage(attack.Target.Id, damage);
+            var strength = stateView.GetStrength(action.ExecutorId);
+            var damage = attack.BaseDamage + strength;
 
-            var targetWithPositionLog = _combatLogger.GetEntityRepresentation(attack.Target);
-            var targetId = _combatLogger.GetEntityIdString(attack.Target);
-            _combatLogger.Log(action.Actor, $"is dealing {damage} damage to {targetWithPositionLog}. {targetId} Health: {attack.Target.Health.Current}");
+            stateEditor.DealDamage(attack.Target, damage);
+
+            var targetWithPositionLog = _combatLogger.GetEntityRepresentation(attack.Target, stateView);
+            var targetId = _combatLogger.GetEntityDisplayName(attack.Target);
+            var health = stateView.GetHealth(attack.Target);
+            _combatLogger.Log(action.ExecutorId, $"is dealing {damage} damage to {targetWithPositionLog}. {targetId} Health: {health}", stateView);
 
             return true;
         }

@@ -19,13 +19,16 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
         private readonly IStunStatusEditor _stunStatusEditor;
         private readonly ICombatActionExecutor _actionExecutor;
         private readonly IWorldView _worldView;
-        private readonly IAiEngine _aiEngine;
         private readonly ICombatLogger _combatLogger;
+        private readonly IRuntimeCombatStateFactory _runtimeCombatStateFactory;
 
         private Match _match;
         private TeamId _teamA;
         private TeamId _teamB;
         private IReadOnlyDictionary<TeamId, ICombatAgent> _agentsByTeam;
+
+        private ICombatStateView _currentStateView;
+        private ICombatStateEditor _currentStateEditor;
 
         private int _currentTurn = 0;
 
@@ -36,8 +39,8 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             IStunStatusEditor stunEditor,
             ICombatActionExecutor combatActionExecutor,
             IWorldView worldView,
-            IAiEngine aiEngine,
-            ICombatLogger combatLogger
+            ICombatLogger combatLogger,
+            IRuntimeCombatStateFactory runtimeCombatStateFactory
             )
         {
             _battleInitializer = battleInitializer;
@@ -46,8 +49,8 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             _stunStatusEditor = stunEditor;
             _actionExecutor = combatActionExecutor;
             _worldView = worldView;
-            _aiEngine = aiEngine;
             _combatLogger = combatLogger;
+            _runtimeCombatStateFactory = runtimeCombatStateFactory;
         }
 
         public IMatchView StartMatch(MatchInitializationRequest request)
@@ -65,6 +68,9 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             {
                 throw new Exception("Only two teams allowed");
             }
+
+            (_currentStateView, _currentStateEditor) = _runtimeCombatStateFactory.Create(battle);
+
             _teamA = teams[0];
             _teamB = teams[1];
 
@@ -83,15 +89,15 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
 
             var current = _match.CurrentParticipant;
 
-            var entityLog = _combatLogger.GetEntityRepresentation(current.Entity);
+            var entityLog = _combatLogger.GetEntityRepresentation(current.Entity.Id, _currentStateView);
             Debug.Log($"[{_currentTurn}] {entityLog} started it's turn");
 
-            _cooldownEditor.TickCooldowns(current.Entity);
+            _cooldownEditor.TickCooldowns(current.Entity.Id);
             _energyEditor.RegenerateEnergy(current.Entity);
 
-            if (_stunStatusEditor.ConsumeStun(current.Entity))
+            if (_stunStatusEditor.ConsumeStun(current.Entity.Id))
             {
-                _combatLogger.Log(current.Entity, "skipping it's turn due to stun status");
+                _combatLogger.Log(current.Entity.Id, "skipping it's turn due to stun status", _currentStateView);
                 _match.NextTurn();
                 ++_currentTurn;
                 return;
@@ -110,12 +116,11 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
                 actions.Add(actionDefinition);
             }
 
-            var combatAgentContext = new CombatAgentContext(current, _worldView, _match.Battle);
-            var plan = _aiEngine.ProduceMove(agent, combatAgentContext);
+            var plan = agent.ChoosePlan(_currentStateView, current.Entity.Id);
 
             foreach (var action in plan.Actions)
             {
-                var executionResult = _actionExecutor.TryExecute(action);
+                var executionResult = _actionExecutor.TryExecute(action, _currentStateView, _currentStateEditor);
 
                 if (!executionResult)
                 {
@@ -123,7 +128,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
                 }
                 else
                 {
-                    entityLog = _combatLogger.GetEntityRepresentation(current.Entity);
+                    entityLog = _combatLogger.GetEntityRepresentation(current.Entity.Id, _currentStateView);
                     Debug.Log($"[{_currentTurn}] {entityLog} executed it's action.");
                 }
 

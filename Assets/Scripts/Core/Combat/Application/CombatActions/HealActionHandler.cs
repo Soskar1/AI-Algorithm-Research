@@ -4,34 +4,31 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 {
     internal sealed class HealActionHandler : ICombatActionHandler
     {
-        private readonly ICombatStateView _stateView;
-        private readonly ICombatStateEditor _stateEditor;
         private readonly ICombatLogger _combatLogger;
 
         public CombatActionId ActionId => CombatActionIds.Heal;
 
-        public HealActionHandler(ICombatStateView stateView, ICombatStateEditor stateEditor, ICombatLogger combatLogger)
+        public HealActionHandler(ICombatLogger combatLogger)
         {
-            _stateView = stateView;
-            _stateEditor = stateEditor;
             _combatLogger = combatLogger;
         }
 
-        public bool CanExecute(ICombatAction action)
+        public bool CanExecute(ICombatAction action, ICombatStateView stateView)
         {
             var heal = (HealAction)action;
-            var currentHealth = _stateView.GetHealth(heal.Actor.Id);
-            var maxHealth = _stateView.GetMaxHealth(heal.Actor.Id);
+            var currentHealth = stateView.GetHealth(heal.ExecutorId);
+            var maxHealth = stateView.GetMaxHealth(heal.ExecutorId);
             
             return currentHealth < maxHealth;
         }
 
-        public bool Apply(ICombatAction action)
+        public bool Apply(ICombatAction action, ICombatStateView stateView, ICombatStateEditor stateEditor)
         {
             var heal = (HealAction)action;
-            _stateEditor.Heal(heal.Actor.Id, heal.Amount);
+            stateEditor.Heal(heal.ExecutorId, heal.Amount);
 
-            _combatLogger.Log(action.Actor, $"is healing {heal.Amount}. Health: {action.Actor.Health.Current}");
+            var health = stateView.GetHealth(action.ExecutorId);
+            _combatLogger.Log(action.ExecutorId, $"is healing {heal.Amount}. Health: {health}", stateView);
 
             return true;
         }

@@ -1,5 +1,4 @@
 ﻿using AiAlgorithmsResearch.Core.Ai.Application;
-using AiAlgorithmsResearch.Core.Combat.Api;
 using Reflex.Core;
 using Reflex.Enums;
 using System.Collections.Generic;
@@ -19,14 +18,8 @@ namespace AiAlgorithmsResearch.Core.Ai.Api
                         new HealActionCandidateGenerator(),
                         new StunActionCandidateGenerator(),
                         new TeleportActionCandidateGenerator()
-                    },
-                builder.Resolve<IActionCooldowns>()
+                    }
             ), Lifetime.Singleton, Resolution.Lazy);
-
-            builder.RegisterFactory<IAiEngine>(builder =>
-                new AiEngine(
-                    builder.Resolve<CombatActionCandidateProvider>()),
-                Lifetime.Singleton, Resolution.Lazy);
 
             builder.RegisterFactory<ICombatAgentFactory>(builder => new CombatAgentFactory(), Lifetime.Singleton, Resolution.Lazy);
 

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Combat.Application;
 using AiAlgorithmsResearch.Core.Combat.Domain;
@@ -11,6 +10,7 @@ using AiAlgorithmsResearch.Core.Worlds.Api;
 using AiAlgorithmsResearch.Core.Worlds.Application;
 using AiAlgorithmsResearch.Core.Worlds.Domain;
 using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Combat.Tests
@@ -55,30 +55,34 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             _stunStatusEditor = stunStatus;
 
             var logger = new MockCombatLogger();
-            var runtimeState = new RuntimeCombatState(world, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor);
+            
 
             var handlers = new Dictionary<CombatActionId, ICombatActionHandler>
             {
                 [CombatActionIds.Wait] = new WaitActionHandler(logger),
-                [CombatActionIds.Move] = new MoveActionHandler(runtimeState, runtimeState, logger),
-                [CombatActionIds.Attack] = new AttackActionHandler(runtimeState, runtimeState, logger),
-                [CombatActionIds.Teleport] = new TeleportActionHandler(runtimeState, runtimeState, logger),
-                [CombatActionIds.Heal] = new HealActionHandler(runtimeState, runtimeState, logger),
-                [CombatActionIds.Stun] = new StunActionHandler(runtimeState, runtimeState, logger)
+                [CombatActionIds.Move] = new MoveActionHandler(logger),
+                [CombatActionIds.Attack] = new AttackActionHandler(logger),
+                [CombatActionIds.Teleport] = new TeleportActionHandler(logger),
+                [CombatActionIds.Heal] = new HealActionHandler(logger),
+                [CombatActionIds.Stun] = new StunActionHandler(logger)
             };
 
-            _executor = new CombatActionExecutor(handlers, runtimeState, runtimeState);
+            _executor = new CombatActionExecutor(handlers);
         }
 
         [Test]
         public void TryExecute_WaitAction_ReturnsTrueAndDoesNotSpendEnergy()
         {
             var actor = CreateEntity();
+            var battle = new Battle(new List<BattleParticipant>() { actor });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
 
-            var result = _executor.TryExecute(new WaitAction(actor));
+            AddEntity(actor.Entity, new Vector2Int(1, 1));
+
+            var result = _executor.TryExecute(new WaitAction(actor.Entity.Id), combatState, combatState);
 
             Assert.IsTrue(result);
-            Assert.AreEqual(10, actor.Energy.Current);
+            Assert.AreEqual(10, actor.Entity.Energy.Current);
         }
 
         [Test]
@@ -88,15 +92,17 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var start = new Vector2Int(1, 1);
             var target = new Vector2Int(3, 1);
 
-            AddEntity(actor, start);
+            AddEntity(actor.Entity, start);
             AddFreeTile(target);
 
-            var result = _executor.TryExecute(new MoveAction(actor, target, 1));
+            var battle = new Battle(new List<BattleParticipant>() { actor });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
+            var result = _executor.TryExecute(new MoveAction(actor.Entity.Id, target, 1), combatState, combatState);
 
             Assert.IsTrue(result);
-            Assert.IsTrue(_worldView.TryGetEntityPosition(actor, out var position));
+            Assert.IsTrue(_worldView.TryGetEntityPosition(actor.Entity, out var position));
             Assert.AreEqual(target, position);
-            Assert.AreEqual(9, actor.Energy.Current);
+            Assert.AreEqual(9, actor.Entity.Energy.Current);
         }
 
         [Test]
@@ -106,15 +112,17 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var start = new Vector2Int(1, 1);
             var target = new Vector2Int(5, 1);
 
-            AddEntity(actor, start);
+            AddEntity(actor.Entity, start);
             AddFreeTile(target);
 
-            var result = _executor.TryExecute(new MoveAction(actor, target, 2));
+            var battle = new Battle(new List<BattleParticipant>() { actor });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
+            var result = _executor.TryExecute(new MoveAction(actor.Entity.Id, target, 2), combatState, combatState);
 
             Assert.IsFalse(result);
-            Assert.IsTrue(_worldView.TryGetEntityPosition(actor, out var position));
+            Assert.IsTrue(_worldView.TryGetEntityPosition(actor.Entity, out var position));
             Assert.AreEqual(start, position);
-            Assert.AreEqual(1, actor.Energy.Current);
+            Assert.AreEqual(1, actor.Entity.Energy.Current);
         }
 
         [Test]
@@ -123,15 +131,18 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var actor = CreateEntity(strength: 2);
             var target = CreateEntity();
 
-            AddEntity(actor, new Vector2Int(1, 1));
-            AddEntity(target, new Vector2Int(2, 1));
+            AddEntity(actor.Entity, new Vector2Int(1, 1));
+            AddEntity(target.Entity, new Vector2Int(2, 1));
+
+            var battle = new Battle(new List<BattleParticipant>() { actor, target });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
 
             var result = _executor.TryExecute(
-                new AttackAction(actor, target, baseDamage: 5, range: 1, cost: 2));
+                new AttackAction(actor.Entity.Id, target.Entity.Id, baseDamage: 5, range: 1, cost: 2), combatState, combatState);
 
             Assert.IsTrue(result);
-            Assert.AreEqual(93, target.Health.Current);
-            Assert.AreEqual(8, actor.Energy.Current);
+            Assert.AreEqual(93, target.Entity.Health.Current);
+            Assert.AreEqual(8, actor.Entity.Energy.Current);
         }
 
         [Test]
@@ -140,15 +151,18 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var actor = CreateEntity(strength: 2);
             var target = CreateEntity();
 
-            AddEntity(actor, new Vector2Int(1, 1));
-            AddEntity(target, new Vector2Int(4, 1));
+            AddEntity(actor.Entity, new Vector2Int(1, 1));
+            AddEntity(target.Entity, new Vector2Int(4, 1));
+
+            var battle = new Battle(new List<BattleParticipant>() { actor, target });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
 
             var result = _executor.TryExecute(
-                new AttackAction(actor, target, baseDamage: 5, range: 1, cost: 2));
+                new AttackAction(actor.Entity.Id, target.Entity.Id, baseDamage: 5, range: 1, cost: 2), combatState, combatState);
 
             Assert.IsFalse(result);
-            Assert.AreEqual(100, target.Health.Current);
-            Assert.AreEqual(10, actor.Energy.Current);
+            Assert.AreEqual(100, target.Entity.Health.Current);
+            Assert.AreEqual(10, actor.Entity.Energy.Current);
         }
 
         [Test]
@@ -158,16 +172,19 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var start = new Vector2Int(1, 1);
             var target = new Vector2Int(5, 5);
 
-            AddEntity(actor, start);
+            AddEntity(actor.Entity, start);
             AddFreeTile(target);
 
-            var result = _executor.TryExecute(new TeleportAction(actor, target, cost: 2, cooldown: 4));
+            var battle = new Battle(new List<BattleParticipant>() { actor });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
+
+            var result = _executor.TryExecute(new TeleportAction(actor.Entity.Id, target, cost: 2, cooldown: 4), combatState, combatState);
 
             Assert.IsTrue(result);
-            Assert.IsTrue(_worldView.TryGetEntityPosition(actor, out var position));
+            Assert.IsTrue(_worldView.TryGetEntityPosition(actor.Entity, out var position));
             Assert.AreEqual(target, position);
-            Assert.AreEqual(8, actor.Energy.Current);
-            Assert.AreEqual(4, _cooldowns.GetRemainingCooldown(actor, CombatActionIds.Teleport));
+            Assert.AreEqual(8, actor.Entity.Energy.Current);
+            Assert.AreEqual(4, _cooldowns.GetRemainingCooldown(actor.Entity.Id, CombatActionIds.Teleport));
         }
 
         [Test]
@@ -177,17 +194,20 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var start = new Vector2Int(1, 1);
             var target = new Vector2Int(5, 5);
 
-            AddEntity(actor, start);
+            AddEntity(actor.Entity, start);
             AddFreeTile(target);
 
-            _cooldownEditor.PutOnCooldown(actor, CombatActionIds.Teleport, 4);
+            _cooldownEditor.PutOnCooldown(actor.Entity.Id, CombatActionIds.Teleport, 4);
 
-            var result = _executor.TryExecute(new TeleportAction(actor, target, cost: 1, cooldown: 1));
+            var battle = new Battle(new List<BattleParticipant>() { actor });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
+
+            var result = _executor.TryExecute(new TeleportAction(actor.Entity.Id, target, cost: 1, cooldown: 1), combatState, combatState);
 
             Assert.IsFalse(result);
-            Assert.IsTrue(_worldView.TryGetEntityPosition(actor, out var position));
+            Assert.IsTrue(_worldView.TryGetEntityPosition(actor.Entity, out var position));
             Assert.AreEqual(start, position);
-            Assert.AreEqual(10, actor.Energy.Current);
+            Assert.AreEqual(10, actor.Entity.Energy.Current);
         }
 
         [Test]
@@ -195,14 +215,18 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var actor = CreateEntity();
 
-            _healthEditor.DealDamage(actor, 20);
+            AddEntity(actor.Entity, new Vector2Int(1, 1));
+            _healthEditor.DealDamage(actor.Entity, 20);
 
-            var result = _executor.TryExecute(new HealAction(actor, cost: 2, cooldown: 3));
+            var battle = new Battle(new List<BattleParticipant>() { actor });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
+
+            var result = _executor.TryExecute(new HealAction(actor.Entity.Id, cost: 2, cooldown: 3), combatState, combatState);
 
             Assert.IsTrue(result);
-            Assert.AreEqual(85, actor.Health.Current);
-            Assert.AreEqual(8, actor.Energy.Current);
-            Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(actor, CombatActionIds.Heal));
+            Assert.AreEqual(85, actor.Entity.Health.Current);
+            Assert.AreEqual(8, actor.Entity.Energy.Current);
+            Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(actor.Entity.Id, CombatActionIds.Heal));
         }
 
         [Test]
@@ -210,11 +234,16 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var actor = CreateEntity();
 
-            var result = _executor.TryExecute(new HealAction(actor, cost: 2, cooldown: 1));
+            AddEntity(actor.Entity, new Vector2Int(1, 1));
+
+            var battle = new Battle(new List<BattleParticipant>() { actor });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
+
+            var result = _executor.TryExecute(new HealAction(actor.Entity.Id, cost: 2, cooldown: 1), combatState, combatState);
 
             Assert.IsFalse(result);
-            Assert.AreEqual(100, actor.Health.Current);
-            Assert.AreEqual(10, actor.Energy.Current);
+            Assert.AreEqual(100, actor.Entity.Health.Current);
+            Assert.AreEqual(10, actor.Entity.Energy.Current);
         }
 
         [Test]
@@ -223,15 +252,18 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var actor = CreateEntity();
             var target = CreateEntity();
 
-            AddEntity(actor, new Vector2Int(1, 1));
-            AddEntity(target, new Vector2Int(2, 1));
+            AddEntity(actor.Entity, new Vector2Int(1, 1));
+            AddEntity(target.Entity, new Vector2Int(2, 1));
 
-            var result = _executor.TryExecute(new StunAction(actor, target, cost: 2, cooldown: 3));
+            var battle = new Battle(new List<BattleParticipant>() { actor, target });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
+
+            var result = _executor.TryExecute(new StunAction(actor.Entity.Id, target.Entity.Id, cost: 2, cooldown: 3), combatState, combatState);
 
             Assert.IsTrue(result);
-            Assert.IsTrue(_stunStatus.IsStunned(target));
-            Assert.AreEqual(8, actor.Energy.Current);
-            Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(actor, CombatActionIds.Stun));
+            Assert.IsTrue(_stunStatus.IsStunned(target.Entity.Id));
+            Assert.AreEqual(8, actor.Entity.Energy.Current);
+            Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(actor.Entity.Id, CombatActionIds.Stun));
         }
 
         [Test]
@@ -240,30 +272,34 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var actor = CreateEntity();
             var target = CreateEntity();
 
-            AddEntity(actor, new Vector2Int(1, 1));
-            AddEntity(target, new Vector2Int(3, 1));
+            AddEntity(actor.Entity, new Vector2Int(1, 1));
+            AddEntity(target.Entity, new Vector2Int(3, 1));
 
-            var result = _executor.TryExecute(new StunAction(actor, target, cost: 2, cooldown: 1));
+            var battle = new Battle(new List<BattleParticipant>() { actor, target });
+            var combatState = new RuntimeCombatState(_worldView, _worldEditor, _healthEditor, _energyEditor, _cooldowns, _cooldownEditor, _stunStatusEditor, _stunStatus, battle);
+
+            var result = _executor.TryExecute(new StunAction(actor.Entity.Id, target.Entity.Id, cost: 2, cooldown: 1), combatState, combatState);
 
             Assert.IsFalse(result);
-            Assert.IsFalse(_stunStatus.IsStunned(target));
-            Assert.AreEqual(10, actor.Energy.Current);
+            Assert.IsFalse(_stunStatus.IsStunned(target.Entity.Id));
+            Assert.AreEqual(10, actor.Entity.Energy.Current);
         }
 
-        private IEntityView CreateEntity(
+        private BattleParticipant CreateEntity(
             int maxHealth = 100,
             int maxEnergy = 10,
             int energyRegenerationPerTurn = 3,
             int speed = 1,
             int strength = 2)
         {
-            return _entityFactory.CreateEntity(
-                new EntityDefinition(
-                    maxHealth,
-                    maxEnergy,
-                    energyRegenerationPerTurn,
-                    speed,
-                    strength));
+            var definition = new EntityDefinition(maxHealth, maxEnergy, energyRegenerationPerTurn, speed, strength);
+            var entity = _entityFactory.CreateEntity(definition);
+
+            var combatActionDefinitions = new List<ICombatActionDefinition>(); 
+
+            var battleParticipant = new BattleParticipant(entity, 1, new TeamId(1), combatActionDefinitions);
+
+            return battleParticipant;
         }
 
         private void AddEntity(IEntityView entity, Vector2Int position)
@@ -279,19 +315,19 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
 
         private class MockCombatLogger : ICombatLogger
         {
-            public string GetEntityIdString(IEntityView entity)
+            public string GetEntityDisplayName(Entities.Api.EntityId entityId)
             {
                 return string.Empty;
             }
 
-            public string GetEntityRepresentation(IEntityView entity)
+            public string GetEntityRepresentation(Entities.Api.EntityId entityId, ICombatStateView stateView)
             {
                 return string.Empty;
             }
 
-            public void Log(IEntityView entity, string text)
+            public void Log(Entities.Api.EntityId entityId, string text, ICombatStateView stateView)
             {
-
+                
             }
         }
     }

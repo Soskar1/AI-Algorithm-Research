@@ -1,9 +1,9 @@
-﻿using AiAlgorithmsResearch.Core.Ai.Api;
-using AiAlgorithmsResearch.Core.Combat.Api;
+﻿using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using EntityId = AiAlgorithmsResearch.Core.Entities.Api.EntityId;
 
 namespace AiAlgorithmsResearch.Core.Ai.Application
 {
@@ -11,27 +11,29 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
     {
         public CombatActionId ActionId => CombatActionIds.Move;
 
-        public IEnumerable<ICombatAction> GetCandidates(ICombatActionDefinition definition, CombatAgentContext context)
+        public IEnumerable<ICombatAction> GetCandidates(ICombatActionDefinition definition, ICombatStateView combatState, EntityId executorId)
         {
-            if (!context.World.TryGetEntityPosition(context.Actor, out var actorPosition))
-                return Enumerable.Empty<ICombatAction>();
-
-            if (!Targeting.TryGetClosestEnemyPosition(context, actorPosition, out var enemyPosition))
+            if (!combatState.TryGetPosition(executorId, out Vector2Int executorPosition))
             {
                 return Enumerable.Empty<ICombatAction>();
             }
 
-            if (!Targeting.TryGetClosestValidAdjacentTileToTarget(context, actorPosition, enemyPosition, out var moveTarget))
+            if (!Targeting.TryGetClosestEnemyPosition(combatState, executorId, out var enemyPosition))
             {
                 return Enumerable.Empty<ICombatAction>();
             }
 
-            var distance = GridDistance.Manhattan(actorPosition, moveTarget);
+            if (!Targeting.TryGetClosestValidAdjacentTileToTarget(combatState, executorId, enemyPosition, out var moveTarget))
+            {
+                return Enumerable.Empty<ICombatAction>();
+            }
+
+            var distance = GridDistance.Manhattan(executorPosition, moveTarget);
             var cost = Mathf.CeilToInt(distance / 2f);
 
             return new List<ICombatAction>()
             {
-                new MoveAction(context.Actor, moveTarget, cost)
+                new MoveAction(executorId, moveTarget, cost)
             };
         }
     }

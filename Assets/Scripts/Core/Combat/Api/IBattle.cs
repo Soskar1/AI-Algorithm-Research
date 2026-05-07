@@ -9,7 +9,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
 
         IBattleParticipant Current { get; }
 
-        IReadOnlyDictionary<IEntityView, TeamId> EntityTeams { get; }
+        IReadOnlyDictionary<EntityId, TeamId> EntityTeams { get; }
 
         void NextTurn();
     }

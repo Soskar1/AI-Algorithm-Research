@@ -1,39 +1,32 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
-using AiAlgorithmsResearch.Core.Entities.Api;
-using AiAlgorithmsResearch.Core.Worlds.Api;
 using UnityEngine;
+using EntityId = AiAlgorithmsResearch.Core.Entities.Api.EntityId;
 
 namespace AiAlgorithmsResearch.Core.Combat.Application
 {
     internal class CombatLogger : ICombatLogger
     {
-        private readonly IWorldView _worldView;
-
-        public CombatLogger(IWorldView worldView)
+        public void Log(EntityId entityId, string text, ICombatStateView combatStateView)
         {
-            _worldView = worldView;
-        }
-
-        public void Log(IEntityView entity, string text)
-        {
-            var entityLog = GetEntityRepresentation(entity);
+            var entityLog = GetEntityRepresentation(entityId, combatStateView);
             Debug.Log($"[{entityLog}] {text}");
         }
 
-        public string GetEntityRepresentation(IEntityView entity)
+        public string GetEntityRepresentation(EntityId entityId, ICombatStateView combatStateView)
         {
-            if (!_worldView.TryGetEntityPosition(entity, out var entityPosition))
+            if (!combatStateView.TryGetPosition(entityId, out var entityPosition))
                 return string.Empty;
 
-            var entityId = GetEntityIdString(entity);
+            var entityDisplayName = GetEntityDisplayName(entityId);
 
-            return $"{entityId}, ({entityPosition})";
+            return $"{entityDisplayName}, ({entityPosition})";
         }
 
-        public string GetEntityIdString(IEntityView entity)
+        public string GetEntityDisplayName(EntityId entityId)
         {
-            var id = entity.Id.ToString().Substring(0, 4);
-            return $"{entity.DisplayName}-{id}";
+            var id = entityId.ToString().Substring(0, 4);
+            // return $"{entity.DisplayName}-{id}";
+            return id;
         }
     }
 }

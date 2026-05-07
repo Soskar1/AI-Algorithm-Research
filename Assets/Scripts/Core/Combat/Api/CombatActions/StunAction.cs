@@ -4,16 +4,16 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
 {
     public readonly struct StunAction : ICombatAction
     {
-        public IEntityView Actor { get; }
         public CombatActionId Id => CombatActionIds.Stun;
-        public IEntityView Target { get; }
+        public EntityId ExecutorId { get; }
+        public EntityId TargetId { get; }
         public int Cost { get; }
         public int Cooldown { get; }
 
-        public StunAction(IEntityView actor, IEntityView target, int cost, int cooldown)
+        public StunAction(EntityId executorId, EntityId targetId, int cost, int cooldown)
         {
-            Actor = actor;
-            Target = target;
+            ExecutorId = executorId;
+            TargetId = targetId;
             Cost = cost;
             Cooldown = cooldown;
         }

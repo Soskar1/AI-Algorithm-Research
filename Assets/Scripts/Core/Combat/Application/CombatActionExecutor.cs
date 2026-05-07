@@ -7,40 +7,32 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
     {
         private readonly Dictionary<CombatActionId, ICombatActionHandler> _handlers;
 
-        private readonly ICombatStateEditor _stateEditor;
-        private readonly ICombatStateView _stateView;
-
-        public CombatActionExecutor(
-            Dictionary<CombatActionId, ICombatActionHandler> handlers,
-            ICombatStateView stateView,
-            ICombatStateEditor stateEditor)
+        public CombatActionExecutor(Dictionary<CombatActionId, ICombatActionHandler> handlers)
         {
             _handlers = handlers;
-            _stateEditor = stateEditor;
-            _stateView = stateView;
         }
 
-        public bool TryExecute(ICombatAction action)
+        public bool TryExecute(ICombatAction action, ICombatStateView stateView, ICombatStateEditor stateEditor)
         {
             if (!_handlers.TryGetValue(action.Id, out var handler))
                 return false;
 
-            if (_stateView.IsOnCooldown(action.Actor.Id, action.Id))
+            if (stateView.IsOnCooldown(action.ExecutorId, action.Id))
                 return false;
 
-            if (!handler.CanExecute(action))
+            if (!handler.CanExecute(action, stateView))
                 return false;
 
-            if (!_stateEditor.TrySpendEnergy(action.Actor.Id, action.Cost))
+            if (!stateEditor.TrySpendEnergy(action.ExecutorId, action.Cost))
                 return false;
 
-            if (!handler.Apply(action))
+            if (!handler.Apply(action, stateView, stateEditor))
                 return false;
 
             var cooldown = action.Cooldown;
 
             if (cooldown > 0)
-                _stateEditor.PutOnCooldown(action.Actor.Id, action.Id, cooldown);
+                stateEditor.PutOnCooldown(action.ExecutorId, action.Id, cooldown);
 
             return true;
         }

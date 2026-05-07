@@ -1,32 +1,34 @@
-﻿using AiAlgorithmsResearch.Core.Ai.Api;
-using AiAlgorithmsResearch.Core.Maps.Api;
+﻿using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using EntityId = AiAlgorithmsResearch.Core.Entities.Api.EntityId;
 
 namespace AiAlgorithmsResearch.Core.Ai.Application
 {
     internal static class Targeting
     {
-        public static bool TryGetClosestEnemyPosition(CombatAgentContext context, Vector2Int actorPosition, out Vector2Int enemyPosition)
+        public static bool TryGetClosestEnemyPosition(ICombatStateView combatState, EntityId executorId, out Vector2Int enemyPosition)
         {
             enemyPosition = default;
             var bestDistance = int.MaxValue;
             var found = false;
 
-            foreach (var participant in context.Battle.TurnOrder)
+            if (!combatState.TryGetPosition(executorId, out Vector2Int executorPosition))
             {
-                if (participant.TeamId == context.TeamId)
+                return false;
+            }
+
+            foreach (var entityId in combatState.EntityIds)
+            {
+                if (AreInTheSameTeam(combatState, entityId, executorId) || EntityIsDead(combatState, entityId))
                     continue;
 
-                if (participant.Entity.Health.Current <= 0)
+                if (!combatState.TryGetPosition(entityId, out var position))
                     continue;
 
-                if (!context.World.TryGetEntityPosition(participant.Entity, out var position))
-                    continue;
-
-                var distance = GridDistance.Manhattan(actorPosition, position);
+                var distance = GridDistance.Manhattan(executorPosition, position);
 
                 if (distance >= bestDistance)
                     continue;
@@ -39,13 +41,18 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             return found;
         }
 
-        public static bool TryGetClosestValidAdjacentTileToTarget(CombatAgentContext context, Vector2Int originPosition, Vector2Int targetPosition, out Vector2Int result)
+        public static bool TryGetClosestValidAdjacentTileToTarget(ICombatStateView combatState, EntityId executorId, Vector2Int targetPosition, out Vector2Int result)
         {
             result = default;
 
-            var candidates = GetAdjacentTiles(originPosition)
-                .Where(position => IsValidDestination(context, position))
-                .OrderBy(position => GridDistance.Manhattan(position, targetPosition))
+            if (!combatState.TryGetPosition(executorId, out Vector2Int executorPosition))
+            {
+                return false;
+            }
+
+            var candidates = GetAdjacentTiles(targetPosition)
+                .Where(position => IsValidDestination(combatState, position))
+                .OrderBy(position => GridDistance.Manhattan(executorPosition, targetPosition))
                 .ToArray();
 
             if (candidates.Length == 0)
@@ -63,15 +70,23 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             yield return position + Vector2Int.down;
         }
 
-        public static bool IsValidDestination(CombatAgentContext context, Vector2Int position)
+        public static bool IsValidDestination(ICombatStateView combatState, Vector2Int position)
         {
-            if (!context.World.Map.TryGetNode(position, out var node))
-                return false;
+            return !combatState.IsObstacle(position) && !combatState.IsOccupied(position);
+        }
 
-            if (node.Type == MapNodeType.Obstacle)
-                return false;
+        public static bool AreInTheSameTeam(ICombatStateView combatState, EntityId first, EntityId second)
+        {
+            var firstTeam = combatState.GetTeamId(first);
+            var secondTeam = combatState.GetTeamId(second);
 
-            return !context.World.Entities.Any(entity => entity.Position == position);
+            return firstTeam == secondTeam;
+        }
+
+        public static bool EntityIsDead(ICombatStateView combatState, EntityId entityId)
+        {
+            var health = combatState.GetHealth(entityId);
+            return health <= 0;
         }
     }
 }

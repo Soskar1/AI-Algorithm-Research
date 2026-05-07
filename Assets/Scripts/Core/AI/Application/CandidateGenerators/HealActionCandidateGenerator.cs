@@ -1,5 +1,5 @@
-﻿using AiAlgorithmsResearch.Core.Ai.Api;
-using AiAlgorithmsResearch.Core.Combat.Api;
+﻿using AiAlgorithmsResearch.Core.Combat.Api;
+using AiAlgorithmsResearch.Core.Entities.Api;
 using System.Collections.Generic;
 
 namespace AiAlgorithmsResearch.Core.Ai.Application
@@ -8,13 +8,13 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
     {
         public CombatActionId ActionId => CombatActionIds.Heal;
 
-        public IEnumerable<ICombatAction> GetCandidates(ICombatActionDefinition definition, CombatAgentContext context)
+        public IEnumerable<ICombatAction> GetCandidates(ICombatActionDefinition definition, ICombatStateView combatState, EntityId executorId)
         {
             var heal = (HealActionDefinition)definition;
 
             return new List<ICombatAction>()
             {
-                new HealAction(context.Actor, heal.Amount, definition.Cooldown)
+                new HealAction(executorId, heal.Amount, definition.Cooldown)
             };
         }
     }

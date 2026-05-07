@@ -5,8 +5,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
 {
     public interface IActionCooldowns
     {
-        bool IsOnCooldown(IEntityView entity, CombatActionId actionId);
-        int GetRemainingCooldown(IEntityView entity, CombatActionId actionId);
-        IDictionary<CombatActionId, int> CopyEntityCooldowns(IEntityView entity);
+        bool IsOnCooldown(EntityId entity, CombatActionId actionId);
+        int GetRemainingCooldown(EntityId entity, CombatActionId actionId);
+        IDictionary<CombatActionId, int> CopyEntityCooldowns(EntityId entity);
     }
 }

@@ -1,5 +1,5 @@
-﻿using AiAlgorithmsResearch.Core.Ai.Api;
-using AiAlgorithmsResearch.Core.Combat.Api;
+﻿using AiAlgorithmsResearch.Core.Combat.Api;
+using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,23 +10,26 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
     {
         public CombatActionId ActionId => CombatActionIds.Attack;
 
-        public IEnumerable<ICombatAction> GetCandidates(ICombatActionDefinition definition, CombatAgentContext context)
+        public IEnumerable<ICombatAction> GetCandidates(ICombatActionDefinition definition, ICombatStateView combatState, EntityId executorId)
         {
             var attack = (AttackActionDefinition)definition;
 
-            if (!context.World.TryGetEntityPosition(context.Actor, out var actorPosition))
+            if (!combatState.TryGetPosition(executorId, out var actorPosition))
                 return Enumerable.Empty<ICombatAction>();
 
+            var executorTeamId = combatState.GetTeamId(executorId);
+
             var candidates = new List<ICombatAction>();
-            foreach (var participant in context.Battle.TurnOrder)
+            foreach (var entity in combatState.EntityIds)
             {
-                if (participant.TeamId == context.TeamId)
+                if (combatState.GetTeamId(entity) == executorTeamId)
                     continue;
 
-                if (participant.Entity.Health.Current <= 0)
+                var health = combatState.GetHealth(entity);
+                if (health <= 0)
                     continue;
 
-                if (!context.World.TryGetEntityPosition(participant.Entity, out var targetPosition))
+                if (!combatState.TryGetPosition(entity, out var targetPosition))
                     continue;
 
                 var distance = GridDistance.Manhattan(actorPosition, targetPosition);
@@ -34,7 +37,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 if (distance > attack.Range)
                     continue;
 
-                candidates.Add(new AttackAction(context.Actor, participant.Entity, attack.BaseDamage, attack.Range, definition.BaseCost));
+                candidates.Add(new AttackAction(executorId, entity, attack.BaseDamage, attack.Range, definition.BaseCost));
             }
 
             return candidates;

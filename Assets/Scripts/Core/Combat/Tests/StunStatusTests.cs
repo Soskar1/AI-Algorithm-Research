@@ -27,7 +27,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            Assert.IsFalse(_stunStatus.IsStunned(entity));
+            Assert.IsFalse(_stunStatus.IsStunned(entity.Id));
         }
 
         [Test]
@@ -35,9 +35,9 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            _stunStatusEditor.StunForNextTurn(entity);
+            _stunStatusEditor.StunForNextTurn(entity.Id);
 
-            Assert.IsTrue(_stunStatus.IsStunned(entity));
+            Assert.IsTrue(_stunStatus.IsStunned(entity.Id));
         }
 
         [Test]
@@ -45,12 +45,12 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            _stunStatusEditor.StunForNextTurn(entity);
+            _stunStatusEditor.StunForNextTurn(entity.Id);
 
-            var result = _stunStatusEditor.ConsumeStun(entity);
+            var result = _stunStatusEditor.ConsumeStun(entity.Id);
 
             Assert.IsTrue(result);
-            Assert.IsFalse(_stunStatus.IsStunned(entity));
+            Assert.IsFalse(_stunStatus.IsStunned(entity.Id));
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            var result = _stunStatusEditor.ConsumeStun(entity);
+            var result = _stunStatusEditor.ConsumeStun(entity.Id);
 
             Assert.IsFalse(result);
         }
@@ -69,10 +69,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var stunnedEntity = CreateEntity();
             var otherEntity = CreateEntity();
 
-            _stunStatusEditor.StunForNextTurn(stunnedEntity);
+            _stunStatusEditor.StunForNextTurn(stunnedEntity.Id);
 
-            Assert.IsTrue(_stunStatus.IsStunned(stunnedEntity));
-            Assert.IsFalse(_stunStatus.IsStunned(otherEntity));
+            Assert.IsTrue(_stunStatus.IsStunned(stunnedEntity.Id));
+            Assert.IsFalse(_stunStatus.IsStunned(otherEntity.Id));
         }
 
         [Test]
@@ -80,11 +80,11 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            _stunStatusEditor.StunForNextTurn(entity);
-            _stunStatusEditor.StunForNextTurn(entity);
+            _stunStatusEditor.StunForNextTurn(entity.Id);
+            _stunStatusEditor.StunForNextTurn(entity.Id);
 
-            Assert.IsTrue(_stunStatusEditor.ConsumeStun(entity));
-            Assert.IsFalse(_stunStatusEditor.ConsumeStun(entity));
+            Assert.IsTrue(_stunStatusEditor.ConsumeStun(entity.Id));
+            Assert.IsFalse(_stunStatusEditor.ConsumeStun(entity.Id));
         }
 
         private IEntityView CreateEntity()

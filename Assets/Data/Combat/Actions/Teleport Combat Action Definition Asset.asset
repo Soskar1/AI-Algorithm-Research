@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b638381e876542e40baa1109652add05, type: 3}
   m_Name: Teleport Combat Action Definition Asset
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Combat::AiAlgorithmsResearch.Core.Combat.Infrastructure.TeleportCombatActionDefinitionAsset
+  _baseCost: 1
+  _cooldown: 0

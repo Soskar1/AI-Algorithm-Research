@@ -13,3 +13,5 @@ MonoBehaviour:
   m_Name: Stun Combat Action Definition Asset
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Combat::AiAlgorithmsResearch.Core.Combat.Infrastructure.StunCombatActionDefinitionAsset
   _range: 1
+  _baseCost: 2
+  _cooldown: 0

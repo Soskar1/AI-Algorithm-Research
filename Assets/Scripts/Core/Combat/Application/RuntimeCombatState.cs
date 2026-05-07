@@ -3,6 +3,7 @@ using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Maps.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using EntityId = AiAlgorithmsResearch.Core.Entities.Api.EntityId;
@@ -18,6 +19,13 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
         private readonly IActionCooldowns _cooldowns;
         private readonly IActionCooldownEditor _cooldownEditor;
         private readonly IStunStatusEditor _stunEditor;
+        private readonly IStunStatus _stunStatus;
+        private readonly IBattle _battle;
+
+        private readonly List<EntityId> _entityIds;
+        public IReadOnlyCollection<EntityId> EntityIds => _entityIds;
+
+        private readonly Dictionary<EntityId, IReadOnlyCollection<ICombatActionDefinition>> _actionDefinitions;
 
         public RuntimeCombatState(
             IWorldView worldView,
@@ -26,7 +34,9 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             IEntityEnergyEditor energyEditor,
             IActionCooldowns cooldowns,
             IActionCooldownEditor cooldownEditor,
-            IStunStatusEditor stunEditor)
+            IStunStatusEditor stunEditor,
+            IStunStatus stunStatus,
+            IBattle battle)
         {
             _worldView = worldView;
             _worldEditor = worldEditor;
@@ -35,6 +45,19 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             _cooldowns = cooldowns;
             _cooldownEditor = cooldownEditor;
             _stunEditor = stunEditor;
+            _stunStatus = stunStatus;
+            _battle = battle;
+
+            _entityIds = battle.EntityTeams.Keys.ToList();
+            _actionDefinitions = new Dictionary<EntityId, IReadOnlyCollection<ICombatActionDefinition>>();
+
+            foreach (var battleParticipant in battle.TurnOrder)
+            {
+                var id = battleParticipant.Entity.Id;
+                var actions = battleParticipant.ActionDefinitions;
+
+                _actionDefinitions.Add(id, actions);
+            }
         }
 
         public bool TryGetPosition(EntityId entityId, out Vector2Int position)
@@ -89,7 +112,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 
         public bool IsOnCooldown(EntityId entityId, CombatActionId actionId)
         {
-            return _cooldowns.IsOnCooldown(GetEntity(entityId), actionId);
+            return _cooldowns.IsOnCooldown(entityId, actionId);
         }
 
         public bool TryMove(EntityId entityId, Vector2Int position)
@@ -114,12 +137,12 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 
         public void PutOnCooldown(EntityId entityId, CombatActionId actionId, int turns)
         {
-            _cooldownEditor.PutOnCooldown(GetEntity(entityId), actionId, turns);
+            _cooldownEditor.PutOnCooldown(entityId, actionId, turns);
         }
 
         public void StunForNextTurn(EntityId entityId)
         {
-            _stunEditor.StunForNextTurn(GetEntity(entityId));
+            _stunEditor.StunForNextTurn(entityId);
         }
 
         private IEntityView GetEntity(EntityId entityId)
@@ -131,6 +154,31 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             }
 
             throw new InvalidOperationException($"Entity was not found: {entityId}");
+        }
+
+        public TeamId GetTeamId(EntityId entityId)
+        {
+            return _battle.EntityTeams[entityId];
+        }
+
+        public IReadOnlyCollection<ICombatActionDefinition> GetCombatActionDefinitions(EntityId entityId)
+        {
+            return _actionDefinitions[entityId];
+        }
+
+        public int GetSpeed(EntityId entityId)
+        {
+            return GetEntity(entityId).Speed;
+        }
+
+        public bool IsStunned(EntityId entityId)
+        {
+            return _stunStatus.IsStunned(entityId);
+        }
+
+        public IDictionary<CombatActionId, int> GetCooldowns(EntityId entityId)
+        {
+            return _cooldowns.CopyEntityCooldowns(entityId);
         }
     }
 }

@@ -13,3 +13,5 @@ MonoBehaviour:
   m_Name: Heal Combat Action Definition Asset
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Combat::AiAlgorithmsResearch.Core.Combat.Infrastructure.HealCombatActionDefinitionAsset
   _amount: 5
+  _baseCost: 2
+  _cooldown: 0

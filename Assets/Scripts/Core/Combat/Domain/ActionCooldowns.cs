@@ -6,14 +6,14 @@ namespace AiAlgorithmsResearch.Core.Combat.Domain
 {
     internal sealed class ActionCooldowns : IActionCooldowns, IActionCooldownEditor
     {
-        private readonly Dictionary<IEntityView, Dictionary<CombatActionId, int>> _cooldowns = new();
+        private readonly Dictionary<EntityId, Dictionary<CombatActionId, int>> _cooldowns = new();
 
-        public bool IsOnCooldown(IEntityView entity, CombatActionId actionId)
+        public bool IsOnCooldown(EntityId entity, CombatActionId actionId)
         {
             return GetRemainingCooldown(entity, actionId) > 0;
         }
 
-        public int GetRemainingCooldown(IEntityView entity, CombatActionId actionId)
+        public int GetRemainingCooldown(EntityId entity, CombatActionId actionId)
         {
             if (!_cooldowns.TryGetValue(entity, out var entityCooldowns))
                 return 0;
@@ -24,7 +24,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Domain
             return remaining;
         }
 
-        public void PutOnCooldown(IEntityView entity, CombatActionId actionId, int turns)
+        public void PutOnCooldown(EntityId entity, CombatActionId actionId, int turns)
         {
             if (turns <= 0)
                 return;
@@ -38,7 +38,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Domain
             entityCooldowns[actionId] = turns;
         }
 
-        public void TickCooldowns(IEntityView entity)
+        public void TickCooldowns(EntityId entity)
         {
             if (!_cooldowns.TryGetValue(entity, out var entityCooldowns))
                 return;
@@ -56,7 +56,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Domain
             }
         }
 
-        public IDictionary<CombatActionId, int> CopyEntityCooldowns(IEntityView entity)
+        public IDictionary<CombatActionId, int> CopyEntityCooldowns(EntityId entity)
         {
             var cooldowns = _cooldowns[entity];
             return new Dictionary<CombatActionId, int>(cooldowns);

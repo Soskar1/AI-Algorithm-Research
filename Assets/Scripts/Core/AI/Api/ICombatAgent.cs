@@ -1,10 +1,10 @@
 using AiAlgorithmsResearch.Core.Combat.Api;
-using System.Collections.Generic;
+using AiAlgorithmsResearch.Core.Entities.Api;
 
 namespace AiAlgorithmsResearch.Core.Ai.Api
 {
     public interface ICombatAgent
     {
-        CombatPlan ChoosePlan(IList<ICombatAction> actions, CombatAgentContext context);
+        CombatPlan ChoosePlan(ICombatStateView stateView, EntityId executor);
     }
 }

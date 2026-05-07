@@ -27,21 +27,17 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
             builder.RegisterFactory<IActionCooldowns>(builder => builder.Resolve<ActionCooldowns>(), Lifetime.Singleton, Resolution.Lazy);
             builder.RegisterFactory<IActionCooldownEditor>(builder => builder.Resolve<ActionCooldowns>(), Lifetime.Singleton, Resolution.Lazy);
 
-            builder.RegisterFactory<ICombatLogger>(builder => new CombatLogger(builder.Resolve<IWorldView>()), Lifetime.Singleton, Resolution.Lazy);
-
-            builder.RegisterFactory(builder =>
-                new RuntimeCombatState(
+            builder.RegisterFactory<IRuntimeCombatStateFactory>(builder =>
+                new RuntimeCombatStateFactory(
                     builder.Resolve<IWorldView>(),
                     builder.Resolve<IWorldEditor>(),
                     builder.Resolve<IEntityHealthEditor>(),
                     builder.Resolve<IEntityEnergyEditor>(),
                     builder.Resolve<IActionCooldowns>(),
                     builder.Resolve<IActionCooldownEditor>(),
-                    builder.Resolve<IStunStatusEditor>()
-                ), Lifetime.Singleton, Resolution.Lazy);
-
-            builder.RegisterFactory<ICombatStateView>(builder => builder.Resolve<RuntimeCombatState>(), Lifetime.Singleton, Resolution.Lazy);
-            builder.RegisterFactory<ICombatStateEditor>(builder => builder.Resolve<RuntimeCombatState>(), Lifetime.Singleton, Resolution.Lazy);
+                    builder.Resolve<IStunStatusEditor>(),
+                    builder.Resolve<IStunStatus>()),
+                Lifetime.Singleton, Resolution.Lazy);
 
             builder.RegisterFactory<ICombatActionExecutor>(builder =>
             {
@@ -53,14 +49,13 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
                     new Dictionary<CombatActionId, ICombatActionHandler>()
                     {
                         [CombatActionIds.Wait] = new WaitActionHandler(combatLogger),
-                        [CombatActionIds.Move] = new MoveActionHandler(combatStateView, combatStateEditor, combatLogger),
-                        [CombatActionIds.Attack] = new AttackActionHandler(combatStateView, combatStateEditor, combatLogger),
-                        [CombatActionIds.Teleport] = new TeleportActionHandler(combatStateView, combatStateEditor, combatLogger),
-                        [CombatActionIds.Heal] = new HealActionHandler(combatStateView, combatStateEditor, combatLogger),
-                        [CombatActionIds.Stun] = new StunActionHandler(combatStateView, combatStateEditor, combatLogger)
-                    }, combatStateView, combatStateEditor);
+                        [CombatActionIds.Move] = new MoveActionHandler(combatLogger),
+                        [CombatActionIds.Attack] = new AttackActionHandler(combatLogger),
+                        [CombatActionIds.Teleport] = new TeleportActionHandler(combatLogger),
+                        [CombatActionIds.Heal] = new HealActionHandler(combatLogger),
+                        [CombatActionIds.Stun] = new StunActionHandler(combatLogger)
+                    });
             }, Lifetime.Singleton, Resolution.Lazy);
-
             return builder;
         }
     }

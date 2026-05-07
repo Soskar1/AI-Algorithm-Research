@@ -4,41 +4,37 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 {
     internal sealed class TeleportActionHandler : ICombatActionHandler
     {
-        private readonly ICombatStateView _stateView;
-        private readonly ICombatStateEditor _stateEditor;
+        public CombatActionId ActionId => CombatActionIds.Teleport;
+        
         private readonly ICombatLogger _combatLogger;
 
-        public CombatActionId ActionId => CombatActionIds.Teleport;
-
-        public TeleportActionHandler(ICombatStateView stateView, ICombatStateEditor stateEditor, ICombatLogger combatLogger)
+        public TeleportActionHandler(ICombatLogger combatLogger)
         {
-            _stateView = stateView;
-            _stateEditor = stateEditor;
             _combatLogger = combatLogger;
         }
 
-        public bool CanExecute(ICombatAction action)
+        public bool CanExecute(ICombatAction action, ICombatStateView stateView)
         {
             var teleport = (TeleportAction)action;
-            return _stateView.TryGetPosition(teleport.Actor.Id, out _);
+            return stateView.TryGetPosition(teleport.ExecutorId, out _);
         }
 
-        public bool Apply(ICombatAction action)
+        public bool Apply(ICombatAction action, ICombatStateView stateView, ICombatStateEditor stateEditor)
         {
             var teleport = (TeleportAction)action;
 
-            var currentPositionResult = _stateView.TryGetPosition(teleport.Actor.Id, out var currentPosition);
+            var currentPositionResult = stateView.TryGetPosition(teleport.ExecutorId, out var currentPosition);
 
-            var teleportResult = _stateEditor.TryMove(teleport.Actor.Id, teleport.TargetPosition);
+            var teleportResult = stateEditor.TryMove(teleport.ExecutorId, teleport.TargetPosition);
 
             if (teleportResult)
             {
                 var fromString = currentPositionResult ? $"from ({currentPosition})" : "";
-                _combatLogger.Log(action.Actor, $"is teleported {fromString} to {teleport.TargetPosition}.");
+                _combatLogger.Log(action.ExecutorId, $"is teleported {fromString} to {teleport.TargetPosition}.", stateView);
             }
             else
             {
-                _combatLogger.Log(action.Actor, $"failed to teleport to {teleport.TargetPosition}");
+                _combatLogger.Log(action.ExecutorId, $"failed to teleport to {teleport.TargetPosition}", stateView);
             }
 
             return teleportResult;

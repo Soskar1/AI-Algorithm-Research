@@ -4,6 +4,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
 {
     public interface IStunStatus
     {
-        bool IsStunned(IEntityView entity);
+        bool IsStunned(EntityId entity);
     }
 }

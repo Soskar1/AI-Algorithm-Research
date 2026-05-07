@@ -1,5 +1,5 @@
-﻿using AiAlgorithmsResearch.Core.Ai.Api;
-using AiAlgorithmsResearch.Core.Combat.Api;
+﻿using AiAlgorithmsResearch.Core.Combat.Api;
+using AiAlgorithmsResearch.Core.Entities.Api;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,27 +8,26 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
     internal sealed class CombatActionCandidateProvider
     {
         private readonly Dictionary<CombatActionId, ICombatActionCandidateGenerator> _generators;
-        private readonly IActionCooldowns _actionCooldowns;
 
-        public CombatActionCandidateProvider(IEnumerable<ICombatActionCandidateGenerator> generators, IActionCooldowns actionCooldowns)
+        public CombatActionCandidateProvider(IEnumerable<ICombatActionCandidateGenerator> generators)
         {
             _generators = generators.ToDictionary(generator => generator.ActionId, generator => generator);
-            _actionCooldowns = actionCooldowns;
         }
 
-        public IList<ICombatAction> GetCandidates(CombatAgentContext context)
+        public IList<ICombatAction> GetCandidates(ICombatStateView combatState, EntityId entityId)
         {
             var candidates = new List<ICombatAction>();
+            var availableActions = combatState.GetCombatActionDefinitions(entityId);
 
-            foreach (var definition in context.AvailableActions)
+            foreach (var definition in availableActions)
             {
                 if (!_generators.TryGetValue(definition.Id, out var generator))
                     continue;
 
-                if (_actionCooldowns.IsOnCooldown(context.Actor, definition.Id))
+                if (combatState.IsOnCooldown(entityId, definition.Id))
                     continue;
 
-                var generated = generator.GetCandidates(definition, context);
+                var generated = generator.GetCandidates(definition, combatState, entityId);
 
                 if (generated == null)
                     continue;
@@ -37,7 +36,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             }
 
             if (candidates.Count == 0)
-                candidates.Add(new WaitAction(context.Actor));
+                candidates.Add(new WaitAction(entityId));
 
             return candidates;
         }

@@ -12,11 +12,11 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             _combatLogger = combatLogger;
         }
 
-        public bool CanExecute(ICombatAction action) => true;
+        public bool CanExecute(ICombatAction action, ICombatStateView stateView) => true;
 
-        public bool Apply(ICombatAction action)
+        public bool Apply(ICombatAction action, ICombatStateView stateView, ICombatStateEditor stateEditor)
         {
-            _combatLogger.Log(action.Actor, $"skipped turn.");
+            _combatLogger.Log(action.ExecutorId, $"skipped turn.", stateView);
 
             return true;
         }

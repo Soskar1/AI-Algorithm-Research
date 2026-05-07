@@ -13,6 +13,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
         public Vector2Int Position { get; set; }
 
         public int Health { get; set; }
+        public int MaxHealth { get; }
         public int Energy { get; set; }
 
         public int Strength { get; }
@@ -21,15 +22,16 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
         public IDictionary<CombatActionId, int> Cooldowns { get; }
         public bool IsStunned { get; set; }
 
-        public SimulationEntityState(IEntityView entityView, TeamId teamId, Vector2Int position, IDictionary<CombatActionId, int> cooldowns, bool isStunned)
+        public SimulationEntityState(EntityId id, int health, int maxHealth, int energy, int strength, int speed, TeamId teamId, Vector2Int position, IDictionary<CombatActionId, int> cooldowns, bool isStunned)
         {
-            Id = entityView.Id;
+            Id = id;
             TeamId = teamId;
             Position = position;
-            Health = entityView.Health.Current;
-            Energy = entityView.Energy.Current;
-            Strength = entityView.Strength;
-            Speed = entityView.Speed;
+            Health = health;
+            MaxHealth = maxHealth;
+            Energy = energy;
+            Strength = strength;
+            Speed = speed;
             Cooldowns = cooldowns;
             IsStunned = isStunned;
         }

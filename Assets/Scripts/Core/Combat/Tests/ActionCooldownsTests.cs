@@ -27,10 +27,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            var remaining = _cooldowns.GetRemainingCooldown(entity, CombatActionIds.Teleport);
+            var remaining = _cooldowns.GetRemainingCooldown(entity.Id, CombatActionIds.Teleport);
 
             Assert.AreEqual(0, remaining);
-            Assert.IsFalse(_cooldowns.IsOnCooldown(entity, CombatActionIds.Teleport));
+            Assert.IsFalse(_cooldowns.IsOnCooldown(entity.Id, CombatActionIds.Teleport));
         }
 
         [Test]
@@ -38,10 +38,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            _cooldownEditor.PutOnCooldown(entity, CombatActionIds.Teleport, turns: 4);
+            _cooldownEditor.PutOnCooldown(entity.Id, CombatActionIds.Teleport, turns: 4);
 
-            Assert.IsTrue(_cooldowns.IsOnCooldown(entity, CombatActionIds.Teleport));
-            Assert.AreEqual(4, _cooldowns.GetRemainingCooldown(entity, CombatActionIds.Teleport));
+            Assert.IsTrue(_cooldowns.IsOnCooldown(entity.Id, CombatActionIds.Teleport));
+            Assert.AreEqual(4, _cooldowns.GetRemainingCooldown(entity.Id, CombatActionIds.Teleport));
         }
 
         [Test]
@@ -49,10 +49,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            _cooldownEditor.PutOnCooldown(entity, CombatActionIds.Teleport, turns: 0);
+            _cooldownEditor.PutOnCooldown(entity.Id, CombatActionIds.Teleport, turns: 0);
 
-            Assert.IsFalse(_cooldowns.IsOnCooldown(entity, CombatActionIds.Teleport));
-            Assert.AreEqual(0, _cooldowns.GetRemainingCooldown(entity, CombatActionIds.Teleport));
+            Assert.IsFalse(_cooldowns.IsOnCooldown(entity.Id, CombatActionIds.Teleport));
+            Assert.AreEqual(0, _cooldowns.GetRemainingCooldown(entity.Id, CombatActionIds.Teleport));
         }
 
         [Test]
@@ -60,10 +60,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            _cooldownEditor.PutOnCooldown(entity, CombatActionIds.Teleport, turns: -1);
+            _cooldownEditor.PutOnCooldown(entity.Id, CombatActionIds.Teleport, turns: -1);
 
-            Assert.IsFalse(_cooldowns.IsOnCooldown(entity, CombatActionIds.Teleport));
-            Assert.AreEqual(0, _cooldowns.GetRemainingCooldown(entity, CombatActionIds.Teleport));
+            Assert.IsFalse(_cooldowns.IsOnCooldown(entity.Id, CombatActionIds.Teleport));
+            Assert.AreEqual(0, _cooldowns.GetRemainingCooldown(entity.Id, CombatActionIds.Teleport));
         }
 
         [Test]
@@ -71,11 +71,11 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            _cooldownEditor.PutOnCooldown(entity, CombatActionIds.Teleport, turns: 4);
+            _cooldownEditor.PutOnCooldown(entity.Id, CombatActionIds.Teleport, turns: 4);
 
-            _cooldownEditor.TickCooldowns(entity);
+            _cooldownEditor.TickCooldowns(entity.Id);
 
-            Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(entity, CombatActionIds.Teleport));
+            Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(entity.Id, CombatActionIds.Teleport));
         }
 
         [Test]
@@ -83,12 +83,12 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            _cooldownEditor.PutOnCooldown(entity, CombatActionIds.Heal, turns: 1);
+            _cooldownEditor.PutOnCooldown(entity.Id, CombatActionIds.Heal, turns: 1);
 
-            _cooldownEditor.TickCooldowns(entity);
+            _cooldownEditor.TickCooldowns(entity.Id);
 
-            Assert.IsFalse(_cooldowns.IsOnCooldown(entity, CombatActionIds.Heal));
-            Assert.AreEqual(0, _cooldowns.GetRemainingCooldown(entity, CombatActionIds.Heal));
+            Assert.IsFalse(_cooldowns.IsOnCooldown(entity.Id, CombatActionIds.Heal));
+            Assert.AreEqual(0, _cooldowns.GetRemainingCooldown(entity.Id, CombatActionIds.Heal));
         }
 
         [Test]
@@ -96,13 +96,13 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            _cooldownEditor.PutOnCooldown(entity, CombatActionIds.Teleport, turns: 4);
-            _cooldownEditor.PutOnCooldown(entity, CombatActionIds.Heal, turns: 3);
+            _cooldownEditor.PutOnCooldown(entity.Id, CombatActionIds.Teleport, turns: 4);
+            _cooldownEditor.PutOnCooldown(entity.Id, CombatActionIds.Heal, turns: 3);
 
-            _cooldownEditor.TickCooldowns(entity);
+            _cooldownEditor.TickCooldowns(entity.Id);
 
-            Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(entity, CombatActionIds.Teleport));
-            Assert.AreEqual(2, _cooldowns.GetRemainingCooldown(entity, CombatActionIds.Heal));
+            Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(entity.Id, CombatActionIds.Teleport));
+            Assert.AreEqual(2, _cooldowns.GetRemainingCooldown(entity.Id, CombatActionIds.Heal));
         }
 
         [Test]
@@ -111,13 +111,13 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var firstEntity = CreateEntity();
             var secondEntity = CreateEntity();
 
-            _cooldownEditor.PutOnCooldown(firstEntity, CombatActionIds.Teleport, turns: 4);
-            _cooldownEditor.PutOnCooldown(secondEntity, CombatActionIds.Teleport, turns: 4);
+            _cooldownEditor.PutOnCooldown(firstEntity.Id, CombatActionIds.Teleport, turns: 4);
+            _cooldownEditor.PutOnCooldown(secondEntity.Id, CombatActionIds.Teleport, turns: 4);
 
-            _cooldownEditor.TickCooldowns(firstEntity);
+            _cooldownEditor.TickCooldowns(firstEntity.Id);
 
-            Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(firstEntity, CombatActionIds.Teleport));
-            Assert.AreEqual(4, _cooldowns.GetRemainingCooldown(secondEntity, CombatActionIds.Teleport));
+            Assert.AreEqual(3, _cooldowns.GetRemainingCooldown(firstEntity.Id, CombatActionIds.Teleport));
+            Assert.AreEqual(4, _cooldowns.GetRemainingCooldown(secondEntity.Id, CombatActionIds.Teleport));
         }
 
         [Test]
@@ -125,10 +125,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         {
             var entity = CreateEntity();
 
-            _cooldownEditor.PutOnCooldown(entity, CombatActionIds.Teleport, turns: 4);
-            _cooldownEditor.PutOnCooldown(entity, CombatActionIds.Teleport, turns: 2);
+            _cooldownEditor.PutOnCooldown(entity.Id, CombatActionIds.Teleport, turns: 4);
+            _cooldownEditor.PutOnCooldown(entity.Id, CombatActionIds.Teleport, turns: 2);
 
-            Assert.AreEqual(2, _cooldowns.GetRemainingCooldown(entity, CombatActionIds.Teleport));
+            Assert.AreEqual(2, _cooldowns.GetRemainingCooldown(entity.Id, CombatActionIds.Teleport));
         }
 
         private IEntityView CreateEntity()

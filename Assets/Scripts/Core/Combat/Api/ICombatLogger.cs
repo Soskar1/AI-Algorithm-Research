@@ -4,8 +4,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
 {
     public interface ICombatLogger
     {
-        void Log(IEntityView entity, string text);
-        string GetEntityRepresentation(IEntityView entity);
-        string GetEntityIdString(IEntityView entity);
+        void Log(EntityId entityId, string text, ICombatStateView combatStateView);
+        string GetEntityRepresentation(EntityId entityId, ICombatStateView combatStateView);
+        string GetEntityDisplayName(EntityId entityId);
     }
 }
