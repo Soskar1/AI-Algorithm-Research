@@ -1,4 +1,5 @@
 ﻿using AiAlgorithmsResearch.Core.Ai.Application;
+using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Maps.Api;
 using Reflex.Core;
 using Reflex.Enums;
@@ -22,7 +23,9 @@ namespace AiAlgorithmsResearch.Core.Ai.Api
                         });
 
                     var map = builder.Resolve<IReadOnlyTileMap>();
-                    return new CombatAgentFactory(provider, map);
+                    var actionExecutor = builder.Resolve<ICombatActionExecutor>();
+                    
+                    return new CombatAgentFactory(provider, map, actionExecutor);
                 }, Lifetime.Singleton, Resolution.Lazy);
 
             return builder;

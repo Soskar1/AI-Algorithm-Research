@@ -16,7 +16,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 
         public bool Apply(ICombatAction action, ICombatStateView stateView, ICombatStateEditor stateEditor)
         {
-            _combatLogger.Log(action.ExecutorId, $"skipped turn.", stateView);
+            _combatLogger.Log(action.ExecutorId, $"just waits.", stateView);
 
             return true;
         }

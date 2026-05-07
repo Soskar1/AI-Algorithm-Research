@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Teleport Combat Action Definition Asset
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Combat::AiAlgorithmsResearch.Core.Combat.Infrastructure.TeleportCombatActionDefinitionAsset
   _baseCost: 1
-  _cooldown: 0
+  _cooldown: 4
