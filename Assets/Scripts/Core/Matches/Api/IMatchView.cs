@@ -5,7 +5,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Api
     public interface IMatchView
     {
         MatchState State { get; }
-        MatchWinner Winner { get; }
+        TeamId Winner { get; }
         IBattle Battle { get; }
     }
 }

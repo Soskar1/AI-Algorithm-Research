@@ -13,6 +13,10 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
     internal class BenchmarkConfigurationAsset : ScriptableObject
     {
         [SerializeField] private TeamConfiguration[] _teams;
+        [SerializeField] private int _worldWidth;
+        [SerializeField] private int _worldHeight;
+
+        public TeamConfiguration[] Teams => _teams;
 
         public BenchmarkConfiguration ToConfiguration(ICombatAgentFactory agentFactory)
         {
@@ -23,7 +27,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
             foreach (var team in _teams)
             {
-                var teamId = new TeamId(team.TeamId);
+                var teamId = new TeamId(team.TeamId, team.DisplayName);
 
                 agentsByTeam[teamId] = team.AgentType switch
                 {
@@ -51,7 +55,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 teams[teamId] = entitiesByPosition;
             }
 
-            return new BenchmarkConfiguration(teams, entityDefinitionsById, actionsByEntity, agentsByTeam);
+            return new BenchmarkConfiguration(teams, entityDefinitionsById, actionsByEntity, agentsByTeam, _worldWidth, _worldHeight);
         }
     }
 }

@@ -12,17 +12,23 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Domain
         public IReadOnlyDictionary<EntityDefinitionId, EntityDefinition> EntityDefinitionsById { get; }
         public IReadOnlyDictionary<EntityDefinitionId, IReadOnlyCollection<ICombatActionDefinition>> ActionsByEntity { get; }
         public IReadOnlyDictionary<TeamId, ICombatAgent> AgentsByTeam { get; }
+        public int WorldWidth { get; }
+        public int WorldHeight { get; }
 
         public BenchmarkConfiguration(
             IReadOnlyDictionary<TeamId, IReadOnlyDictionary<Vector2Int, EntityDefinitionId>> teams,
             IReadOnlyDictionary<EntityDefinitionId, EntityDefinition> entityDefinitionsById,
             IReadOnlyDictionary<EntityDefinitionId, IReadOnlyCollection<ICombatActionDefinition>> actionsByEntity,
-            IReadOnlyDictionary<TeamId, ICombatAgent> agentsByTeam)
+            IReadOnlyDictionary<TeamId, ICombatAgent> agentsByTeam,
+            int worldWidth,
+            int worldHeight)
         {
             Teams = teams;
             EntityDefinitionsById = entityDefinitionsById;
             ActionsByEntity = actionsByEntity;
             AgentsByTeam = agentsByTeam;
+            WorldWidth = worldWidth;
+            WorldHeight = worldHeight;
         }
     }
 }

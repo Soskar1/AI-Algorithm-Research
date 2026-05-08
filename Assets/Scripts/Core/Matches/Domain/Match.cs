@@ -6,7 +6,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Domain
     internal sealed class Match : IMatchView
     {
         public MatchState State { get; private set; }
-        public MatchWinner Winner { get; private set; }
+        public TeamId Winner { get; private set; }
         public IBattle Battle { get; private set; }
         public IBattleParticipant CurrentParticipant => Battle.Current;
         public int PlayedTurns { get; private set; }
@@ -15,7 +15,6 @@ namespace AiAlgorithmsResearch.Core.Matches.Domain
         public Match()
         {
             State = MatchState.NotStarted;
-            Winner = MatchWinner.None;
             PlayedTurns = 0;
         }
 
@@ -23,13 +22,13 @@ namespace AiAlgorithmsResearch.Core.Matches.Domain
         {
             Battle = battle;
             State = MatchState.Running;
-            Winner = MatchWinner.None;
+            Winner = new TeamId(-1);
         }
 
-        public void Finish(MatchWinner winner)
+        public void Finish(TeamId teamId)
         {
             State = MatchState.Finished;
-            Winner = winner;
+            Winner = teamId;
         }
 
         public void NextTurn()

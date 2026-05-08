@@ -31,6 +31,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
         private ICombatStateEditor _currentStateEditor;
 
         private int _currentTurn = 0;
+        private bool _log = false;
 
         public MatchRunner(
             IBattleInitializer battleInitializer,
@@ -40,8 +41,8 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             ICombatActionExecutor combatActionExecutor,
             IWorldEditor worldEditor,
             ICombatLogger combatLogger,
-            IRuntimeCombatStateFactory runtimeCombatStateFactory
-            )
+            IRuntimeCombatStateFactory runtimeCombatStateFactory,
+            bool log = false)
         {
             _battleInitializer = battleInitializer;
             _cooldownEditor = cooldownEditor;
@@ -51,6 +52,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             _worldEditor = worldEditor;
             _combatLogger = combatLogger;
             _runtimeCombatStateFactory = runtimeCombatStateFactory;
+            _log = log;
         }
 
         public IMatchView StartMatch(MatchInitializationRequest request)
@@ -95,7 +97,10 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             var current = _match.CurrentParticipant;
 
             var entityLog = _combatLogger.GetEntityRepresentation(current.Entity.Id, _currentStateView);
-            Debug.Log($"[{_currentTurn}] {entityLog} started it's turn");
+            if (_log)
+            {
+                Debug.Log($"[{_currentTurn}] {entityLog} started it's turn");
+            }
 
             _cooldownEditor.TickCooldowns(current.Entity.Id);
             _energyEditor.RegenerateEnergy(current.Entity);
@@ -110,7 +115,10 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
 
             if (!_agentsByTeam.TryGetValue(current.TeamId, out var agent))
             {
-                Debug.LogError($"Agent for {current.TeamId.Value} team is not found!");
+                if (_log)
+                {
+                    Debug.LogError($"Agent for {current.TeamId.Value} team is not found!");
+                }
                 ++_currentTurn;
                 return;
             }
@@ -127,14 +135,17 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             {
                 var executionResult = _actionExecutor.TryExecute(action, _currentStateView, _currentStateEditor);
 
-                if (!executionResult)
+                if (_log)
                 {
-                    Debug.LogError($"[{_currentTurn}] {entityLog} failed to execute {action.Id.Value} action...");
-                }
-                else
-                {
-                    entityLog = _combatLogger.GetEntityRepresentation(current.Entity.Id, _currentStateView);
-                    Debug.Log($"[{_currentTurn}] {entityLog} executed it's action.");
+                    if (!executionResult)
+                    {
+                        Debug.LogError($"[{_currentTurn}] {entityLog} failed to execute {action.Id.Value} action...");
+                    }
+                    else
+                    {
+                        entityLog = _combatLogger.GetEntityRepresentation(current.Entity.Id, _currentStateView);
+                        Debug.Log($"[{_currentTurn}] {entityLog} executed it's action.");
+                    }
                 }
 
                 var matchEnded = CheckWinCondition();
@@ -146,7 +157,11 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
 
             if (_match.State == MatchState.Running)
             {
-                Debug.Log("No winner!");
+                if (_log)
+                {
+                    Debug.Log("No winner!");
+                }
+
                 ++_currentTurn;
                 _match.NextTurn();
             }
@@ -160,7 +175,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             if (teamAAlive && teamBAlive)
                 return false;
 
-            _match.Finish(teamAAlive ? MatchWinner.TeamA : MatchWinner.TeamB);
+            _match.Finish(teamAAlive ? _teamA : _teamB);
             return true;
         }
 

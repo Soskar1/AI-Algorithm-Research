@@ -6,16 +6,16 @@ using AiAlgorithmsResearch.Core.Matches.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using Reflex.Attributes;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 {
     internal class BenchmarkRunner : MonoBehaviour
     {
         [SerializeField] private BenchmarkConfigurationAsset _benchmarkConfigurationAsset;
-        [SerializeField] private int _worldWidth;
-        [SerializeField] private int _worldHeight;
-
         [SerializeField] private int _matchCount;
         private int _currentMatch = 0;
 
@@ -27,7 +27,14 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         private MatchInitializationRequest _matchInitializationRequest;
 
         private IMatchView _matchView;
-        private Dictionary<MatchWinner, int> _matchWinnerCount = new();
+        private Dictionary<int, int> _matchWinnerCount = new();
+
+        [Header("UI")]
+        [SerializeField] private GameObject _ui;
+        [SerializeField] private TextMeshProUGUI _matchCountText;
+        [SerializeField] private TextMeshProUGUI _firstAlgorithmText;
+        [SerializeField] private TextMeshProUGUI _secondAlgorithmText;
+        [SerializeField] private Image _progressBar;
 
         [Inject]
         public void Inject(IMatchRunner matchRunner, IEntityFactory entityFactory, ICombatAgentFactory agentFactory, IWorldGenerator worldGenerator)
@@ -41,10 +48,10 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         public void Start()
         {
             _configuration = _benchmarkConfigurationAsset.ToConfiguration(_combatAgentFactory);
-            _matchWinnerCount.Add(MatchWinner.TeamA, 0);
-            _matchWinnerCount.Add(MatchWinner.TeamB, 0);
+            _matchWinnerCount.Add(_benchmarkConfigurationAsset.Teams[0].TeamId, 0);
+            _matchWinnerCount.Add(_benchmarkConfigurationAsset.Teams[1].TeamId, 0);
 
-            _worldGenerator.Generate(_worldWidth, _worldHeight);
+            _worldGenerator.Generate(_configuration.WorldWidth, _configuration.WorldHeight);
 
             StartNewMatch();
         }
@@ -61,20 +68,15 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
             if (_matchView.State == MatchState.Finished)
             {
-                Debug.Log($"Match ended. Winner: {_matchView.Winner}");
-                ++_matchWinnerCount[_matchView.Winner];
+                ++_matchWinnerCount[_matchView.Winner.Value];
                 ++_currentMatch;
 
                 if (_currentMatch < _matchCount)
                 {
                     StartNewMatch();
                 }
-                else
-                {
-                    Debug.Log("Benchmark ended it's work");
-                    Debug.Log($"Team A won: {_matchWinnerCount[MatchWinner.TeamA]} times");
-                    Debug.Log($"Team B won: {_matchWinnerCount[MatchWinner.TeamB]} times");
-                }
+
+                DisplayStatistics();
             }
         }
 
@@ -104,6 +106,23 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             {
                 Debug.LogError("Match is not started!");
             }
+        }
+
+        private void DisplayStatistics()
+        {
+            _matchCountText.text = $"{_matchCount} matches";
+
+            var teams = _configuration.Teams.Keys.ToList();
+            var firstTeam = teams[0];
+            var secondTeam = teams[1];
+
+            var firstTeamWon = _matchWinnerCount[firstTeam.Value];
+            var secondTeamWon = _matchWinnerCount[secondTeam.Value];
+
+            _firstAlgorithmText.text = $"{firstTeam.DisplayName} won: {firstTeamWon} ({(firstTeamWon / (float)_currentMatch) * 100:F2}% win rate)";
+            _secondAlgorithmText.text = $"{secondTeam.DisplayName} won: {secondTeamWon} ({(secondTeamWon / (float)_currentMatch) * 100:F2}% win rate)";
+
+            _progressBar.fillAmount = _currentMatch / (float)_matchCount;
         }
     }
 }

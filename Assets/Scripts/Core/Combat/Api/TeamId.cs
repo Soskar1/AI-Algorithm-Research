@@ -5,10 +5,12 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
     public readonly struct TeamId : IEquatable<TeamId>
     {
         public int Value { get; }
+        public string DisplayName { get; }
 
-        public TeamId(int value)
+        public TeamId(int value, string displayName = "")
         {
             Value = value;
+            DisplayName = displayName;
         }
 
         public bool Equals(TeamId other)

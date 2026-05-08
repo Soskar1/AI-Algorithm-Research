@@ -6,9 +6,16 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 {
     internal class CombatLogger : ICombatLogger
     {
+        private readonly bool _log = false;
+
+        public CombatLogger(bool log = false)
+        {
+            _log = log;
+        }
+
         public void Log(EntityId entityId, string text, ICombatStateView combatStateView)
         {
-            if (combatStateView is not RuntimeCombatState)
+            if (combatStateView is not RuntimeCombatState || !_log)
             {
                 return;
             }
