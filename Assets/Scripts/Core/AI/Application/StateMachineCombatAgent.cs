@@ -94,9 +94,12 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             if (executionSuccessfull)
             {
                 actionsToExecute.Add(combatAction);
-                candidateActions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
-
                 energy = simulation.GetEnergy(executor);
+
+                if (energy > 0)
+                {
+                    candidateActions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
+                }
             }
 
             return executionSuccessfull;

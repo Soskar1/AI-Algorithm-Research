@@ -1,5 +1,6 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -23,13 +24,26 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 return Enumerable.Empty<ICombatAction>();
             }
 
-            if (!Targeting.TryGetClosestValidAdjacentTileToTarget(combatState, executorId, enemyPosition, out var moveTarget))
+            var energy = combatState.GetEnergy(executorId);
+            var cost = Int32.MaxValue;
+            var distance = Int32.MaxValue;
+            Vector2Int moveTarget = enemyPosition;
+
+            while (cost > energy && distance > 0)
+            {
+                if (!Targeting.TryGetClosestValidAdjacentTileToTarget(combatState, executorId, moveTarget, out moveTarget))
+                {
+                    return Enumerable.Empty<ICombatAction>();
+                }
+
+                distance = GridDistance.Manhattan(executorPosition, moveTarget);
+                cost = Mathf.CeilToInt(distance / 2f);
+            }
+
+            if (moveTarget == enemyPosition)
             {
                 return Enumerable.Empty<ICombatAction>();
             }
-
-            var distance = GridDistance.Manhattan(executorPosition, moveTarget);
-            var cost = Mathf.CeilToInt(distance / 2f);
 
             return new List<ICombatAction>()
             {

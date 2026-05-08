@@ -135,13 +135,13 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             {
                 var executionResult = _actionExecutor.TryExecute(action, _currentStateView, _currentStateEditor);
 
-                if (_log)
+                if (!executionResult)
                 {
-                    if (!executionResult)
-                    {
-                        Debug.LogError($"[{_currentTurn}] {entityLog} failed to execute {action.Id.Value} action...");
-                    }
-                    else
+                    Debug.LogError($"[{_currentTurn}] {entityLog} failed to execute {action.Id.Value} action...");
+                }
+                else
+                {
+                    if (_log)
                     {
                         entityLog = _combatLogger.GetEntityRepresentation(current.Entity.Id, _currentStateView);
                         Debug.Log($"[{_currentTurn}] {entityLog} executed it's action.");

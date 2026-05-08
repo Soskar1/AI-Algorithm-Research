@@ -52,7 +52,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
             var candidates = GetAdjacentTiles(targetPosition)
                 .Where(position => IsValidDestination(combatState, position))
-                .OrderBy(position => GridDistance.Manhattan(executorPosition, targetPosition))
+                .OrderBy(position => GridDistance.Manhattan(executorPosition, position))
                 .ToArray();
 
             if (candidates.Length == 0)

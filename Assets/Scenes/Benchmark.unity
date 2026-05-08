@@ -529,7 +529,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Benchmarks::AiAlgorithmsResearch.Core.Benchmarks.Infrastructure.BenchmarkRunner
   _benchmarkConfigurationAsset: {fileID: 11400000, guid: a9bc112001e53d64c995fab8c18f191b, type: 2}
-  _matchCount: 100
+  _matchCount: 50
   _ui: {fileID: 167795101}
   _matchCountText: {fileID: 1019149589}
   _firstAlgorithmText: {fileID: 982385545}
