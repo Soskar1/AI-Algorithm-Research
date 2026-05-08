@@ -9,11 +9,14 @@ namespace AiAlgorithmsResearch.Core.Matches.Domain
         public MatchWinner Winner { get; private set; }
         public IBattle Battle { get; private set; }
         public IBattleParticipant CurrentParticipant => Battle.Current;
+        public int PlayedTurns { get; private set; }
+
 
         public Match()
         {
             State = MatchState.NotStarted;
             Winner = MatchWinner.None;
+            PlayedTurns = 0;
         }
 
         public void Start(IBattle battle)
@@ -29,6 +32,10 @@ namespace AiAlgorithmsResearch.Core.Matches.Domain
             Winner = winner;
         }
 
-        public void NextTurn() => Battle.NextTurn();
+        public void NextTurn()
+        {
+            Battle.NextTurn();
+            ++PlayedTurns;
+        }
     }
 }

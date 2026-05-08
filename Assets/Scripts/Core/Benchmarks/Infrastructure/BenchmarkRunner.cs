@@ -16,6 +16,9 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         [SerializeField] private int _worldWidth;
         [SerializeField] private int _worldHeight;
 
+        [SerializeField] private int _matchCount;
+        private int _currentMatch = 0;
+
         private IMatchRunner _matchRunner;
         private IEntityFactory _entityFactory;
         private ICombatAgentFactory _combatAgentFactory;
@@ -24,6 +27,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         private MatchInitializationRequest _matchInitializationRequest;
 
         private IMatchView _matchView;
+        private Dictionary<MatchWinner, int> _matchWinnerCount = new();
 
         [Inject]
         public void Inject(IMatchRunner matchRunner, IEntityFactory entityFactory, ICombatAgentFactory agentFactory, IWorldGenerator worldGenerator)
@@ -37,33 +41,12 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         public void Start()
         {
             _configuration = _benchmarkConfigurationAsset.ToConfiguration(_combatAgentFactory);
-            var teams = _configuration.Teams.Keys;
-
-            List<BattleParticipantSetup> battleParticipants = new();
-            foreach (var team in teams)
-            {
-                var teamEntities = _configuration.Teams[team];
-
-                foreach ((var position, var entityDefinitionId) in teamEntities) {
-                    var entityDefinition = _configuration.EntityDefinitionsById[entityDefinitionId];
-                    var entity = _entityFactory.CreateEntity(entityDefinition);
-                    var actionDefinitions = _configuration.ActionsByEntity[entityDefinitionId];
-                    var battleParticipantSetup = new BattleParticipantSetup(entity, position, team, actionDefinitions);
-
-                    battleParticipants.Add(battleParticipantSetup);
-                }
-            }
-
-            var battleRequest = new BattleInitializationRequest(battleParticipants);
-            _matchInitializationRequest = new MatchInitializationRequest(battleRequest, _configuration.AgentsByTeam);
+            _matchWinnerCount.Add(MatchWinner.TeamA, 0);
+            _matchWinnerCount.Add(MatchWinner.TeamB, 0);
 
             _worldGenerator.Generate(_worldWidth, _worldHeight);
 
-            _matchView = _matchRunner.StartMatch(_matchInitializationRequest);
-            if (_matchView == null)
-            {
-                Debug.LogError("Match is not started!");
-            }
+            StartNewMatch();
         }
 
         public void Update()
@@ -79,6 +62,47 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             if (_matchView.State == MatchState.Finished)
             {
                 Debug.Log($"Match ended. Winner: {_matchView.Winner}");
+                ++_matchWinnerCount[_matchView.Winner];
+                ++_currentMatch;
+
+                if (_currentMatch < _matchCount)
+                {
+                    StartNewMatch();
+                }
+                else
+                {
+                    Debug.Log("Benchmark ended it's work");
+                    Debug.Log($"Team A won: {_matchWinnerCount[MatchWinner.TeamA]} times");
+                    Debug.Log($"Team B won: {_matchWinnerCount[MatchWinner.TeamB]} times");
+                }
+            }
+        }
+
+        private void StartNewMatch()
+        {
+            List<BattleParticipantSetup> battleParticipants = new();
+            foreach (var team in _configuration.Teams.Keys)
+            {
+                var teamEntities = _configuration.Teams[team];
+
+                foreach ((var position, var entityDefinitionId) in teamEntities)
+                {
+                    var entityDefinition = _configuration.EntityDefinitionsById[entityDefinitionId];
+                    var entity = _entityFactory.CreateEntity(entityDefinition);
+                    var actionDefinitions = _configuration.ActionsByEntity[entityDefinitionId];
+                    var battleParticipantSetup = new BattleParticipantSetup(entity, position, team, actionDefinitions);
+
+                    battleParticipants.Add(battleParticipantSetup);
+                }
+            }
+
+            var battleRequest = new BattleInitializationRequest(battleParticipants);
+            _matchInitializationRequest = new MatchInitializationRequest(battleRequest, _configuration.AgentsByTeam);
+
+            _matchView = _matchRunner.StartMatch(_matchInitializationRequest);
+            if (_matchView == null)
+            {
+                Debug.LogError("Match is not started!");
             }
         }
     }

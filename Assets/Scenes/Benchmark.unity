@@ -208,6 +208,7 @@ MonoBehaviour:
   _benchmarkConfigurationAsset: {fileID: 11400000, guid: a9bc112001e53d64c995fab8c18f191b, type: 2}
   _worldWidth: 10
   _worldHeight: 10
+  _matchCount: 10
 --- !u!4 &1010786473
 Transform:
   m_ObjectHideFlags: 0

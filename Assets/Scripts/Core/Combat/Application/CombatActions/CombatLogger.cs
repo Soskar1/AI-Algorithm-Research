@@ -8,6 +8,11 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
     {
         public void Log(EntityId entityId, string text, ICombatStateView combatStateView)
         {
+            if (combatStateView is not RuntimeCombatState)
+            {
+                return;
+            }
+
             var entityLog = GetEntityRepresentation(entityId, combatStateView);
             Debug.Log($"[{entityLog}] {text}");
         }

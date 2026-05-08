@@ -58,6 +58,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             _cooldownEditor.Clear();
             _stunStatusEditor.Clear();
             _worldEditor.Clear();
+            _currentTurn = 0;
 
             var battle = _battleInitializer.StartBattle(request.BattleRequest);
 
