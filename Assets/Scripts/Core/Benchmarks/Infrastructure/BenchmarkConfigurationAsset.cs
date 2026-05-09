@@ -1,12 +1,9 @@
-﻿using AiAlgorithmsResearch.Core.Ai.Api;
-using AiAlgorithmsResearch.Core.Benchmarks.Domain;
+﻿using AiAlgorithmsResearch.Core.Benchmarks.Domain;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Random = System.Random;
 
 namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 {
@@ -20,23 +17,18 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         public TeamConfiguration[] Teams => _teams;
 
-        public BenchmarkConfiguration ToConfiguration(ICombatAgentFactory agentFactory, Random random)
+        public BenchmarkConfiguration ToConfiguration(string firstTeamDisplayName, string secondTeamDisplayName)
         {
             var teams = new Dictionary<TeamId, IReadOnlyDictionary<Vector2Int, EntityDefinitionId>>();
             var entityDefinitionsById = new Dictionary<EntityDefinitionId, EntityDefinition>();
             var actionsByEntity = new Dictionary<EntityDefinitionId, IReadOnlyCollection<ICombatActionDefinition>>();
-            var agentsByTeam = new Dictionary<TeamId, ICombatAgent>();
+
+            var currentDisplayName = firstTeamDisplayName;
 
             foreach (var team in _teams)
             {
-                var teamId = new TeamId(team.TeamId, team.DisplayName);
-
-                agentsByTeam[teamId] = team.AgentType switch
-                {
-                    CombatAgentType.Random => agentFactory.CreateRandomAgent(random),
-                    CombatAgentType.StateMachine => agentFactory.CreateStateMachineAgent(),
-                    _ => throw new ArgumentOutOfRangeException()
-                };
+                var teamId = new TeamId(team.TeamId, currentDisplayName);
+                currentDisplayName = secondTeamDisplayName;
 
                 var entitiesByPosition = new Dictionary<Vector2Int, EntityDefinitionId>();
 
@@ -57,7 +49,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 teams[teamId] = entitiesByPosition;
             }
 
-            return new BenchmarkConfiguration(teams, entityDefinitionsById, actionsByEntity, agentsByTeam, _worldWidth, _worldHeight, _walls);
+            return new BenchmarkConfiguration(teams, entityDefinitionsById, actionsByEntity, _worldWidth, _worldHeight, _walls);
         }
     }
 }

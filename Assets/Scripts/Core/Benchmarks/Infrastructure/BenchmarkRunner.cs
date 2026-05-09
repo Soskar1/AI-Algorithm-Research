@@ -18,6 +18,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
     internal class BenchmarkRunner : MonoBehaviour
     {
         [SerializeField] private BenchmarkConfigurationAsset _benchmarkConfigurationAsset;
+        [SerializeField] private CombatAgentType _firstTeamAgent;
+        [SerializeField] private CombatAgentType _secondTeamAgent;
         private int _matchCount;
         private int _currentMatch = 0;
 
@@ -88,13 +90,15 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         private void StartNewMatch()
         {
             _random = new Random(_seeds[_currentMatch]);
-            _configuration = _benchmarkConfigurationAsset.ToConfiguration(_combatAgentFactory, _random);
+            _configuration = _benchmarkConfigurationAsset.ToConfiguration(_firstTeamAgent.ToString(), _secondTeamAgent.ToString());
 
             _mapEditor.Clear();
             _worldGenerator.Generate(_configuration.WorldWidth, _configuration.WorldHeight, _configuration.Walls);
 
             List<BattleParticipantSetup> battleParticipants = new();
-            foreach (var team in _configuration.Teams.Keys)
+            var teams = _configuration.Teams.Keys.ToList();
+
+            foreach (var team in teams)
             {
                 var teamEntities = _configuration.Teams[team];
 
@@ -109,8 +113,15 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 }
             }
 
+            var agentsByTeam = new Dictionary<TeamId, ICombatAgent>();
+            var firstTeamAgent = CreateAgent(_firstTeamAgent);
+            var secondTeamAgent = CreateAgent(_secondTeamAgent);
+
+            agentsByTeam.Add(teams[0], firstTeamAgent);
+            agentsByTeam.Add(teams[1], secondTeamAgent);
+            
             var battleRequest = new BattleInitializationRequest(battleParticipants);
-            _matchInitializationRequest = new MatchInitializationRequest(battleRequest, _configuration.AgentsByTeam);
+            _matchInitializationRequest = new MatchInitializationRequest(battleRequest, agentsByTeam);
 
             _matchView = _matchRunner.StartMatch(_matchInitializationRequest, _random);
             if (_matchView == null)
@@ -134,6 +145,20 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             _secondAlgorithmText.text = $"{secondTeam.DisplayName} won: {secondTeamWon} ({(secondTeamWon / (float)_currentMatch) * 100:F2}% win rate)";
 
             _progressBar.fillAmount = _currentMatch / (float)_matchCount;
+        }
+
+        private ICombatAgent CreateAgent(CombatAgentType agentType)
+        {
+            switch (agentType)
+            {
+                case CombatAgentType.Random:
+                    return _combatAgentFactory.CreateRandomAgent(_random);
+
+                case CombatAgentType.StateMachine:
+                    return _combatAgentFactory.CreateStateMachineAgent();
+            }
+
+            return null;
         }
     }
 }
