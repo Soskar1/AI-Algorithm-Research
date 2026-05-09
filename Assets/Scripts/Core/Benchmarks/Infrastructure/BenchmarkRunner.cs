@@ -10,13 +10,14 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = System.Random;
 
 namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 {
     internal class BenchmarkRunner : MonoBehaviour
     {
         [SerializeField] private BenchmarkConfigurationAsset _benchmarkConfigurationAsset;
-        [SerializeField] private int _matchCount;
+        private int _matchCount;
         private int _currentMatch = 0;
 
         private IMatchRunner _matchRunner;
@@ -36,6 +37,10 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         [SerializeField] private TextMeshProUGUI _secondAlgorithmText;
         [SerializeField] private Image _progressBar;
 
+        [SerializeField] private List<int> _seeds;
+
+        private Random _random;
+
         [Inject]
         public void Inject(IMatchRunner matchRunner, IEntityFactory entityFactory, ICombatAgentFactory agentFactory, IWorldGenerator worldGenerator)
         {
@@ -47,12 +52,9 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         public void Start()
         {
-            _configuration = _benchmarkConfigurationAsset.ToConfiguration(_combatAgentFactory);
             _matchWinnerCount.Add(_benchmarkConfigurationAsset.Teams[0].TeamId, 0);
             _matchWinnerCount.Add(_benchmarkConfigurationAsset.Teams[1].TeamId, 0);
-
-            _worldGenerator.Generate(_configuration.WorldWidth, _configuration.WorldHeight);
-
+            _matchCount = _seeds.Count;
             StartNewMatch();
         }
 
@@ -82,6 +84,11 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         private void StartNewMatch()
         {
+            _random = new Random(_seeds[_currentMatch]);
+            _configuration = _benchmarkConfigurationAsset.ToConfiguration(_combatAgentFactory, _random);
+
+            _worldGenerator.Generate(_configuration.WorldWidth, _configuration.WorldHeight);
+
             List<BattleParticipantSetup> battleParticipants = new();
             foreach (var team in _configuration.Teams.Keys)
             {
@@ -101,7 +108,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             var battleRequest = new BattleInitializationRequest(battleParticipants);
             _matchInitializationRequest = new MatchInitializationRequest(battleRequest, _configuration.AgentsByTeam);
 
-            _matchView = _matchRunner.StartMatch(_matchInitializationRequest);
+            _matchView = _matchRunner.StartMatch(_matchInitializationRequest, _random);
             if (_matchView == null)
             {
                 Debug.LogError("Match is not started!");

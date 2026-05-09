@@ -1,6 +1,7 @@
 ﻿using AiAlgorithmsResearch.Core.Ai.Api;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Maps.Api;
+using System;
 
 namespace AiAlgorithmsResearch.Core.Ai.Application
 {
@@ -17,10 +18,10 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             _executor = executor;
         }
 
-        public ICombatAgent CreateRandomAgent()
+        public ICombatAgent CreateRandomAgent(Random random)
         {
             var simulationFactory = new SimulationStateFactory(_map);
-            return new RandomCombatAgent(simulationFactory, _provider, _executor);
+            return new RandomCombatAgent(simulationFactory, _provider, _executor, random);
         }
 
         public ICombatAgent CreateStateMachineAgent()

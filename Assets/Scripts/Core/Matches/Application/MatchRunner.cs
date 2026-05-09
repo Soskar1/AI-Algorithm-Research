@@ -55,14 +55,14 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             _log = log;
         }
 
-        public IMatchView StartMatch(MatchInitializationRequest request)
+        public IMatchView StartMatch(MatchInitializationRequest request, Random random)
         {
             _cooldownEditor.Clear();
             _stunStatusEditor.Clear();
             _worldEditor.Clear();
             _currentTurn = 0;
 
-            var battle = _battleInitializer.StartBattle(request.BattleRequest);
+            var battle = _battleInitializer.StartBattle(request.BattleRequest, random);
 
             if (battle == null)
             {

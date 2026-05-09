@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = System.Random;
 
 namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 {
@@ -18,7 +19,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         public TeamConfiguration[] Teams => _teams;
 
-        public BenchmarkConfiguration ToConfiguration(ICombatAgentFactory agentFactory)
+        public BenchmarkConfiguration ToConfiguration(ICombatAgentFactory agentFactory, Random random)
         {
             var teams = new Dictionary<TeamId, IReadOnlyDictionary<Vector2Int, EntityDefinitionId>>();
             var entityDefinitionsById = new Dictionary<EntityDefinitionId, EntityDefinition>();
@@ -31,7 +32,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
                 agentsByTeam[teamId] = team.AgentType switch
                 {
-                    CombatAgentType.Random => agentFactory.CreateRandomAgent(),
+                    CombatAgentType.Random => agentFactory.CreateRandomAgent(random),
                     CombatAgentType.StateMachine => agentFactory.CreateStateMachineAgent(),
                     _ => throw new ArgumentOutOfRangeException()
                 };

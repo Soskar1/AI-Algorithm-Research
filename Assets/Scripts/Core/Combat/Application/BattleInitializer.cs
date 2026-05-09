@@ -1,6 +1,7 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Combat.Domain;
 using AiAlgorithmsResearch.Core.Worlds.Api;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,17 +10,16 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
     internal sealed class BattleInitializer : IBattleInitializer
     {
         private readonly IWorldEditor _worldEditor;
-        private readonly IInitiativeRoller _initiativeRoller;
 
-        public BattleInitializer(IWorldEditor worldEditor, IInitiativeRoller initiativeRoller)
+        public BattleInitializer(IWorldEditor worldEditor)
         {
             _worldEditor = worldEditor;
-            _initiativeRoller = initiativeRoller;
         }
 
-        public IBattle StartBattle(BattleInitializationRequest request)
+        public IBattle StartBattle(BattleInitializationRequest request, Random random)
         {
             var spawnedEntities = new List<BattleParticipantSetup>();
+            var initiativeRoller = new InitiativeRoller(random);
 
             foreach (var participant in request.Participants)
             {
@@ -36,7 +36,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             var participants = spawnedEntities
                 .Select(participant => new BattleParticipant(
                     participant.Entity,
-                    _initiativeRoller.Roll(participant.Entity),
+                    initiativeRoller.Roll(participant.Entity),
                     participant.TeamId,
                     participant.ActionDefinitions))
                 .OrderByDescending(participant => participant.Initiative)

@@ -11,6 +11,7 @@ using AiAlgorithmsResearch.Core.Worlds.Domain;
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = System.Random;
 
 namespace AiAlgorithmsResearch.Core.Combat.Tests
 {
@@ -24,6 +25,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
         private FakeInitiativeRoller _initiativeRoller;
         private IBattleInitializer _battleInitializer;
         private IEntityFactory _entityFactory;
+        private Random _random;
 
         [SetUp]
         public void SetUp()
@@ -34,8 +36,10 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
             var world = new World(_mapEditor, map);
             _worldEditor = new WorldEditor(world);
 
+            _random = new Random();
+
             _initiativeRoller = new FakeInitiativeRoller();
-            _battleInitializer = new BattleInitializer(_worldEditor, _initiativeRoller);
+            _battleInitializer = new BattleInitializer(_worldEditor);
 
             _entityFactory = new EntityFactory();
         }
@@ -55,7 +59,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
                     new BattleParticipantSetup(entity, position, TeamA, null)
                 });
 
-            var battle = _battleInitializer.StartBattle(request);
+            var battle = _battleInitializer.StartBattle(request, _random);
 
             Assert.NotNull(battle);
             Assert.AreEqual(1, battle.TurnOrder.Count);
@@ -78,7 +82,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
                     new BattleParticipantSetup(entity, blockedPosition, TeamA, null)
                 });
 
-            var battle = _battleInitializer.StartBattle(request);
+            var battle = _battleInitializer.StartBattle(request, _random);
 
             Assert.IsNull(battle);
         }
@@ -105,7 +109,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
                     new BattleParticipantSetup(fastEntity, fastPosition, TeamB, null)
                 });
 
-            var battle = _battleInitializer.StartBattle(request);
+            var battle = _battleInitializer.StartBattle(request, _random);
 
             Assert.NotNull(battle);
             Assert.AreEqual(2, battle.TurnOrder.Count);
@@ -138,7 +142,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
                     new BattleParticipantSetup(secondEntity, position, TeamB, null)
                 });
 
-            var battle = _battleInitializer.StartBattle(request);
+            var battle = _battleInitializer.StartBattle(request, _random);
 
             Assert.IsNull(battle);
         }

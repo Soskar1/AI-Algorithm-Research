@@ -1,10 +1,10 @@
-﻿using AiAlgorithmsResearch.Core.Maps.Api;
+﻿using System;
 
 namespace AiAlgorithmsResearch.Core.Ai.Api
 {
     public interface ICombatAgentFactory
     {
-        ICombatAgent CreateRandomAgent();
+        ICombatAgent CreateRandomAgent(Random random);
         ICombatAgent CreateStateMachineAgent();
     }
 }

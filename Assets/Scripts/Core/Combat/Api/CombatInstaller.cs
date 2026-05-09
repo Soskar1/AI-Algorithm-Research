@@ -12,12 +12,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
     {
         public static ContainerBuilder InstallCombat(this ContainerBuilder builder)
         {
-            builder.RegisterFactory<IInitiativeRoller>(builder => new UnityInitiativeRoller(), Lifetime.Singleton, Resolution.Lazy);
-            builder.RegisterFactory<IBattleInitializer>(builder =>
-                new BattleInitializer(
-                    builder.Resolve<IWorldEditor>(),
-                    builder.Resolve<IInitiativeRoller>()),
-                Lifetime.Singleton, Resolution.Lazy);
+            builder.RegisterFactory<IBattleInitializer>(builder => new BattleInitializer(builder.Resolve<IWorldEditor>()), Lifetime.Singleton, Resolution.Lazy);
 
             builder.RegisterType(typeof(StunStatus), Lifetime.Singleton, Resolution.Lazy);
             builder.RegisterFactory<IStunStatus>(builder => builder.Resolve<StunStatus>(), Lifetime.Singleton, Resolution.Lazy);
