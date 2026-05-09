@@ -17,11 +17,12 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 {
     internal class BenchmarkRunner : MonoBehaviour
     {
-        [SerializeField] private BenchmarkConfigurationAsset _benchmarkConfigurationAsset;
+        [SerializeField] private List<BenchmarkConfigurationAsset> _benchmarkConfigurationAssets;
         [SerializeField] private CombatAgentType _firstTeamAgent;
         [SerializeField] private CombatAgentType _secondTeamAgent;
         private int _matchCount;
         private int _currentMatch = 0;
+        private int _currentConfig = 0;
 
         private IMatchRunner _matchRunner;
         private IEntityFactory _entityFactory;
@@ -42,6 +43,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         [SerializeField] private Image _progressBar;
 
         [SerializeField] private List<int> _seeds;
+        [SerializeField] private List<int> _seeds2;
 
         private Random _random;
 
@@ -59,7 +61,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         {
             _matchWinnerCount.Add(0);
             _matchWinnerCount.Add(0);
-            _matchCount = _seeds.Count;
+            _matchCount = _seeds.Count * _benchmarkConfigurationAssets.Count;
             StartNewMatch();
         }
 
@@ -80,8 +82,14 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
                 DisplayStatistics();
 
-                if (_currentMatch < _matchCount)
+                if (_currentMatch < _seeds.Count)
                 {
+                    StartNewMatch();
+                }
+                else if (_currentMatch >= _seeds.Count && _currentConfig < _benchmarkConfigurationAssets.Count - 1)
+                {
+                    ++_currentConfig;
+                    _currentMatch = 0;
                     StartNewMatch();
                 }
             }
@@ -90,7 +98,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         private void StartNewMatch()
         {
             _random = new Random(_seeds[_currentMatch]);
-            _configuration = _benchmarkConfigurationAsset.ToConfiguration(_firstTeamAgent.ToString(), _secondTeamAgent.ToString());
+            var configAsset = _benchmarkConfigurationAssets[_currentConfig];
+            _configuration = configAsset.ToConfiguration(_firstTeamAgent.ToString(), _secondTeamAgent.ToString());
 
             _mapEditor.Clear();
             _worldGenerator.Generate(_configuration.WorldWidth, _configuration.WorldHeight, _configuration.Walls);
@@ -132,7 +141,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         private void DisplayStatistics()
         {
-            _matchCountText.text = $"{_matchCount} matches";
+            _matchCountText.text = $"Scenario {_currentConfig}: {_seeds.Count} matches";
 
             var teams = _configuration.Teams.Keys.ToList();
             var firstTeam = teams[0];
@@ -141,10 +150,12 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             var firstTeamWon = _matchWinnerCount[firstTeam.Value];
             var secondTeamWon = _matchWinnerCount[secondTeam.Value];
 
-            _firstAlgorithmText.text = $"{firstTeam.DisplayName} won: {firstTeamWon} ({(firstTeamWon / (float)_currentMatch) * 100:F2}% win rate)";
-            _secondAlgorithmText.text = $"{secondTeam.DisplayName} won: {secondTeamWon} ({(secondTeamWon / (float)_currentMatch) * 100:F2}% win rate)";
+            var playedMatches = _currentConfig * _seeds.Count + _currentMatch;
 
-            _progressBar.fillAmount = _currentMatch / (float)_matchCount;
+            _firstAlgorithmText.text = $"{firstTeam.DisplayName} won: {firstTeamWon} ({(firstTeamWon / (float)playedMatches) * 100:F2}% win rate)";
+            _secondAlgorithmText.text = $"{secondTeam.DisplayName} won: {secondTeamWon} ({(secondTeamWon / (float)playedMatches) * 100:F2}% win rate)";
+
+            _progressBar.fillAmount = playedMatches / (float)_matchCount;
         }
 
         private ICombatAgent CreateAgent(CombatAgentType agentType)
