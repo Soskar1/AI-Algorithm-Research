@@ -15,8 +15,6 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         [SerializeField] private int _worldHeight;
         [SerializeField] private List<Vector2Int> _walls;
 
-        public TeamConfiguration[] Teams => _teams;
-
         public BenchmarkConfiguration ToConfiguration(string firstTeamDisplayName, string secondTeamDisplayName)
         {
             var teams = new Dictionary<TeamId, IReadOnlyDictionary<Vector2Int, EntityDefinitionId>>();
@@ -24,11 +22,13 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             var actionsByEntity = new Dictionary<EntityDefinitionId, IReadOnlyCollection<ICombatActionDefinition>>();
 
             var currentDisplayName = firstTeamDisplayName;
+            var currentTeamId = 0;
 
             foreach (var team in _teams)
             {
-                var teamId = new TeamId(team.TeamId, currentDisplayName);
+                var teamId = new TeamId(currentTeamId, currentDisplayName);
                 currentDisplayName = secondTeamDisplayName;
+                ++currentTeamId;
 
                 var entitiesByPosition = new Dictionary<Vector2Int, EntityDefinitionId>();
 

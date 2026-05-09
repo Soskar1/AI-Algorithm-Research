@@ -32,7 +32,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         private MatchInitializationRequest _matchInitializationRequest;
 
         private IMatchView _matchView;
-        private Dictionary<int, int> _matchWinnerCount = new();
+        private List<int> _matchWinnerCount = new();
 
         [Header("UI")]
         [SerializeField] private GameObject _ui;
@@ -57,8 +57,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         public void Start()
         {
-            _matchWinnerCount.Add(_benchmarkConfigurationAsset.Teams[0].TeamId, 0);
-            _matchWinnerCount.Add(_benchmarkConfigurationAsset.Teams[1].TeamId, 0);
+            _matchWinnerCount.Add(0);
+            _matchWinnerCount.Add(0);
             _matchCount = _seeds.Count;
             StartNewMatch();
         }
