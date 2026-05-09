@@ -62,7 +62,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             return true;
         }
 
-        private static IEnumerable<Vector2Int> GetAdjacentTiles(Vector2Int position)
+        public static IEnumerable<Vector2Int> GetAdjacentTiles(Vector2Int position)
         {
             yield return position + Vector2Int.right;
             yield return position + Vector2Int.left;

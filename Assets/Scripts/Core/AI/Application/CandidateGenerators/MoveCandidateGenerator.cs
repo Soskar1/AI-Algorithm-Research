@@ -1,6 +1,4 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
-using AiAlgorithmsResearch.Core.Worlds.Api;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,19 +23,27 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             }
 
             var energy = combatState.GetEnergy(executorId);
-            var cost = Int32.MaxValue;
-            var distance = Int32.MaxValue;
+            var cost = int.MaxValue;
             Vector2Int moveTarget = enemyPosition;
-
-            while (cost > energy && distance > 0)
+            
+            foreach (var targetTile in Targeting.GetAdjacentTiles(enemyPosition))
             {
-                if (!Targeting.TryGetClosestValidAdjacentTileToTarget(combatState, executorId, moveTarget, out moveTarget))
+                var path = AStarPathfinder.FindPath(combatState, executorPosition, targetTile);
+
+                if (path == null || path.Count == 2)
                 {
-                    return Enumerable.Empty<ICombatAction>();
+                    continue;
                 }
 
-                distance = GridDistance.Manhattan(executorPosition, moveTarget);
-                cost = Mathf.CeilToInt(distance / 2f);
+                path = path
+                    .Skip(1)
+                    .ToList();
+
+                var maxSteps = path.Count - 1;
+                var stepsToMake = Mathf.Min(energy * 2, maxSteps);
+                cost = Mathf.CeilToInt(stepsToMake / 2f);
+                moveTarget = path[stepsToMake];
+                break;
             }
 
             if (moveTarget == enemyPosition)
