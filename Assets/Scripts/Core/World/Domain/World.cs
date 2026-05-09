@@ -54,7 +54,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Domain
 
         internal bool IsOccupied(Vector2Int position)
         {
-            return _entities.Any(entity => entity.Position == position);
+            return _entities.Any(entity => entity.Entity.Health.Current > 0 && entity.Position == position);
         }
 
         public bool TryGetNode(Vector2Int position, out MapNodeReadOnly readonlyNode)

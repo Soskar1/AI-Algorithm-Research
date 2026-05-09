@@ -528,7 +528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45619818aeb8cff4bafcd829ac887660, type: 3}
   m_Name: 
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Benchmarks::AiAlgorithmsResearch.Core.Benchmarks.Infrastructure.BenchmarkRunner
-  _benchmarkConfigurationAsset: {fileID: 11400000, guid: a9bc112001e53d64c995fab8c18f191b, type: 2}
+  _benchmarkConfigurationAsset: {fileID: 11400000, guid: a9c20e4b39fb11b4aac7adb5551669ed, type: 2}
   _firstTeamAgent: 0
   _secondTeamAgent: 1
   _ui: {fileID: 167795101}

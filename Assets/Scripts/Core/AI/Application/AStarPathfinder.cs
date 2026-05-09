@@ -34,6 +34,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
         public static IReadOnlyList<Vector2Int> FindPath(ICombatStateView combatState, Vector2Int start, Vector2Int target)
         {
+            if (start == target)
+            {
+                return null;
+            }
+
             if (!Targeting.IsValidDestination(combatState, target))
             {
                 return null;
