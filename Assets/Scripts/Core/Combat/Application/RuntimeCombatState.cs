@@ -24,6 +24,9 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 
         private readonly List<EntityId> _entityIds;
         public IReadOnlyCollection<EntityId> EntityIds => _entityIds;
+        public EntityId CurrentEntityTurn => _battle.Current.Entity.Id;
+
+        public IReadOnlyList<EntityId> TurnOrder => _battle.TurnOrder.Select(participant => participant.Entity.Id).ToList();
 
         private readonly Dictionary<EntityId, IReadOnlyCollection<ICombatActionDefinition>> _actionDefinitions;
 
@@ -179,6 +182,21 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
         public IDictionary<CombatActionId, int> GetCooldowns(EntityId entityId)
         {
             return _cooldowns.CopyEntityCooldowns(entityId);
+        }
+
+        public void NextTurn()
+        {
+            _battle.NextTurn();
+        }
+
+        public int GetEnergyRegenerationPerTurn(EntityId entityId)
+        {
+            return GetEntity(entityId).Energy.RegenerationPerTurn;
+        }
+
+        public int GetMaxEnergy(EntityId entityId)
+        {
+            return GetEntity(entityId).Energy.Max;
         }
     }
 }

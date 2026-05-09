@@ -16,16 +16,34 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
 
         public IReadOnlyCollection<EntityId> EntityIds => _entities;
 
+        public EntityId CurrentEntityTurn => TurnOrder[_currentEntityIndex];
+        public IReadOnlyList<EntityId> TurnOrder { get; }
+        private int _currentEntityIndex = 0;
+
         public SimulationCombatState(
             IDictionary<EntityId, SimulationEntityState> entities,
             IDictionary<EntityId, IReadOnlyCollection<ICombatActionDefinition>> actions,
-            IReadOnlyTileMap map
+            IReadOnlyTileMap map,
+            IReadOnlyList<EntityId> turnOrder,
+            EntityId currentEntityTurn
             )
         {
             _entities = entities.Keys.ToList();
             _simulationEntities = entities;
             _map = map;
             _actions = actions;
+
+            TurnOrder = turnOrder;
+
+            for (int i = 0; i < turnOrder.Count; ++i)
+            {
+                var entity = turnOrder[i];
+                if (entity.Equals(currentEntityTurn))
+                {
+                    _currentEntityIndex = i;
+                    break;
+                }
+            }
         }
 
         public bool TryGetPosition(EntityId entityId, out Vector2Int position)
@@ -82,6 +100,36 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
             return _simulationEntities[entityId].Cooldowns.TryGetValue(actionId, out var cooldown) && cooldown > 0;
         }
 
+        public void TickCooldowns(EntityId entityId)
+        {
+            var cooldowns = _simulationEntities[entityId].Cooldowns;
+            var cooldownsToRemove = new List<CombatActionId>();
+
+            foreach (var cooldown in cooldowns)
+            {
+                var newCooldown = cooldown.Value - 1;
+                cooldowns[cooldown.Key] = newCooldown;
+
+                if (newCooldown <= 0)
+                {
+                    cooldownsToRemove.Add(cooldown.Key);
+                }
+            }
+
+            foreach (var cooldown in cooldownsToRemove)
+            {
+                cooldowns.Remove(cooldown);
+            }
+        }
+
+        public void RegenerateEnergy(EntityId entityId)
+        {
+            var regenerationPerTurn = GetEnergyRegenerationPerTurn(entityId);
+            var maxEnergy = GetMaxEnergy(entityId);
+            var energy = GetEnergy(entityId);
+            _simulationEntities[entityId].Energy = Mathf.Clamp(energy + regenerationPerTurn, 0, maxEnergy);
+        }
+
         public bool TryMove(EntityId entityId, Vector2Int position)
         {
             if (IsOccupied(position))
@@ -129,6 +177,14 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
             return _simulationEntities[entityId].TeamId;
         }
 
+        public bool AreFriends(EntityId firstEntity, EntityId secondEntity)
+        {
+            var firstSimulationEntity = _simulationEntities[firstEntity];
+            var secondSimulationEntity = _simulationEntities[secondEntity];
+
+            return firstSimulationEntity.TeamId == secondSimulationEntity.TeamId;
+        }
+
         public IReadOnlyCollection<ICombatActionDefinition> GetCombatActionDefinitions(EntityId entityId)
         {
             return _actions[entityId];
@@ -147,6 +203,21 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
         public IDictionary<CombatActionId, int> GetCooldowns(EntityId entityId)
         {
             return new Dictionary<CombatActionId, int>(_simulationEntities[entityId].Cooldowns);
+        }
+
+        public void NextTurn()
+        {
+            _currentEntityIndex = (_currentEntityIndex + 1) % TurnOrder.Count;
+        }
+
+        public int GetEnergyRegenerationPerTurn(EntityId entityId)
+        {
+            return _simulationEntities[entityId].EnergyRegenerationPerTurn;
+        }
+
+        public int GetMaxEnergy(EntityId entityId)
+        {
+            return _simulationEntities[entityId].MaxEnergy;
         }
     }
 }

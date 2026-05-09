@@ -11,5 +11,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
         void Heal(EntityId entityId, int amount);
         void PutOnCooldown(EntityId entityId, CombatActionId actionId, int turns);
         void StunForNextTurn(EntityId entityId);
+        void NextTurn();
     }
 }

@@ -29,17 +29,20 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 var health = currentStateView.GetHealth(entityId);
                 var maxHealth = currentStateView.GetMaxHealth(entityId);
                 var energy = currentStateView.GetEnergy(entityId);
+                var maxEnergy = currentStateView.GetMaxEnergy(entityId);
+                var energyRegenerationPerTurn = currentStateView.GetEnergyRegenerationPerTurn(entityId);
                 var strength = currentStateView.GetStrength(entityId);
                 var speed = currentStateView.GetSpeed(entityId);
 
-                var simulationEntity = new SimulationEntityState(entityId, health, maxHealth, energy, strength, speed, teamId, entityPosition, cooldowns, isStunned);
+                var simulationEntity = new SimulationEntityState(entityId, health, maxHealth, energy, maxEnergy, strength, speed, energyRegenerationPerTurn, teamId, entityPosition, cooldowns, isStunned);
                 simulationEntities.Add(entityId, simulationEntity);
 
                 var availableActions = currentStateView.GetCombatActionDefinitions(entityId);
                 actions.Add(entityId, availableActions);
             }
 
-            return new SimulationCombatState(simulationEntities, actions, _map);
+            var turnOrder = new List<EntityId>(currentStateView.TurnOrder);
+            return new SimulationCombatState(simulationEntities, actions, _map, turnOrder, currentStateView.CurrentEntityTurn);
         }
     }
 }
