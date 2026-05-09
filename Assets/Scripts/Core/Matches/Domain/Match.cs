@@ -11,7 +11,6 @@ namespace AiAlgorithmsResearch.Core.Matches.Domain
         public IBattleParticipant CurrentParticipant => Battle.Current;
         public int PlayedTurns { get; private set; }
 
-
         public Match()
         {
             State = MatchState.NotStarted;

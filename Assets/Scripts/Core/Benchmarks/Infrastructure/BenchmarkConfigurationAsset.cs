@@ -16,6 +16,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         [SerializeField] private TeamConfiguration[] _teams;
         [SerializeField] private int _worldWidth;
         [SerializeField] private int _worldHeight;
+        [SerializeField] private List<Vector2Int> _walls;
 
         public TeamConfiguration[] Teams => _teams;
 
@@ -56,7 +57,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 teams[teamId] = entitiesByPosition;
             }
 
-            return new BenchmarkConfiguration(teams, entityDefinitionsById, actionsByEntity, agentsByTeam, _worldWidth, _worldHeight);
+            return new BenchmarkConfiguration(teams, entityDefinitionsById, actionsByEntity, agentsByTeam, _worldWidth, _worldHeight, _walls);
         }
     }
 }

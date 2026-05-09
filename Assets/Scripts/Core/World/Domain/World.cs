@@ -76,6 +76,11 @@ namespace AiAlgorithmsResearch.Core.Worlds.Domain
             return true;
         }
 
+        public bool ChangeNodeType(Vector2Int position, MapNodeType nodeType)
+        {
+           return MapEditor.SetTileType(position, nodeType);
+        }
+
         public void Clear()
         {
             _entities.Clear();

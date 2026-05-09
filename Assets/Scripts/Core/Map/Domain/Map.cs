@@ -80,5 +80,13 @@ namespace AiAlgorithmsResearch.Core.Maps.Domain
             readonlyNode = new MapNodeReadOnly(internalNode.Position, internalNode.Type);
             return true;
         }
+
+        public void ClearObstacles()
+        {
+            foreach (var node in _nodes.Values)
+            {
+                ChangeNodeType(node.Position, MapNodeType.Free);
+            }
+        }
     }
 }

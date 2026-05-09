@@ -7,5 +7,6 @@ namespace AiAlgorithmsResearch.Core.Maps.Api
         bool AddTile(Vector2Int position, MapNodeType type);
         bool SetTileType(Vector2Int position, MapNodeType type);
         bool Connect(Vector2Int a, Vector2Int b);
+        void Clear();
     }
 }

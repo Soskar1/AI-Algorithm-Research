@@ -2,6 +2,7 @@
 using AiAlgorithmsResearch.Core.Benchmarks.Domain;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
+using AiAlgorithmsResearch.Core.Maps.Api;
 using AiAlgorithmsResearch.Core.Matches.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using Reflex.Attributes;
@@ -24,6 +25,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         private IEntityFactory _entityFactory;
         private ICombatAgentFactory _combatAgentFactory;
         private IWorldGenerator _worldGenerator;
+        private IMapEditor _mapEditor;
         private BenchmarkConfiguration _configuration;
         private MatchInitializationRequest _matchInitializationRequest;
 
@@ -42,12 +44,13 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         private Random _random;
 
         [Inject]
-        public void Inject(IMatchRunner matchRunner, IEntityFactory entityFactory, ICombatAgentFactory agentFactory, IWorldGenerator worldGenerator)
+        public void Inject(IMatchRunner matchRunner, IEntityFactory entityFactory, ICombatAgentFactory agentFactory, IWorldGenerator worldGenerator, IMapEditor mapEditor)
         {
             _matchRunner = matchRunner;
             _entityFactory = entityFactory;
             _combatAgentFactory = agentFactory;
             _worldGenerator = worldGenerator;
+            _mapEditor = mapEditor;
         }
 
         public void Start()
@@ -73,12 +76,12 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 ++_matchWinnerCount[_matchView.Winner.Value];
                 ++_currentMatch;
 
+                DisplayStatistics();
+
                 if (_currentMatch < _matchCount)
                 {
                     StartNewMatch();
                 }
-
-                DisplayStatistics();
             }
         }
 
@@ -87,7 +90,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             _random = new Random(_seeds[_currentMatch]);
             _configuration = _benchmarkConfigurationAsset.ToConfiguration(_combatAgentFactory, _random);
 
-            _worldGenerator.Generate(_configuration.WorldWidth, _configuration.WorldHeight);
+            _mapEditor.Clear();
+            _worldGenerator.Generate(_configuration.WorldWidth, _configuration.WorldHeight, _configuration.Walls);
 
             List<BattleParticipantSetup> battleParticipants = new();
             foreach (var team in _configuration.Teams.Keys)

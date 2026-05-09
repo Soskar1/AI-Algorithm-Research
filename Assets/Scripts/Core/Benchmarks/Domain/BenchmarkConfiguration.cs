@@ -14,6 +14,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Domain
         public IReadOnlyDictionary<TeamId, ICombatAgent> AgentsByTeam { get; }
         public int WorldWidth { get; }
         public int WorldHeight { get; }
+        public List<Vector2Int> Walls { get; }
 
         public BenchmarkConfiguration(
             IReadOnlyDictionary<TeamId, IReadOnlyDictionary<Vector2Int, EntityDefinitionId>> teams,
@@ -21,7 +22,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Domain
             IReadOnlyDictionary<EntityDefinitionId, IReadOnlyCollection<ICombatActionDefinition>> actionsByEntity,
             IReadOnlyDictionary<TeamId, ICombatAgent> agentsByTeam,
             int worldWidth,
-            int worldHeight)
+            int worldHeight,
+            List<Vector2Int> walls)
         {
             Teams = teams;
             EntityDefinitionsById = entityDefinitionsById;
@@ -29,6 +31,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Domain
             AgentsByTeam = agentsByTeam;
             WorldWidth = worldWidth;
             WorldHeight = worldHeight;
+            Walls = walls;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AiAlgorithmsResearch.Core.Maps.Api;
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using AiAlgorithmsResearch.Core.Worlds.Domain;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AiAlgorithmsResearch.Core.Worlds.Application
@@ -14,7 +15,7 @@ namespace AiAlgorithmsResearch.Core.Worlds.Application
             _world = world;
         }
 
-        public void Generate(int width, int height)
+        public void Generate(int width, int height, IReadOnlyCollection<Vector2Int> obstacles)
         {
             for (var x = 0; x < width; x++)
             {
@@ -24,10 +25,16 @@ namespace AiAlgorithmsResearch.Core.Worlds.Application
                     var type = IsBorder(x, y, width, height) ? MapNodeType.Obstacle : MapNodeType.Free;
 
                     _world.AddTile(position, type);
+                    _world.ChangeNodeType(position, type);
                 }
             }
 
             ConnectOrthogonalNeighbors(width, height);
+
+            foreach (var obstacle in obstacles)
+            {
+                _world.ChangeNodeType(obstacle, MapNodeType.Obstacle);
+            }
         }
 
         private void ConnectOrthogonalNeighbors(int width, int height)

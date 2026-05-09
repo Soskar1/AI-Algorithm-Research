@@ -18,6 +18,11 @@ namespace AiAlgorithmsResearch.Core.Maps.Application
             return _map.TryAddNode(position, type);
         }
 
+        public void Clear()
+        {
+            _map.ClearObstacles();
+        }
+
         public bool Connect(Vector2Int a, Vector2Int b)
         {
             return _map.ConnectNodes(a, b);
