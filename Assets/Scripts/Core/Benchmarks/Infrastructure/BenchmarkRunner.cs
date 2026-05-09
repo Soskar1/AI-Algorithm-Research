@@ -141,7 +141,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         private void DisplayStatistics()
         {
-            _matchCountText.text = $"Scenario {_currentConfig}: {_seeds.Count} matches";
+            _matchCountText.text = $"Scenario {_benchmarkConfigurationAssets[_currentConfig].name}: {_seeds.Count} matches";
 
             var teams = _configuration.Teams.Keys.ToList();
             var firstTeam = teams[0];
