@@ -33,7 +33,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         private MatchInitializationRequest _matchInitializationRequest;
 
         private IMatchView _matchView;
-        private List<int> _matchWinnerCount = new();
+        private List<int> _currentMatchWinnerCount = new();
+        private List<int> _overallMatchWinnerCounts = new();
 
         [Header("UI")]
         [SerializeField] private GameObject _ui;
@@ -44,6 +45,9 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         [SerializeField] private List<int> _seeds;
         [SerializeField] private List<int> _seeds2;
+
+        [SerializeField] private GameObject _details;
+        [SerializeField] private TextMeshProUGUI _detailedTextPrefab;
 
         private Random _random;
 
@@ -59,8 +63,11 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         public void Start()
         {
-            _matchWinnerCount.Add(0);
-            _matchWinnerCount.Add(0);
+            _overallMatchWinnerCounts.Add(0);
+            _overallMatchWinnerCounts.Add(0);
+            _currentMatchWinnerCount.Add(0);
+            _currentMatchWinnerCount.Add(0);
+
             _matchCount = _seeds.Count * _benchmarkConfigurationAssets.Count;
             StartNewMatch();
         }
@@ -77,7 +84,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
             if (_matchView.State == MatchState.Finished)
             {
-                ++_matchWinnerCount[_matchView.Winner.Value];
+                ++_overallMatchWinnerCounts[_matchView.Winner.Value];
+                ++_currentMatchWinnerCount[_matchView.Winner.Value];
                 ++_currentMatch;
 
                 DisplayStatistics();
@@ -86,11 +94,21 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 {
                     StartNewMatch();
                 }
-                else if (_currentMatch >= _seeds.Count && _currentConfig < _benchmarkConfigurationAssets.Count - 1)
+                else
                 {
-                    ++_currentConfig;
-                    _currentMatch = 0;
-                    StartNewMatch();
+                    AppendDataToDetails();
+
+                    if (_currentConfig < _benchmarkConfigurationAssets.Count - 1)
+                    {
+                        ++_currentConfig;
+                        _currentMatch = 0;
+
+                        _currentMatchWinnerCount.Clear();
+                        _currentMatchWinnerCount.Add(0);
+                        _currentMatchWinnerCount.Add(0);
+
+                        StartNewMatch();
+                    }
                 }
             }
         }
@@ -147,8 +165,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             var firstTeam = teams[0];
             var secondTeam = teams[1];
 
-            var firstTeamWon = _matchWinnerCount[firstTeam.Value];
-            var secondTeamWon = _matchWinnerCount[secondTeam.Value];
+            var firstTeamWon = _overallMatchWinnerCounts[firstTeam.Value];
+            var secondTeamWon = _overallMatchWinnerCounts[secondTeam.Value];
 
             var playedMatches = _currentConfig * _seeds.Count + _currentMatch;
 
@@ -156,6 +174,34 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             _secondAlgorithmText.text = $"{secondTeam.DisplayName} won: {secondTeamWon} ({(secondTeamWon / (float)playedMatches) * 100:F2}% win rate)";
 
             _progressBar.fillAmount = playedMatches / (float)_matchCount;
+        }
+
+        private void AppendDataToDetails()
+        {
+            var teams = _configuration.Teams.Keys.ToList();
+            var firstTeam = teams[0];
+            var secondTeam = teams[1];
+
+            var firstTeamWon = _currentMatchWinnerCount[firstTeam.Value];
+            var secondTeamWon = _currentMatchWinnerCount[secondTeam.Value];
+
+            var textInstance = Instantiate(_detailedTextPrefab, _details.transform);
+            var scenarioName = _benchmarkConfigurationAssets[_currentConfig].name;
+
+            if (firstTeamWon > secondTeamWon)
+            {
+                var winRate = (firstTeamWon / (float)_seeds.Count) * 100;
+                textInstance.text = $"{scenarioName}: {firstTeam.DisplayName} ({winRate:F2}%)";
+            }
+            else if (firstTeamWon < secondTeamWon)
+            {
+                var winRate = (secondTeamWon / (float)_seeds.Count) * 100;
+                textInstance.text = $"{scenarioName}: {secondTeam.DisplayName} ({winRate:F2}%)";
+            }
+            else
+            {
+                textInstance.text = $"{scenarioName}: draw";
+            }
         }
 
         private ICombatAgent CreateAgent(CombatAgentType agentType)

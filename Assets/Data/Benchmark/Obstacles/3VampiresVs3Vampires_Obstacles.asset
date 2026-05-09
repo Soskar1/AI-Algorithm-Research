@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 557da2200219ae04a903694c10543590, type: 3}
-  m_Name: 3VampiresVs3Vampires_OpenMap_FarAway
+  m_Name: 3VampiresVs3Vampires_Obstacles
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Benchmarks::AiAlgorithmsResearch.Core.Benchmarks.Infrastructure.BenchmarkConfigurationAsset
   _teams:
   - _entities:
@@ -29,4 +29,20 @@ MonoBehaviour:
       _battleParticipant: {fileID: 11400000, guid: fdd5d65e0b3f6544a82214795a897183, type: 2}
   _worldWidth: 10
   _worldHeight: 10
-  _walls: []
+  _walls:
+  - {x: 3, y: 3}
+  - {x: 3, y: 4}
+  - {x: 3, y: 6}
+  - {x: 3, y: 7}
+  - {x: 4, y: 3}
+  - {x: 4, y: 4}
+  - {x: 4, y: 6}
+  - {x: 4, y: 7}
+  - {x: 6, y: 3}
+  - {x: 6, y: 4}
+  - {x: 6, y: 6}
+  - {x: 6, y: 7}
+  - {x: 7, y: 3}
+  - {x: 7, y: 4}
+  - {x: 7, y: 6}
+  - {x: 7, y: 7}
