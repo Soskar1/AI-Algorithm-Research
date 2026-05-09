@@ -53,6 +53,21 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 }
             }
 
+            if (energy > 0 && TryGetAction(typeof(TeleportAction), candidateActions, out var teleportAction))
+            {
+                ExecuteAction(teleportAction, simulation, actionsToExecute, candidateActions, executor, ref energy);
+
+                while (energy > 0 && TryGetAction(typeof(AttackAction), candidateActions, out var attackAction))
+                {
+                    var executionSuccessfull = ExecuteAction(attackAction, simulation, actionsToExecute, candidateActions, executor, ref energy);
+
+                    if (!executionSuccessfull)
+                    {
+                        break;
+                    }
+                }
+            }
+
             if (energy > 0 && TryGetAction(typeof(MoveAction), candidateActions, out var moveAction))
             {
                 ExecuteAction(moveAction, simulation, actionsToExecute, candidateActions, executor, ref energy);
