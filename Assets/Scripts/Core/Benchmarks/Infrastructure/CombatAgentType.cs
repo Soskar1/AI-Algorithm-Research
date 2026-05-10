@@ -4,6 +4,7 @@
     {
         Random,
         StateMachine,
-        Minimax
+        Minimax1,
+        Minimax8
     }
 }

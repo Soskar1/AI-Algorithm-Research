@@ -143,16 +143,18 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 .Where(entity => !simulation.AreFriends(entity, executor))
                 .ToList();
 
-            (var healthCoefficientExecutorTeam, var deadEntitiesExecutorTeam) = GetHealthStatistics(executorTeam);
-            (var healthCoefficientEnemyTeam, var deadEntitiesEnemyTeam) = GetHealthStatistics(executorTeam);
+            (var healthDifferenceExecutorTeam, var executorOverallHealth, var deadEntitiesExecutorTeam) = GetHealthStatistics(executorTeam);
+            (var healthDifferenceEnemyTeam, var enemyOverallHealth, var deadEntitiesEnemyTeam) = GetHealthStatistics(enemyTeam);
 
             return deadEntitiesEnemyTeam * 100 - deadEntitiesExecutorTeam * 100
-                + healthCoefficientExecutorTeam - healthCoefficientEnemyTeam;
+                + healthDifferenceEnemyTeam * 0.8f
+                + (executorOverallHealth - healthDifferenceExecutorTeam) * 0.5f;
 
-            (float, int) GetHealthStatistics(IList<EntityId> entities)
+            (int, int, int) GetHealthStatistics(IList<EntityId> entities)
             {
-                var healthCoefficient = 0;
+                var healthDifference = 0;
                 var deadEntities = 0;
+                var overallHealth = 0;
 
                 foreach (var entity in entities)
                 {
@@ -163,13 +165,12 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                     {
                         ++deadEntities;
                     }
-                    else
-                    {
-                        healthCoefficient += health / maxHealth;
-                    }
+
+                    healthDifference += maxHealth - health;
+                    overallHealth += maxHealth;
                 }
 
-                return (healthCoefficient, deadEntities);
+                return (healthDifference, overallHealth, deadEntities);
             }
         }
 
@@ -178,7 +179,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             var actionsToExecute = new List<ICombatAction>();
             var energy = simulation.GetEnergy(executor);
             var candidates = _combatActionCandidateProvider.GetCandidates(simulation, executor);
-            var executionSuccessfull = ExecuteAction(mainAction, simulation, actionsToExecute, candidates, executor, ref energy);
+            var executionSuccessfull = ExecuteAction(mainAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
             plan = null;
 
             if (!executionSuccessfull)
@@ -214,12 +215,12 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
             if (energy > 0 && TryGetAction(typeof(StunAction), candidates, out var stunAction))
             {
-                ExecuteAction(stunAction, simulation, actionsToExecute, candidates, executor, ref energy);
+                ExecuteAction(stunAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
             }
 
             while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
             {
-                var executionSuccessfull = ExecuteAction(attackAction, simulation, actionsToExecute, candidates, executor, ref energy);
+                var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
 
                 if (!executionSuccessfull)
                 {
@@ -229,11 +230,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
             if (energy > 0 && TryGetAction(typeof(TeleportAction), candidates, out var teleportAction))
             {
-                ExecuteAction(teleportAction, simulation, actionsToExecute, candidates, executor, ref energy);
+                ExecuteAction(teleportAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
 
                 while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
                 {
-                    var executionSuccessfull = ExecuteAction(attackAction, simulation, actionsToExecute, candidates, executor, ref energy);
+                    var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
 
                     if (!executionSuccessfull)
                     {
@@ -244,11 +245,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
             if (energy > 0 && TryGetAction(typeof(MoveAction), candidates, out var moveAction))
             {
-                ExecuteAction(moveAction, simulation, actionsToExecute, candidates, executor, ref energy);
+                ExecuteAction(moveAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
 
                 while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
                 {
-                    var executionSuccessfull = ExecuteAction(attackAction, simulation, actionsToExecute, candidates, executor, ref energy);
+                    var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
 
                     if (!executionSuccessfull)
                     {
@@ -264,7 +265,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
             while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
             {
-                var executionSuccessfull = ExecuteAction(attackAction, simulation, actionsToExecute, candidates, executor, ref energy);
+                var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
 
                 if (!executionSuccessfull)
                 {
@@ -279,46 +280,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
             while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
             {
-                var executionSuccessfull = ExecuteAction(attackAction, simulation, actionsToExecute, candidates, executor, ref energy);
+                var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
 
                 if (!executionSuccessfull)
                 {
                     break;
-                }
-            }
-        }
-
-        private void SimulateApproachingTurnPlan(SimulationCombatState simulation, EntityId executor, List<ICombatAction> actionsToExecute, ref int energy)
-        {
-            var candidates = _combatActionCandidateProvider.GetCandidates(simulation, executor);
-
-            if (energy > 0 && TryGetAction(typeof(TeleportAction), candidates, out var teleportAction))
-            {
-                ExecuteAction(teleportAction, simulation, actionsToExecute, candidates, executor, ref energy);
-
-                while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
-                {
-                    var executionSuccessfull = ExecuteAction(attackAction, simulation, actionsToExecute, candidates, executor, ref energy);
-
-                    if (!executionSuccessfull)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            if (energy > 0 && TryGetAction(typeof(MoveAction), candidates, out var moveAction))
-            {
-                ExecuteAction(moveAction, simulation, actionsToExecute, candidates, executor, ref energy);
-
-                while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
-                {
-                    var executionSuccessfull = ExecuteAction(attackAction, simulation, actionsToExecute, candidates, executor, ref energy);
-
-                    if (!executionSuccessfull)
-                    {
-                        break;
-                    }
                 }
             }
         }
@@ -339,7 +305,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             return false;
         }
 
-        private bool ExecuteAction(ICombatAction combatAction, SimulationCombatState simulation, List<ICombatAction> actionsToExecute, IList<ICombatAction> candidateActions, EntityId executor, ref int energy)
+        private bool ExecuteAction(ICombatAction combatAction, SimulationCombatState simulation, ref List<ICombatAction> actionsToExecute, ref IList<ICombatAction> candidateActions, EntityId executor, ref int energy)
         {
             var executionSuccessfull = _combatActionExecutor.TryExecute(combatAction, simulation, simulation);
 
