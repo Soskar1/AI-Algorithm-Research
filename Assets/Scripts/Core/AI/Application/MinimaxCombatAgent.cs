@@ -221,11 +221,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             {
                 SimulateStunTurnPlan(simulation, executor, actionsToExecute, ref energy);
             }
-            else if (actionType == typeof(AttackAction))
-            {
-                SimulateAttackTurnPlan(simulation, executor, actionsToExecute, ref energy);
-            }
-            else if (actionType == typeof(MoveAction) || actionType == typeof(TeleportAction))
+            else if (actionType == typeof(RangedAttackAction) || actionType == typeof(AttackAction) || actionType == typeof(MoveAction) || actionType == typeof(TeleportAction))
             {
                 SimulateAttackTurnPlan(simulation, executor, actionsToExecute, ref energy);
             }
@@ -303,7 +299,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
         {
             var candidates = _combatActionCandidateProvider.GetCandidates(simulation, executor);
 
-            while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
+            while (energy > 0 && (TryGetAction(typeof(RangedAttackAction), candidates, out var attackAction) || TryGetAction(typeof(AttackAction), candidates, out attackAction)))
             {
                 var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
 

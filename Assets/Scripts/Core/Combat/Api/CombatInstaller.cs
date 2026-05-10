@@ -47,7 +47,8 @@ namespace AiAlgorithmsResearch.Core.Combat.Api
                         [CombatActionIds.Attack] = new AttackActionHandler(combatLogger),
                         [CombatActionIds.Teleport] = new TeleportActionHandler(combatLogger),
                         [CombatActionIds.Heal] = new HealActionHandler(combatLogger),
-                        [CombatActionIds.Stun] = new StunActionHandler(combatLogger)
+                        [CombatActionIds.Stun] = new StunActionHandler(combatLogger),
+                        [CombatActionIds.RangedAttack] = new RangedAttackActionHandler(combatLogger),
                     });
             }, Lifetime.Singleton, Resolution.Lazy);
             return builder;

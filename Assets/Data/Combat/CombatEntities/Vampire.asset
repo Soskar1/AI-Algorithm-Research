@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Combat::AiAlgorithmsResearch.Core.Combat.Api.BattleParticipantAsset
   _entityDefinition: {fileID: 11400000, guid: f209fffe97354494ba52547bbd89e9ab, type: 2}
   _combatActions:
+  - {fileID: 11400000, guid: 8fa3cf125a7f91245a68c4bf2bbad96d, type: 2}
   - {fileID: 11400000, guid: 4521fcf1f10cad349b19f66d45d52fb2, type: 2}
   - {fileID: 11400000, guid: 9d559ffc2b553344dbf76144fc60f68f, type: 2}

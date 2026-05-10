@@ -33,57 +33,80 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
             var candidateActions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
 
+            TryHeal(simulation, executor, ref actionsToExecute);
+            TryStun(simulation, executor, ref actionsToExecute);
+            TryAttack(simulation, executor, ref actionsToExecute);
+            TryTeleport(simulation, executor, ref actionsToExecute);
+            TryMove(simulation, executor, ref actionsToExecute);
+
+            return new CombatPlan(actionsToExecute);
+        }
+
+        private void TryHeal(SimulationCombatState simulation, EntityId executor, ref List<ICombatAction> actionsToExecute)
+        {
+            var energy = simulation.GetEnergy(executor);
+            var health = simulation.GetHealth(executor);
+            var maxHealth = simulation.GetMaxHealth(executor);
+
+            var candidateActions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
+
             if (energy > 0 && health / maxHealth <= _healingDecisionThreshold && TryGetAction(typeof(HealAction), candidateActions, out var healAction))
             {
-                ExecuteAction(healAction, simulation, ref actionsToExecute, ref candidateActions, executor, ref energy);
+                ExecuteAction(healAction, simulation, ref actionsToExecute, executor);
             }
+        }
+
+        private void TryStun(SimulationCombatState simulation, EntityId executor, ref List<ICombatAction> actionsToExecute)
+        {
+            var energy = simulation.GetEnergy(executor);
+            var candidateActions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
 
             if (energy > 0 && TryGetAction(typeof(StunAction), candidateActions, out var stunAction))
             {
-                ExecuteAction(stunAction, simulation, ref actionsToExecute, ref candidateActions, executor, ref energy);
+                ExecuteAction(stunAction, simulation, ref actionsToExecute, executor);
             }
+        }
 
-            while (energy > 0 && TryGetAction(typeof(AttackAction), candidateActions, out var attackAction))
+        private void TryAttack(SimulationCombatState simulation, EntityId executor, ref List<ICombatAction> actionsToExecute)
+        {
+            var energy = simulation.GetEnergy(executor);
+            var candidateActions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
+
+            while (energy > 0 && (TryGetAction(typeof(RangedAttackAction), candidateActions, out var attackAction) || TryGetAction(typeof(AttackAction), candidateActions, out attackAction)))
             {
-                var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidateActions, executor, ref energy);
+                var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, executor);
 
                 if (!executionSuccessfull)
                 {
                     break;
                 }
             }
+        }
+
+        private void TryTeleport(SimulationCombatState simulation, EntityId executor, ref List<ICombatAction> actionsToExecute)
+        {
+            var energy = simulation.GetEnergy(executor);
+            var candidateActions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
 
             if (energy > 0 && TryGetAction(typeof(TeleportAction), candidateActions, out var teleportAction))
             {
-                ExecuteAction(teleportAction, simulation, ref actionsToExecute, ref candidateActions, executor, ref energy);
+                ExecuteAction(teleportAction, simulation, ref actionsToExecute, executor);
 
-                while (energy > 0 && TryGetAction(typeof(AttackAction), candidateActions, out var attackAction))
-                {
-                    var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidateActions, executor, ref energy);
-
-                    if (!executionSuccessfull)
-                    {
-                        break;
-                    }
-                }
+                TryAttack(simulation, executor, ref actionsToExecute);
             }
+        }
+
+        private void TryMove(SimulationCombatState simulation, EntityId executor, ref List<ICombatAction> actionsToExecute)
+        {
+            var energy = simulation.GetEnergy(executor);
+            var candidateActions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
 
             if (energy > 0 && TryGetAction(typeof(MoveAction), candidateActions, out var moveAction))
             {
-                ExecuteAction(moveAction, simulation, ref actionsToExecute, ref candidateActions, executor, ref energy);
+                ExecuteAction(moveAction, simulation, ref actionsToExecute, executor);
 
-                while (energy > 0 && TryGetAction(typeof(AttackAction), candidateActions, out var attackAction))
-                {
-                    var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidateActions, executor, ref energy);
-
-                    if (!executionSuccessfull)
-                    {
-                        break;
-                    }
-                }
+                TryAttack(simulation, executor, ref actionsToExecute);
             }
-
-            return new CombatPlan(actionsToExecute);
         }
 
         private bool TryGetAction(Type actionType, IEnumerable<ICombatAction> actions, out ICombatAction foundAction)
@@ -102,19 +125,13 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             return false;
         }
 
-        private bool ExecuteAction(ICombatAction combatAction, SimulationCombatState simulation, ref List<ICombatAction> actionsToExecute, ref IList<ICombatAction> candidateActions, EntityId executor, ref int energy)
+        private bool ExecuteAction(ICombatAction combatAction, SimulationCombatState simulation, ref List<ICombatAction> actionsToExecute, EntityId executor)
         {
             var executionSuccessfull = _combatActionExecutor.TryExecute(combatAction, simulation, simulation);
 
             if (executionSuccessfull)
             {
                 actionsToExecute.Add(combatAction);
-                energy = simulation.GetEnergy(executor);
-
-                if (energy > 0)
-                {
-                    candidateActions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
-                }
             }
 
             return executionSuccessfull;

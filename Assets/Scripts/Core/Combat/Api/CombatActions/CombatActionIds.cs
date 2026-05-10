@@ -5,6 +5,7 @@
         public static readonly CombatActionId Move = new("move");
         public static readonly CombatActionId Wait = new("wait");
         public static readonly CombatActionId Attack = new("attack");
+        public static readonly CombatActionId RangedAttack = new("ranged");
         public static readonly CombatActionId Teleport = new("teleport");
         public static readonly CombatActionId Heal = new("heal");
         public static readonly CombatActionId Stun = new("stun");

@@ -4,7 +4,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 {
     internal sealed class WaitActionHandler : ICombatActionHandler
     {
-        public CombatActionId ActionId => CombatActionIds.Wait;
         private readonly ICombatLogger _combatLogger;
 
         public WaitActionHandler(ICombatLogger combatLogger)

@@ -4,8 +4,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 {
     internal sealed class TeleportActionHandler : ICombatActionHandler
     {
-        public CombatActionId ActionId => CombatActionIds.Teleport;
-        
         private readonly ICombatLogger _combatLogger;
 
         public TeleportActionHandler(ICombatLogger combatLogger)

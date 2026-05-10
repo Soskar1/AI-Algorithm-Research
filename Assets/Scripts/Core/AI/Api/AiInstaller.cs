@@ -19,7 +19,8 @@ namespace AiAlgorithmsResearch.Core.Ai.Api
                             new MoveActionCandidateGenerator(),
                             new HealActionCandidateGenerator(),
                             new StunActionCandidateGenerator(),
-                            new TeleportActionCandidateGenerator()
+                            new TeleportActionCandidateGenerator(),
+                            new RangedAttackActionCandidateGenerator()
                         });
 
                     var map = builder.Resolve<IReadOnlyTileMap>();

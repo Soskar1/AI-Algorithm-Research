@@ -6,8 +6,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
     {
         private readonly ICombatLogger _combatLogger;
 
-        public CombatActionId ActionId => CombatActionIds.Heal;
-
         public HealActionHandler(ICombatLogger combatLogger)
         {
             _combatLogger = combatLogger;

@@ -15,6 +15,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Presentation
         [SerializeField] private TextMeshProUGUI _executedTeleportActionsText;
         [SerializeField] private TextMeshProUGUI _executedHealActionsText;
         [SerializeField] private TextMeshProUGUI _executedDoNothingActionsText;
+        [SerializeField] private TextMeshProUGUI _executedRangedActionsText;
 
         private int _moveActions = 0;
         private int _attackActions = 0;
@@ -22,6 +23,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Presentation
         private int _teleportActions = 0;
         private int _healActions = 0;
         private int _doNothingActions = 0;
+        private int _rangedAction = 0;
         private int _overallAlgorithmActions = 0;
 
         public void Initialize(string algorithmName)
@@ -34,6 +36,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Presentation
             _executedTeleportActionsText.text = "0";
             _executedHealActionsText.text = "0";
             _executedDoNothingActionsText.text = "0";
+            _executedRangedActionsText.text = "0";
         }
 
         public void UpdateTotal(int currentTotalAmountOfActions)
@@ -74,6 +77,11 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Presentation
             {
                 ++_doNothingActions;
                 UpdateStat(_executedDoNothingActionsText, _doNothingActions);
+            }
+            else if (combatActionId.Value == CombatActionIds.RangedAttack.Value)
+            {
+                ++_rangedAction;
+                UpdateStat(_executedRangedActionsText, _rangedAction);
             }
         }
 

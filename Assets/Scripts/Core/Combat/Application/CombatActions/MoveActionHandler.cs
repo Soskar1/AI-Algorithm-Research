@@ -4,8 +4,6 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
 {
     internal sealed class MoveActionHandler : ICombatActionHandler
     {
-        public CombatActionId ActionId => CombatActionIds.Move;
-
         private readonly ICombatLogger _combatLogger;
 
         public MoveActionHandler(ICombatLogger combatLogger)

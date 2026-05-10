@@ -15,6 +15,7 @@ MonoBehaviour:
   _entityDefinition: {fileID: 11400000, guid: e84bb7032e7d7d94cbff5f6f571beaaf, type: 2}
   _combatActions:
   - {fileID: 11400000, guid: 8fa3cf125a7f91245a68c4bf2bbad96d, type: 2}
+  - {fileID: 11400000, guid: 4521fcf1f10cad349b19f66d45d52fb2, type: 2}
   - {fileID: 11400000, guid: 9d559ffc2b553344dbf76144fc60f68f, type: 2}
   - {fileID: 11400000, guid: b80a4cbbee60b2e479a7b6e895ad6f0a, type: 2}
   - {fileID: 11400000, guid: fffa395f821532746966d4a7c6614521, type: 2}
