@@ -16,6 +16,6 @@ MonoBehaviour:
   _displayName: Skeleton Boss
   _maxHealth: 10
   _maxEnergy: 10
-  _energyRegenPerTurn: 2
+  _energyRegenPerTurn: 5
   _speed: 2
   _strength: 2

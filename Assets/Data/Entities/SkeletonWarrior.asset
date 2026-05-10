@@ -16,6 +16,6 @@ MonoBehaviour:
   _displayName: Skeleton Warrior
   _maxHealth: 7
   _maxEnergy: 5
-  _energyRegenPerTurn: 2
+  _energyRegenPerTurn: 5
   _speed: 1
   _strength: 1

@@ -23,11 +23,6 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 return Enumerable.Empty<ICombatAction>();
             }
 
-            if (GridDistance.Manhattan(executorPosition, enemyPosition) == 1)
-            {
-                return Enumerable.Empty<ICombatAction>();
-            }
-
             var energy = combatState.GetEnergy(executorId);
             var cost = int.MaxValue;
             Vector2Int moveTarget = enemyPosition;

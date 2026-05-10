@@ -146,9 +146,13 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             (var healthDifferenceExecutorTeam, var executorOverallHealth, var deadEntitiesExecutorTeam) = GetHealthStatistics(executorTeam);
             (var healthDifferenceEnemyTeam, var enemyOverallHealth, var deadEntitiesEnemyTeam) = GetHealthStatistics(enemyTeam);
 
+            var executorStunned = GetStunStatistics(executorTeam);
+            var enemyStunned = GetStunStatistics(enemyTeam);
+
             return deadEntitiesEnemyTeam * 100 - deadEntitiesExecutorTeam * 100
                 + healthDifferenceEnemyTeam * 0.8f
-                + (executorOverallHealth - healthDifferenceExecutorTeam) * 0.5f;
+                + (executorOverallHealth - healthDifferenceExecutorTeam) * 0.5f
+                + enemyStunned * 10 - executorStunned * 10;
 
             (int, int, int) GetHealthStatistics(IList<EntityId> entities)
             {
@@ -172,10 +176,31 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
                 return (healthDifference, overallHealth, deadEntities);
             }
+
+            int GetStunStatistics(IList<EntityId> entities)
+            {
+                var stunnedEntities = 0;
+
+                foreach (var entity in entities)
+                {
+                    if (simulation.IsStunned(entity))
+                    {
+                        ++stunnedEntities;
+                    }
+                }
+
+                return stunnedEntities;
+            }
         }
 
         private bool SimulateTurn(ICombatAction mainAction, SimulationCombatState simulation, EntityId executor, out CombatPlan plan)
         {
+            if (simulation.IsStunned(executor))
+            {
+                plan = new CombatPlan(new List<ICombatAction>() { new WaitAction(executor) });
+                return true;
+            }
+
             var actionsToExecute = new List<ICombatAction>();
             var energy = simulation.GetEnergy(executor);
             var candidates = _combatActionCandidateProvider.GetCandidates(simulation, executor);
