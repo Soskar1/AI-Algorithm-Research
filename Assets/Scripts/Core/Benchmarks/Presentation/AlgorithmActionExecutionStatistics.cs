@@ -36,10 +36,14 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Presentation
             _executedDoNothingActionsText.text = "0";
         }
 
-        public void DisplayExecutedAction(CombatActionId combatActionId, int currentTotalAmountOfActions)
+        public void UpdateTotal(int currentTotalAmountOfActions)
+        {
+            _algorithmTotalExecutedActions.text = $"{_overallAlgorithmActions} ({(_overallAlgorithmActions / (float)currentTotalAmountOfActions) * 100:F2}%)";
+        }
+
+        public void DisplayExecutedAction(CombatActionId combatActionId)
         {
             ++_overallAlgorithmActions;
-            _algorithmTotalExecutedActions.text = $"{_overallAlgorithmActions} ({(_overallAlgorithmActions / (float)currentTotalAmountOfActions) * 100:F2}%)";
 
             if (combatActionId.Value == CombatActionIds.Move.Value)
             {

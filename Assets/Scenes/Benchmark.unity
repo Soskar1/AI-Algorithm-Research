@@ -976,8 +976,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c5be7277b45be1142894d8de45667e4f, type: 2}
   - {fileID: 11400000, guid: e01335c119f2d7c44b198834293a0666, type: 2}
   - {fileID: 11400000, guid: e842a9f9e34462e489f0f23a8994687a, type: 2}
-  _firstTeamAgent: 1
-  _secondTeamAgent: 3
+  _firstTeamAgent: 0
+  _secondTeamAgent: 1
   _ui: {fileID: 167795101}
   _matchCountText: {fileID: 1019149589}
   _firstAlgorithmText: {fileID: 982385545}

@@ -35,13 +35,16 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Presentation
             ++_overallExecutedActions;
             _overallExecutedActionsText.text = $"Executed {_overallExecutedActions} actions";
 
+            _firstAlgorithm.UpdateTotal(_overallExecutedActions);
+            _secondAlgorithm.UpdateTotal(_overallExecutedActions);
+
             if (teamId.Value == _firstTeam.Value)
             {
-                _firstAlgorithm.DisplayExecutedAction(combatAction, _overallExecutedActions);
+                _firstAlgorithm.DisplayExecutedAction(combatAction);
             }
             else if (teamId.Value == _secondTeam.Value)
             {
-                _secondAlgorithm.DisplayExecutedAction(combatAction, _overallExecutedActions);
+                _secondAlgorithm.DisplayExecutedAction(combatAction);
             }
             else
             {
