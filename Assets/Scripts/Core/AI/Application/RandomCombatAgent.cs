@@ -29,10 +29,16 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             var simulation = _combatStateFactory.Create(stateView);
             var energy = simulation.GetEnergy(executor);
             var actionsToExecute = new List<ICombatAction>();
-            
+
             while (energy > 0 && currentAttempt < maxAttempts)
             {
                 var actions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
+
+                if (actions == null || actions.Count == 0)
+                {
+                    break;
+                }
+
                 var randomAction = actions[_random.Next(actions.Count)];
 
                 var executionSuccessfull = _combatActionExecutor.TryExecute(randomAction, simulation, simulation);

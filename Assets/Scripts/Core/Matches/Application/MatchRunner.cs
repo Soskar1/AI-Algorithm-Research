@@ -42,7 +42,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             IWorldEditor worldEditor,
             ICombatLogger combatLogger,
             IRuntimeCombatStateFactory runtimeCombatStateFactory,
-            bool log = false)
+            bool log = true)
         {
             _battleInitializer = battleInitializer;
             _cooldownEditor = cooldownEditor;
@@ -95,8 +95,15 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             }
 
             var current = _match.CurrentParticipant;
-
             var entityLog = _combatLogger.GetEntityRepresentation(current.Entity.Id, _currentStateView);
+
+            if (current.Entity.Health.Current <= 0)
+            {
+                _combatLogger.Log(current.Entity.Id, "is dead", _currentStateView);
+                _match.NextTurn();
+                return;
+            }
+
             if (_log)
             {
                 Debug.Log($"[{_currentTurn}] {entityLog} started it's turn");
@@ -123,13 +130,15 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
                 return;
             }
 
-            var actions = new List<ICombatActionDefinition>();
-            foreach (var actionDefinition in current.ActionDefinitions)
-            {
-                actions.Add(actionDefinition);
-            }
-
             var plan = agent.ChoosePlan(_currentStateView, current.Entity.Id);
+
+            if (plan == null || plan.Actions.Count == 0)
+            {
+                _combatLogger.Log(current.Entity.Id, "skipping it's turn: not found any possible actions", _currentStateView);
+                _match.NextTurn();
+                ++_currentTurn;
+                return;
+            }
 
             foreach (var action in plan.Actions)
             {

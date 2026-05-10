@@ -14,6 +14,8 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
         private readonly IDictionary<EntityId, IReadOnlyCollection<ICombatActionDefinition>> _actions;
         private readonly IDictionary<EntityId, SimulationEntityState> _simulationEntities;
 
+        private readonly Dictionary<TeamId, IList<EntityId>> _teams;
+
         public IReadOnlyCollection<EntityId> EntityIds => _entities;
 
         public EntityId CurrentEntityTurn => TurnOrder[_currentEntityIndex];
@@ -44,6 +46,28 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
                     break;
                 }
             }
+
+            _teams = new Dictionary<TeamId, IList<EntityId>>();
+
+            foreach (var entity in _entities)
+            {
+                var simulationEntity = _simulationEntities[entity];
+
+                if (!_teams.TryGetValue(simulationEntity.TeamId, out var team))
+                {
+                    _teams.Add(simulationEntity.TeamId, new List<EntityId>() { entity });
+                }
+                else
+                {
+                    _teams[simulationEntity.TeamId].Add(entity);
+                }
+            }
+        }
+
+        public IList<EntityId> GetEntityTeam(EntityId entity)
+        {
+            var teamId = GetTeamId(entity);
+            return _teams[teamId];
         }
 
         public bool TryGetPosition(EntityId entityId, out Vector2Int position)
@@ -103,22 +127,15 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
         public void TickCooldowns(EntityId entityId)
         {
             var cooldowns = _simulationEntities[entityId].Cooldowns;
-            var cooldownsToRemove = new List<CombatActionId>();
 
-            foreach (var cooldown in cooldowns)
+            foreach (var key in cooldowns.Keys.ToList())
             {
-                var newCooldown = cooldown.Value - 1;
-                cooldowns[cooldown.Key] = newCooldown;
+                cooldowns[key]--;
 
-                if (newCooldown <= 0)
+                if (cooldowns[key] <= 0)
                 {
-                    cooldownsToRemove.Add(cooldown.Key);
+                    cooldowns.Remove(key);
                 }
-            }
-
-            foreach (var cooldown in cooldownsToRemove)
-            {
-                cooldowns.Remove(cooldown);
             }
         }
 

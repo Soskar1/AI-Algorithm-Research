@@ -3,6 +3,7 @@
     internal enum CombatAgentType
     {
         Random,
-        StateMachine
+        StateMachine,
+        Minimax
     }
 }

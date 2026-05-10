@@ -35,9 +35,6 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 candidates.AddRange(generated);
             }
 
-            if (candidates.Count == 0)
-                candidates.Add(new WaitAction(entityId));
-
             return candidates;
         }
     }

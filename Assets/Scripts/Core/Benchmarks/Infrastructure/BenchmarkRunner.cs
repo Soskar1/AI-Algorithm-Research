@@ -49,6 +49,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         [SerializeField] private GameObject _details;
         [SerializeField] private TextMeshProUGUI _detailedTextPrefab;
 
+        [SerializeField] private TextMeshProUGUI _seedText;
+
         private Random _random;
 
         [Inject]
@@ -116,6 +118,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         private void StartNewMatch()
         {
             _random = new Random(_seeds[_currentMatch]);
+            _seedText.text = _seeds[_currentMatch].ToString();
             var configAsset = _benchmarkConfigurationAssets[_currentConfig];
             _configuration = configAsset.ToConfiguration(_firstTeamAgent.ToString(), _secondTeamAgent.ToString());
 
@@ -213,6 +216,9 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
                 case CombatAgentType.StateMachine:
                     return _combatAgentFactory.CreateStateMachineAgent();
+
+                case CombatAgentType.Minimax:
+                    return _combatAgentFactory.CreateMinimaxAgent(4);
             }
 
             return null;

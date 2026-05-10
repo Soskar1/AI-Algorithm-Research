@@ -29,5 +29,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             var simulationFactory = new SimulationStateFactory(_map);
             return new StateMachineCombatAgent(simulationFactory, _provider, _executor);
         }
+
+        public ICombatAgent CreateMinimaxAgent(int depth)
+        {
+            var simulationFactory = new SimulationStateFactory(_map);
+            return new MinimaxCombatAgent(simulationFactory, _provider, _executor, depth);
+        }
     }
 }

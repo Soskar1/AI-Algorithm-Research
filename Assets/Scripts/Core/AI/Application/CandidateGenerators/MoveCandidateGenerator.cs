@@ -1,4 +1,5 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
+using AiAlgorithmsResearch.Core.Worlds.Api;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,6 +19,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             }
 
             if (!Targeting.TryGetClosestEnemyPosition(combatState, executorId, out var enemyPosition))
+            {
+                return Enumerable.Empty<ICombatAction>();
+            }
+
+            if (GridDistance.Manhattan(executorPosition, enemyPosition) == 1)
             {
                 return Enumerable.Empty<ICombatAction>();
             }
