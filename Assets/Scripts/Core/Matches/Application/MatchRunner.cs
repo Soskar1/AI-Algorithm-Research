@@ -27,6 +27,9 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
         private TeamId _teamB;
         private IReadOnlyDictionary<TeamId, ICombatAgent> _agentsByTeam;
 
+        private Dictionary<TeamId, Dictionary<CombatActionId, int>> _executedActions;
+        private int _overallActions;
+
         private ICombatStateView _currentStateView;
         private ICombatStateEditor _currentStateEditor;
 
@@ -100,7 +103,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             if (current.Entity.Health.Current <= 0)
             {
                 _combatLogger.Log(current.Entity.Id, "is dead", _currentStateView);
-                _match.NextTurn();
+                _match.NextTurn(null);
                 return;
             }
 
@@ -115,7 +118,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             if (_stunStatusEditor.ConsumeStun(current.Entity.Id))
             {
                 _combatLogger.Log(current.Entity.Id, "skipping it's turn due to stun status", _currentStateView);
-                _match.NextTurn();
+                _match.NextTurn(null);
                 ++_currentTurn;
                 return;
             }
@@ -135,7 +138,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             if (plan == null || plan.Actions.Count == 0)
             {
                 _combatLogger.Log(current.Entity.Id, "skipping it's turn: not found any possible actions", _currentStateView);
-                _match.NextTurn();
+                _match.NextTurn(new List<CombatActionId>() { CombatActionIds.Wait });
                 ++_currentTurn;
                 return;
             }
@@ -172,7 +175,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
                 }
 
                 ++_currentTurn;
-                _match.NextTurn();
+                _match.NextTurn(plan.Actions.Select(action => action.Id).ToList());
             }
         }
 

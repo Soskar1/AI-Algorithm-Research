@@ -1,5 +1,6 @@
 ﻿using AiAlgorithmsResearch.Core.Ai.Api;
 using AiAlgorithmsResearch.Core.Benchmarks.Domain;
+using AiAlgorithmsResearch.Core.Benchmarks.Presentation;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using AiAlgorithmsResearch.Core.Maps.Api;
@@ -50,6 +51,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         [SerializeField] private TextMeshProUGUI _detailedTextPrefab;
 
         [SerializeField] private TextMeshProUGUI _seedText;
+        [SerializeField] private ActionExecutionStatistics _actionExecutionStatistics;
 
         private Random _random;
 
@@ -83,6 +85,17 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 return;
 
             _matchRunner.Tick();
+
+            var lastTeam = _matchView.LastTeam;
+            var lastExecutedActions = _matchView.ExecutedActions;
+
+            if (lastExecutedActions != null)
+            {
+                foreach (var action in lastExecutedActions)
+                {
+                    _actionExecutionStatistics.DisplayExecutedAction(lastTeam, action);
+                }
+            }
 
             if (_matchView.State == MatchState.Finished)
             {
@@ -149,7 +162,9 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
             agentsByTeam.Add(teams[0], firstTeamAgent);
             agentsByTeam.Add(teams[1], secondTeamAgent);
-            
+
+            _actionExecutionStatistics.Initialize(teams[0], teams[1]);
+
             var battleRequest = new BattleInitializationRequest(battleParticipants);
             _matchInitializationRequest = new MatchInitializationRequest(battleRequest, agentsByTeam);
 

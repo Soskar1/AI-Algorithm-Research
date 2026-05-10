@@ -1,5 +1,6 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Matches.Api;
+using System.Collections.Generic;
 
 namespace AiAlgorithmsResearch.Core.Matches.Domain
 {
@@ -10,6 +11,9 @@ namespace AiAlgorithmsResearch.Core.Matches.Domain
         public IBattle Battle { get; private set; }
         public IBattleParticipant CurrentParticipant => Battle.Current;
         public int PlayedTurns { get; private set; }
+
+        public TeamId LastTeam { get; private set; }
+        public List<CombatActionId> ExecutedActions { get; private set; }
 
         public Match()
         {
@@ -30,8 +34,11 @@ namespace AiAlgorithmsResearch.Core.Matches.Domain
             Winner = teamId;
         }
 
-        public void NextTurn()
+        public void NextTurn(List<CombatActionId> executedActions)
         {
+            LastTeam = Battle.Current.TeamId;
+            ExecutedActions = executedActions;
+
             Battle.NextTurn();
             ++PlayedTurns;
         }

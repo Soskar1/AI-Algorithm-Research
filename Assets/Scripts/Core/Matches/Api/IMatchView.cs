@@ -1,4 +1,5 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
+using System.Collections.Generic;
 
 namespace AiAlgorithmsResearch.Core.Matches.Api
 {
@@ -7,5 +8,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Api
         MatchState State { get; }
         TeamId Winner { get; }
         IBattle Battle { get; }
+        TeamId LastTeam { get; }
+        List<CombatActionId> ExecutedActions { get; }
     }
 }
