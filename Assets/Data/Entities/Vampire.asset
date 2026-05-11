@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Entities::AiAlgorithmsResearch.Core.Entities.Api.EntityDefinitionAsset
   _id: Vampire
   _displayName: Vampire
-  _maxHealth: 5
+  _maxHealth: 10
   _maxEnergy: 5
   _energyRegenPerTurn: 5
   _speed: 1

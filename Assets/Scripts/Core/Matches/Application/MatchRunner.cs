@@ -151,14 +151,6 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
                 {
                     Debug.LogError($"[{_currentTurn}] {entityLog} failed to execute {action.Id.Value} action...");
                 }
-                else
-                {
-                    if (_log)
-                    {
-                        entityLog = _combatLogger.GetEntityRepresentation(current.Entity.Id, _currentStateView);
-                        Debug.Log($"[{_currentTurn}] {entityLog} executed {action.Id.Value} action.");
-                    }
-                }
 
                 var matchEnded = CheckWinCondition();
                 if (matchEnded)
@@ -169,11 +161,6 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
 
             if (_match.State == MatchState.Running)
             {
-                if (_log)
-                {
-                    Debug.Log("No winner!");
-                }
-
                 ++_currentTurn;
                 _match.NextTurn(plan.Actions.Select(action => action.Id).ToList());
             }

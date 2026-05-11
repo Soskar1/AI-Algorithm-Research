@@ -41,6 +41,24 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             return found;
         }
 
+        public static bool TryGetAllEnemyPositions(ICombatStateView combatState, EntityId executorId, out List<Vector2Int> enemyPositions)
+        {
+            enemyPositions = new();
+
+            foreach (var entityId in combatState.EntityIds)
+            {
+                if (AreInTheSameTeam(combatState, entityId, executorId) || EntityIsDead(combatState, entityId))
+                    continue;
+
+                if (!combatState.TryGetPosition(entityId, out var position))
+                    continue;
+
+                enemyPositions.Add(position);
+            }
+
+            return enemyPositions.Count > 0;
+        }
+
         public static bool TryGetClosestValidAdjacentTileToTarget(ICombatStateView combatState, EntityId executorId, Vector2Int targetPosition, out Vector2Int result)
         {
             result = default;

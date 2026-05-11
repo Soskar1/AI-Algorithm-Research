@@ -11,20 +11,29 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
         public IEnumerable<ICombatAction> GetCandidates(ICombatActionDefinition definition, ICombatStateView combatState, EntityId executorId)
         {
-            if (!Targeting.TryGetClosestEnemyPosition(combatState, executorId, out var enemyPosition))
+            if (!Targeting.TryGetAllEnemyPositions(combatState, executorId, out var enemyPositions))
             {
                 return Enumerable.Empty<ICombatAction>();
             }
 
-            if (!Targeting.TryGetClosestValidAdjacentTileToTarget(combatState, executorId, enemyPosition, out var teleportTarget))
+            var teleportActions = new List<ICombatAction>();
+
+            foreach (var position in enemyPositions)
             {
-                return Enumerable.Empty<ICombatAction>();
+                var adjacentTiles = Targeting.GetAdjacentTiles(position);
+
+                foreach (var tile in adjacentTiles)
+                {
+                    if (Targeting.IsValidDestination(combatState, tile))
+                    {
+                        var teleportAction = new TeleportAction(executorId, tile, definition.BaseCost, definition.Cooldown);
+                        teleportActions.Add(teleportAction);
+                        break;
+                    }
+                }
             }
 
-            return new List<ICombatAction>()
-            {
-                new TeleportAction(executorId, teleportTarget, definition.BaseCost, definition.Cooldown)
-            };
+            return teleportActions;
         }
     }
 }

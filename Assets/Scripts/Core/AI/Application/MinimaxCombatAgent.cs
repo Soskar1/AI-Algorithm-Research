@@ -154,10 +154,10 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             var energyDifference = executorMaxEnergy - executorEnergy;
 
             return deadEntitiesEnemyTeam * 100 - deadEntitiesExecutorTeam * 100
-                + healthDifferenceEnemyTeam * 0.8f
-                + (executorOverallHealth - healthDifferenceExecutorTeam) * 0.5f
+                + healthDifferenceEnemyTeam * 0.9f
+                + (executorOverallHealth - healthDifferenceExecutorTeam) * 0.6f
                 + enemyStunned * 10 - executorStunned * 10
-                + energyDifference * 0.1f;
+                + energyDifference * 0.05f;
 
             (int, int, int) GetHealthStatistics(IList<EntityId> entities)
             {

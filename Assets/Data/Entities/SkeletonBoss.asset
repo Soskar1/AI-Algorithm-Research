@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Entities::AiAlgorithmsResearch.Core.Entities.Api.EntityDefinitionAsset
   _id: SkeletonBoss
   _displayName: Skeleton Boss
-  _maxHealth: 10
+  _maxHealth: 20
   _maxEnergy: 10
   _energyRegenPerTurn: 5
   _speed: 2
