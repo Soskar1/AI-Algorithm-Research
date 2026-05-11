@@ -46,7 +46,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         private int _matchCount;
         private int _currentMatch = 0;
         private int _currentConfig = 0;
-        private int _configSwitch;
+        private int _matchesPerConfig;
 
         private IMatchRunner _matchRunner;
         private IEntityFactory _entityFactory;
@@ -118,7 +118,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 }
             }
 
-            _configSwitch = _seeds.Count * 2;
+            _matchesPerConfig = _seeds.Count * 2;
             _matchCount = _matchesToPlay.Count;
         }
 
@@ -158,12 +158,12 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 {
                     StartNewMatch();
 
-                    if (_currentMatch % _configSwitch == 0)
+                    if (_currentMatch % _matchesPerConfig == 0)
                     {
+                        AppendDataToDetails();
+
                         ++_currentConfig;
                         _matchCountText.text = $"Scenario {_benchmarkConfigurationAssets[_currentConfig].name}";
-
-                        AppendDataToDetails();
 
                         _currentConfigurationWinnerCount.Clear();
                         _currentConfigurationWinnerCount.Add(_firstAgent, 0);
@@ -247,12 +247,12 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
             if (firstTeamWon > secondTeamWon)
             {
-                var winRate = (firstTeamWon / (float)_seeds.Count) * 100;
+                var winRate = (firstTeamWon / (float)_matchesPerConfig) * 100;
                 textInstance.text = $"{scenarioName}: {_firstAgent} ({winRate:F2}%)";
             }
             else if (firstTeamWon < secondTeamWon)
             {
-                var winRate = (secondTeamWon / (float)_seeds.Count) * 100;
+                var winRate = (secondTeamWon / (float)_matchesPerConfig) * 100;
                 textInstance.text = $"{scenarioName}: {_secondAgent} ({winRate:F2}%)";
             }
             else
