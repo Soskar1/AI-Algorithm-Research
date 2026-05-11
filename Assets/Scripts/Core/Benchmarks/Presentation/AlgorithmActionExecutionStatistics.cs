@@ -51,38 +51,39 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Presentation
             if (combatActionId.Value == CombatActionIds.Move.Value)
             {
                 ++_moveActions;
-                UpdateStat(_executedMoveActionsText, _moveActions);
             }
             else if (combatActionId.Value == CombatActionIds.Attack.Value)
             {
                 ++_attackActions;
-                UpdateStat(_executedAttackActionsText, _attackActions);
             }
             else if (combatActionId.Value == CombatActionIds.Stun.Value)
             {
                 ++_stunActions;
-                UpdateStat(_executedStunActionsText, _stunActions);
             }
             else if (combatActionId.Value == CombatActionIds.Teleport.Value)
             {
                 ++_teleportActions;
-                UpdateStat(_executedTeleportActionsText, _teleportActions);
             }
             else if (combatActionId.Value == CombatActionIds.Heal.Value)
             {
                 ++_healActions;
-                UpdateStat(_executedHealActionsText, _healActions);
             }
             else if (combatActionId.Value == CombatActionIds.Wait.Value)
             {
                 ++_doNothingActions;
-                UpdateStat(_executedDoNothingActionsText, _doNothingActions);
             }
             else if (combatActionId.Value == CombatActionIds.RangedAttack.Value)
             {
                 ++_rangedAction;
-                UpdateStat(_executedRangedActionsText, _rangedAction);
             }
+
+            UpdateStat(_executedMoveActionsText, _moveActions);
+            UpdateStat(_executedAttackActionsText, _attackActions);
+            UpdateStat(_executedStunActionsText, _stunActions);
+            UpdateStat(_executedTeleportActionsText, _teleportActions);
+            UpdateStat(_executedHealActionsText, _healActions);
+            UpdateStat(_executedDoNothingActionsText, _doNothingActions);
+            UpdateStat(_executedRangedActionsText, _rangedAction);
         }
 
         private void UpdateStat(TextMeshProUGUI text, int actionCount)

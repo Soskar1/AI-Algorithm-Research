@@ -30,6 +30,10 @@ MonoBehaviour:
   _worldWidth: 10
   _worldHeight: 10
   _walls:
+  - {x: 2, y: 3}
+  - {x: 2, y: 4}
+  - {x: 2, y: 6}
+  - {x: 2, y: 7}
   - {x: 3, y: 3}
   - {x: 3, y: 4}
   - {x: 3, y: 6}

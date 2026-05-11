@@ -2,6 +2,7 @@
 using AiAlgorithmsResearch.Core.Worlds.Api;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Jobs;
 using UnityEngine;
 using EntityId = AiAlgorithmsResearch.Core.Entities.Api.EntityId;
 
@@ -24,14 +25,14 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             }
 
             var energy = combatState.GetEnergy(executorId);
-            var cost = int.MaxValue;
+            var minCost = int.MaxValue;
             Vector2Int moveTarget = enemyPosition;
             
             foreach (var targetTile in Targeting.GetAdjacentTiles(enemyPosition))
             {
                 var path = AStarPathfinder.FindPath(combatState, executorPosition, targetTile);
 
-                if (path == null || path.Count == 2)
+                if (path == null)
                 {
                     continue;
                 }
@@ -42,9 +43,13 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
                 var maxSteps = path.Count - 1;
                 var stepsToMake = Mathf.Min(energy * 2, maxSteps);
-                cost = Mathf.CeilToInt(stepsToMake / 2f);
-                moveTarget = path[stepsToMake];
-                break;
+                var cost = Mathf.CeilToInt(stepsToMake / 2f);
+
+                if (cost < minCost)
+                {
+                    minCost = cost;
+                    moveTarget = path[stepsToMake];
+                }
             }
 
             if (moveTarget == enemyPosition)
@@ -54,7 +59,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
             return new List<ICombatAction>()
             {
-                new MoveAction(executorId, moveTarget, cost)
+                new MoveAction(executorId, moveTarget, minCost)
             };
         }
     }
