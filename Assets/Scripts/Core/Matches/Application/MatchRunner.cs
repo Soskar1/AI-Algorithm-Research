@@ -45,7 +45,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             IWorldEditor worldEditor,
             ICombatLogger combatLogger,
             IRuntimeCombatStateFactory runtimeCombatStateFactory,
-            bool log = true)
+            bool log = false)
         {
             _battleInitializer = battleInitializer;
             _cooldownEditor = cooldownEditor;

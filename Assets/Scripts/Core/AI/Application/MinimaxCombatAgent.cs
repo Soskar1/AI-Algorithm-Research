@@ -65,9 +65,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
         private float Minimax(SimulationCombatState simulation, EntityId entity, EntityId executor, int currentDepth, float alpha, float beta)
         {
-            var health = simulation.GetHealth(entity);
-
-            if (currentDepth <= 0 || health <= 0)
+            if (currentDepth <= 0)
                 return EvaluateState(simulation, executor);
 
             simulation.TickCooldowns(entity);
@@ -76,15 +74,15 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             var turnBackup = _combatStateFactory.Create(simulation);
             var candidates = _combatActionCandidateProvider.GetCandidates(simulation, entity);
 
-            if (!simulation.AreFriends(entity, executor))
+            if (simulation.AreFriends(entity, executor))
             {
-                float maxEvaluation = float.MinValue;
+                var maxEvaluation = float.MinValue;
+
                 foreach (var candidate in candidates)
                 {
                     var planBackup = _combatStateFactory.Create(simulation);
 
-                    var isExecuted = SimulateTurn(candidate, simulation, entity, out var plan);
-                    if (!isExecuted)
+                    if (!SimulateTurn(candidate, simulation, entity, out var plan))
                     {
                         simulation = planBackup;
                         continue;
@@ -102,18 +100,17 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                         break;
                 }
 
-                simulation = turnBackup;
                 return maxEvaluation;
             }
             else
             {
                 var minEvaluation = float.MaxValue;
+
                 foreach (var candidate in candidates)
                 {
                     var planBackup = _combatStateFactory.Create(simulation);
 
-                    var isExecuted = SimulateTurn(candidate, simulation, entity, out var plan);
-                    if (!isExecuted)
+                    if (!SimulateTurn(candidate, simulation, entity, out var plan))
                     {
                         simulation = planBackup;
                         continue;
@@ -131,7 +128,6 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                         break;
                 }
 
-                simulation = turnBackup;
                 return minEvaluation;
             }
         }
@@ -143,8 +139,8 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 .Where(entity => !simulation.AreFriends(entity, executor))
                 .ToList();
 
-            (var healthDifferenceExecutorTeam, var executorOverallHealth, var deadEntitiesExecutorTeam) = GetHealthStatistics(executorTeam);
-            (var healthDifferenceEnemyTeam, var enemyOverallHealth, var deadEntitiesEnemyTeam) = GetHealthStatistics(enemyTeam);
+            (var executorHealthSum, var executorOverallHealth, var deadEntitiesExecutorTeam) = GetHealthStatistics(executorTeam);
+            (var enemyHealthSum, var enemyOverallHealth, var deadEntitiesEnemyTeam) = GetHealthStatistics(enemyTeam);
 
             var executorStunned = GetStunStatistics(executorTeam);
             var enemyStunned = GetStunStatistics(enemyTeam);
@@ -154,14 +150,13 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             var energyDifference = executorMaxEnergy - executorEnergy;
 
             return deadEntitiesEnemyTeam * 100 - deadEntitiesExecutorTeam * 100
-                + healthDifferenceEnemyTeam * 0.9f
-                + (executorOverallHealth - healthDifferenceExecutorTeam) * 0.6f
+                + executorHealthSum * 0.6f - enemyHealthSum * 0.9f
                 + enemyStunned * 10 - executorStunned * 10
-                + energyDifference * 0.05f;
+                + energyDifference * 0.1f;
 
             (int, int, int) GetHealthStatistics(IList<EntityId> entities)
             {
-                var healthDifference = 0;
+                var healthSum = 0;
                 var deadEntities = 0;
                 var overallHealth = 0;
 
@@ -175,11 +170,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                         ++deadEntities;
                     }
 
-                    healthDifference += maxHealth - health;
+                    healthSum += health;
                     overallHealth += maxHealth;
                 }
 
-                return (healthDifference, overallHealth, deadEntities);
+                return (healthSum, overallHealth, deadEntities);
             }
 
             int GetStunStatistics(IList<EntityId> entities)
@@ -200,7 +195,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
         private bool SimulateTurn(ICombatAction mainAction, SimulationCombatState simulation, EntityId executor, out CombatPlan plan)
         {
-            if (simulation.IsStunned(executor))
+            if (simulation.IsStunned(executor) || simulation.GetHealth(executor) <= 0)
             {
                 plan = new CombatPlan(new List<ICombatAction>() { new WaitAction(executor) });
                 return true;
@@ -222,11 +217,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             {
                 SimulateHealTurnPlan(simulation, executor, actionsToExecute, ref energy);
             }
-            else if (actionType == typeof(StunAction))
-            {
-                SimulateStunTurnPlan(simulation, executor, actionsToExecute, ref energy);
-            }
-            else if (actionType == typeof(RangedAttackAction) || actionType == typeof(AttackAction) || actionType == typeof(MoveAction) || actionType == typeof(TeleportAction))
+            else if (actionType == typeof(StunAction) || actionType == typeof(RangedAttackAction) || actionType == typeof(AttackAction) || actionType == typeof(MoveAction) || actionType == typeof(TeleportAction))
             {
                 SimulateAttackTurnPlan(simulation, executor, actionsToExecute, ref energy);
             }
@@ -244,59 +235,20 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 ExecuteAction(stunAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
             }
 
-            while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
-            {
-                var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-
-                if (!executionSuccessfull)
-                {
-                    break;
-                }
-            }
+            SimulateAttackTurnPlan(simulation, executor, actionsToExecute, ref energy);
 
             if (energy > 0 && TryGetAction(typeof(TeleportAction), candidates, out var teleportAction))
             {
                 ExecuteAction(teleportAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
 
-                while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
-                {
-                    var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-
-                    if (!executionSuccessfull)
-                    {
-                        break;
-                    }
-                }
+                SimulateAttackTurnPlan(simulation, executor, actionsToExecute, ref energy);
             }
 
             if (energy > 0 && TryGetAction(typeof(MoveAction), candidates, out var moveAction))
             {
                 ExecuteAction(moveAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
 
-                while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
-                {
-                    var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-
-                    if (!executionSuccessfull)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-
-        private void SimulateStunTurnPlan(SimulationCombatState simulation, EntityId executor, List<ICombatAction> actionsToExecute, ref int energy)
-        {
-            var candidates = _combatActionCandidateProvider.GetCandidates(simulation, executor);
-
-            while (energy > 0 && TryGetAction(typeof(AttackAction), candidates, out var attackAction))
-            {
-                var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-
-                if (!executionSuccessfull)
-                {
-                    break;
-                }
+                SimulateAttackTurnPlan(simulation, executor, actionsToExecute, ref energy);
             }
         }
 
@@ -311,6 +263,21 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 if (!executionSuccessfull)
                 {
                     break;
+                }
+            }
+
+            while (energy > 0 && TryGetAction(typeof(MoveAction), candidates, out var moveAction))
+            {
+                ExecuteAction(moveAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
+
+                while (energy > 0 && (TryGetAction(typeof(RangedAttackAction), candidates, out var attackAction) || TryGetAction(typeof(AttackAction), candidates, out attackAction)))
+                {
+                    var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
+
+                    if (!executionSuccessfull)
+                    {
+                        break;
+                    }
                 }
             }
         }
