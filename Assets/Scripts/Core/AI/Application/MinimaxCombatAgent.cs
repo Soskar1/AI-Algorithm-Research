@@ -149,10 +149,15 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             var executorStunned = GetStunStatistics(executorTeam);
             var enemyStunned = GetStunStatistics(enemyTeam);
 
+            var executorEnergy = simulation.GetEnergy(executor);
+            var executorMaxEnergy = simulation.GetMaxEnergy(executor);
+            var energyDifference = executorMaxEnergy - executorEnergy;
+
             return deadEntitiesEnemyTeam * 100 - deadEntitiesExecutorTeam * 100
                 + healthDifferenceEnemyTeam * 0.8f
                 + (executorOverallHealth - healthDifferenceExecutorTeam) * 0.5f
-                + enemyStunned * 10 - executorStunned * 10;
+                + enemyStunned * 10 - executorStunned * 10
+                + energyDifference * 0.1f;
 
             (int, int, int) GetHealthStatistics(IList<EntityId> entities)
             {

@@ -156,7 +156,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
                     if (_log)
                     {
                         entityLog = _combatLogger.GetEntityRepresentation(current.Entity.Id, _currentStateView);
-                        Debug.Log($"[{_currentTurn}] {entityLog} executed it's action.");
+                        Debug.Log($"[{_currentTurn}] {entityLog} executed {action.Id.Value} action.");
                     }
                 }
 

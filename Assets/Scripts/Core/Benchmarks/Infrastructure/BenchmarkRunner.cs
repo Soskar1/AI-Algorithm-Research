@@ -235,8 +235,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 case CombatAgentType.Minimax1:
                     return _combatAgentFactory.CreateMinimaxAgent(1);
 
-                case CombatAgentType.Minimax8:
-                    return _combatAgentFactory.CreateMinimaxAgent(8);
+                case CombatAgentType.Minimax4:
+                    return _combatAgentFactory.CreateMinimaxAgent(4);
             }
 
             return null;
