@@ -16,7 +16,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
         public IList<ICombatAction> GetCandidates(ICombatStateView combatState, EntityId entityId)
         {
-            var candidates = new List<ICombatAction>();
+            var candidates = new List<ICombatAction>() { new WaitAction(entityId) };
             var availableActions = combatState.GetCombatActionDefinitions(entityId);
 
             foreach (var definition in availableActions)
