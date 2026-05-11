@@ -36,7 +36,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             var participants = spawnedEntities
                 .Select(participant => new BattleParticipant(
                     participant.Entity,
-                    initiativeRoller.Roll(participant.Entity),
+                    initiativeRoller.Roll(),
                     participant.TeamId,
                     participant.ActionDefinitions))
                 .OrderByDescending(participant => participant.Initiative)

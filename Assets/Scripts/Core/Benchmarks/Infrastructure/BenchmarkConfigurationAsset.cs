@@ -15,24 +15,17 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         [SerializeField] private int _worldHeight;
         [SerializeField] private List<Vector2Int> _walls;
 
-        public BenchmarkConfiguration ToConfiguration(string firstTeamDisplayName, string secondTeamDisplayName)
+        public BenchmarkConfiguration ToConfiguration()
         {
-            var teams = new Dictionary<TeamId, IReadOnlyDictionary<Vector2Int, EntityDefinitionId>>();
+            var teams = new List<IReadOnlyDictionary<Vector2Int, EntityDefinitionId>>();
             var entityDefinitionsById = new Dictionary<EntityDefinitionId, EntityDefinition>();
             var actionsByEntity = new Dictionary<EntityDefinitionId, IReadOnlyCollection<ICombatActionDefinition>>();
 
-            var currentDisplayName = firstTeamDisplayName;
-            var currentTeamId = 0;
-
-            foreach (var team in _teams)
+            for (var i = 0; i < _teams.Length; ++i)
             {
-                var teamId = new TeamId(currentTeamId, currentDisplayName);
-                currentDisplayName = secondTeamDisplayName;
-                ++currentTeamId;
-
                 var entitiesByPosition = new Dictionary<Vector2Int, EntityDefinitionId>();
 
-                foreach (var entitySetup in team.Entities)
+                foreach (var entitySetup in _teams[i].Entities)
                 {
                     var entityDefinitionAsset = entitySetup.EntityDefinitionAsset;
                     var entityId = entityDefinitionAsset.Id;
@@ -46,7 +39,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                         .ToArray();
                 }
 
-                teams[teamId] = entitiesByPosition;
+                teams.Add(entitiesByPosition);
             }
 
             return new BenchmarkConfiguration(teams, entityDefinitionsById, actionsByEntity, _worldWidth, _worldHeight, _walls);

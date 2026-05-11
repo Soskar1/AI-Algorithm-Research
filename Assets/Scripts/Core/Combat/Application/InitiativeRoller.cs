@@ -1,5 +1,4 @@
 ﻿using AiAlgorithmsResearch.Core.Combat.Api;
-using AiAlgorithmsResearch.Core.Entities.Api;
 using System;
 
 namespace AiAlgorithmsResearch.Core.Combat.Application
@@ -13,7 +12,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
             _random = random;
         }
 
-        public int Roll(IEntityView entity)
+        public int Roll()
         {
             return _random.Next(1, 21);
         }

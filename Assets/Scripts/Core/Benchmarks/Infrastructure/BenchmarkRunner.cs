@@ -18,24 +18,48 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 {
     internal class BenchmarkRunner : MonoBehaviour
     {
+        private class MatchEntry
+        {
+            public BenchmarkConfiguration Configuration { get; }
+            public int Seed { get; }
+            public Dictionary<CombatAgentType, IReadOnlyDictionary<Vector2Int, EntityDefinitionId>> AgentTeams { get; }
+
+            public MatchEntry(BenchmarkConfiguration configuration, int seed, CombatAgentType firstTeamAgent, CombatAgentType secondTeamAgent)
+            {
+                Configuration = configuration;
+                Seed = seed;
+
+                AgentTeams = new()
+                {
+                    { firstTeamAgent, Configuration.Teams[0] },
+                    { secondTeamAgent, Configuration.Teams[1] }
+                };
+            }
+        }
+
         [SerializeField] private List<BenchmarkConfigurationAsset> _benchmarkConfigurationAssets;
-        [SerializeField] private CombatAgentType _firstTeamAgent;
-        [SerializeField] private CombatAgentType _secondTeamAgent;
+        [SerializeField] private CombatAgentType _firstAgent;
+        [SerializeField] private CombatAgentType _secondAgent;
+
+        private List<MatchEntry> _matchesToPlay;
+
         private int _matchCount;
         private int _currentMatch = 0;
         private int _currentConfig = 0;
+        private int _configSwitch;
 
         private IMatchRunner _matchRunner;
         private IEntityFactory _entityFactory;
         private ICombatAgentFactory _combatAgentFactory;
         private IWorldGenerator _worldGenerator;
         private IMapEditor _mapEditor;
-        private BenchmarkConfiguration _configuration;
         private MatchInitializationRequest _matchInitializationRequest;
 
         private IMatchView _matchView;
-        private List<int> _currentMatchWinnerCount = new();
-        private List<int> _overallMatchWinnerCounts = new();
+
+        private Dictionary<TeamId, CombatAgentType> _agentTeams = new();
+        private Dictionary<CombatAgentType, int> _currentConfigurationWinnerCount = new();
+        private Dictionary<CombatAgentType, int> _overallBenchmarkWinnerCount = new();
 
         [Header("UI")]
         [SerializeField] private GameObject _ui;
@@ -53,8 +77,6 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
         [SerializeField] private TextMeshProUGUI _seedText;
         [SerializeField] private ActionExecutionStatistics _actionExecutionStatistics;
 
-        private Random _random;
-
         [Inject]
         public void Inject(IMatchRunner matchRunner, IEntityFactory entityFactory, ICombatAgentFactory agentFactory, IWorldGenerator worldGenerator, IMapEditor mapEditor)
         {
@@ -67,13 +89,37 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         public void Start()
         {
-            _overallMatchWinnerCounts.Add(0);
-            _overallMatchWinnerCounts.Add(0);
-            _currentMatchWinnerCount.Add(0);
-            _currentMatchWinnerCount.Add(0);
+            _overallBenchmarkWinnerCount.Add(_firstAgent, 0);
+            _overallBenchmarkWinnerCount.Add(_secondAgent, 0);
+            _currentConfigurationWinnerCount.Add(_firstAgent, 0);
+            _currentConfigurationWinnerCount.Add(_secondAgent, 0);
 
-            _matchCount = _seeds.Count * _benchmarkConfigurationAssets.Count;
+            _actionExecutionStatistics.Initialize(_firstAgent, _secondAgent);
+            _matchCountText.text = $"Scenario {_benchmarkConfigurationAssets[_currentConfig].name}";
+
+            PredefineMathes();
             StartNewMatch();
+        }
+
+        private void PredefineMathes()
+        {
+            _matchesToPlay = new();
+
+            foreach (var asset in _benchmarkConfigurationAssets)
+            {
+                var configuration = asset.ToConfiguration();
+
+                foreach (var seed in _seeds)
+                {
+                    var first = new MatchEntry(configuration, seed, _firstAgent, _secondAgent);
+                    var second = new MatchEntry(configuration, seed, _secondAgent, _firstAgent);
+                    _matchesToPlay.Add(first);
+                    _matchesToPlay.Add(second);
+                }
+            }
+
+            _configSwitch = _seeds.Count * 2;
+            _matchCount = _matchesToPlay.Count;
         }
 
         public void Update()
@@ -93,36 +139,35 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             {
                 foreach (var action in lastExecutedActions)
                 {
-                    _actionExecutionStatistics.DisplayExecutedAction(lastTeam, action);
+                    var agent = _agentTeams[lastTeam];
+                    _actionExecutionStatistics.DisplayExecutedAction(agent, action);
                 }
             }
 
             if (_matchView.State == MatchState.Finished)
             {
-                ++_overallMatchWinnerCounts[_matchView.Winner.Value];
-                ++_currentMatchWinnerCount[_matchView.Winner.Value];
+                var winnerAgent = _agentTeams[_matchView.Winner];
+
+                ++_overallBenchmarkWinnerCount[winnerAgent];
+                ++_currentConfigurationWinnerCount[winnerAgent];
                 ++_currentMatch;
 
                 DisplayStatistics();
 
-                if (_currentMatch < _seeds.Count)
+                if (_currentMatch < _matchesToPlay.Count)
                 {
                     StartNewMatch();
-                }
-                else
-                {
-                    AppendDataToDetails();
 
-                    if (_currentConfig < _benchmarkConfigurationAssets.Count - 1)
+                    if (_currentMatch % _configSwitch == 0)
                     {
                         ++_currentConfig;
-                        _currentMatch = 0;
+                        _matchCountText.text = $"Scenario {_benchmarkConfigurationAssets[_currentConfig].name}";
 
-                        _currentMatchWinnerCount.Clear();
-                        _currentMatchWinnerCount.Add(0);
-                        _currentMatchWinnerCount.Add(0);
+                        AppendDataToDetails();
 
-                        StartNewMatch();
+                        _currentConfigurationWinnerCount.Clear();
+                        _currentConfigurationWinnerCount.Add(_firstAgent, 0);
+                        _currentConfigurationWinnerCount.Add(_secondAgent, 0);
                     }
                 }
             }
@@ -130,45 +175,51 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         private void StartNewMatch()
         {
-            _random = new Random(_seeds[_currentMatch]);
-            _seedText.text = _seeds[_currentMatch].ToString();
-            var configAsset = _benchmarkConfigurationAssets[_currentConfig];
-            _configuration = configAsset.ToConfiguration(_firstTeamAgent.ToString(), _secondTeamAgent.ToString());
+            var matchToPlay = _matchesToPlay[_currentMatch];
+            var configuration = matchToPlay.Configuration;
+            _seedText.text = matchToPlay.Seed.ToString();
 
+            _agentTeams.Clear();
             _mapEditor.Clear();
-            _worldGenerator.Generate(_configuration.WorldWidth, _configuration.WorldHeight, _configuration.Walls);
+            _worldGenerator.Generate(configuration.WorldWidth, configuration.WorldHeight, configuration.Walls);
 
             List<BattleParticipantSetup> battleParticipants = new();
-            var teams = _configuration.Teams.Keys.ToList();
+            var teamConfiguration = configuration.Teams;
+            var currentIndex = 0;
 
-            foreach (var team in teams)
+            foreach ((var agent, var entities) in matchToPlay.AgentTeams)
             {
-                var teamEntities = _configuration.Teams[team];
+                var teamId = new TeamId(currentIndex);
+                _agentTeams.Add(teamId, agent);
+                ++currentIndex;
 
-                foreach ((var position, var entityDefinitionId) in teamEntities)
+                foreach ((var position, var entityDefinitionId) in entities)
                 {
-                    var entityDefinition = _configuration.EntityDefinitionsById[entityDefinitionId];
+                    var entityDefinition = configuration.EntityDefinitionsById[entityDefinitionId];
                     var entity = _entityFactory.CreateEntity(entityDefinition);
-                    var actionDefinitions = _configuration.ActionsByEntity[entityDefinitionId];
-                    var battleParticipantSetup = new BattleParticipantSetup(entity, position, team, actionDefinitions);
+                    var actionDefinitions = configuration.ActionsByEntity[entityDefinitionId];
+                    var battleParticipantSetup = new BattleParticipantSetup(entity, position, teamId, actionDefinitions);
 
                     battleParticipants.Add(battleParticipantSetup);
                 }
             }
 
-            var agentsByTeam = new Dictionary<TeamId, ICombatAgent>();
-            var firstTeamAgent = CreateAgent(_firstTeamAgent);
-            var secondTeamAgent = CreateAgent(_secondTeamAgent);
+            var random = new Random(matchToPlay.Seed);
+            var firstTeamAgent = CreateAgent(matchToPlay.AgentTeams.Keys.First(), random);
+            var secondTeamAgent = CreateAgent(matchToPlay.AgentTeams.Keys.Last(), random);
 
-            agentsByTeam.Add(teams[0], firstTeamAgent);
-            agentsByTeam.Add(teams[1], secondTeamAgent);
+            var teams = _agentTeams.Keys.ToList();
 
-            _actionExecutionStatistics.Initialize(teams[0], teams[1]);
+            var agentsByTeam = new Dictionary<TeamId, ICombatAgent>
+            {
+                { teams[0], firstTeamAgent },
+                { teams[1], secondTeamAgent }
+            };
 
             var battleRequest = new BattleInitializationRequest(battleParticipants);
             _matchInitializationRequest = new MatchInitializationRequest(battleRequest, agentsByTeam);
 
-            _matchView = _matchRunner.StartMatch(_matchInitializationRequest, _random);
+            _matchView = _matchRunner.StartMatch(_matchInitializationRequest, random);
             if (_matchView == null)
             {
                 Debug.LogError("Match is not started!");
@@ -177,31 +228,19 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
         private void DisplayStatistics()
         {
-            _matchCountText.text = $"Scenario {_benchmarkConfigurationAssets[_currentConfig].name}: {_seeds.Count} matches";
+            var firstAgentWon = _overallBenchmarkWinnerCount[_firstAgent];
+            var secondAgentWon = _overallBenchmarkWinnerCount[_secondAgent];
 
-            var teams = _configuration.Teams.Keys.ToList();
-            var firstTeam = teams[0];
-            var secondTeam = teams[1];
+            _firstAlgorithmText.text = $"{_firstAgent} won: {firstAgentWon} ({(firstAgentWon / (float)_currentMatch) * 100:F2}% win rate)";
+            _secondAlgorithmText.text = $"{_secondAgent} won: {secondAgentWon} ({(secondAgentWon / (float)_currentMatch) * 100:F2}% win rate)";
 
-            var firstTeamWon = _overallMatchWinnerCounts[firstTeam.Value];
-            var secondTeamWon = _overallMatchWinnerCounts[secondTeam.Value];
-
-            var playedMatches = _currentConfig * _seeds.Count + _currentMatch;
-
-            _firstAlgorithmText.text = $"{firstTeam.DisplayName} won: {firstTeamWon} ({(firstTeamWon / (float)playedMatches) * 100:F2}% win rate)";
-            _secondAlgorithmText.text = $"{secondTeam.DisplayName} won: {secondTeamWon} ({(secondTeamWon / (float)playedMatches) * 100:F2}% win rate)";
-
-            _progressBar.fillAmount = playedMatches / (float)_matchCount;
+            _progressBar.fillAmount = _currentMatch / (float)_matchCount;
         }
 
         private void AppendDataToDetails()
         {
-            var teams = _configuration.Teams.Keys.ToList();
-            var firstTeam = teams[0];
-            var secondTeam = teams[1];
-
-            var firstTeamWon = _currentMatchWinnerCount[firstTeam.Value];
-            var secondTeamWon = _currentMatchWinnerCount[secondTeam.Value];
+            var firstTeamWon = _currentConfigurationWinnerCount[_firstAgent];
+            var secondTeamWon = _currentConfigurationWinnerCount[_secondAgent];
 
             var textInstance = Instantiate(_detailedTextPrefab, _details.transform);
             var scenarioName = _benchmarkConfigurationAssets[_currentConfig].name;
@@ -209,12 +248,12 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             if (firstTeamWon > secondTeamWon)
             {
                 var winRate = (firstTeamWon / (float)_seeds.Count) * 100;
-                textInstance.text = $"{scenarioName}: {firstTeam.DisplayName} ({winRate:F2}%)";
+                textInstance.text = $"{scenarioName}: {_firstAgent} ({winRate:F2}%)";
             }
             else if (firstTeamWon < secondTeamWon)
             {
                 var winRate = (secondTeamWon / (float)_seeds.Count) * 100;
-                textInstance.text = $"{scenarioName}: {secondTeam.DisplayName} ({winRate:F2}%)";
+                textInstance.text = $"{scenarioName}: {_secondAgent} ({winRate:F2}%)";
             }
             else
             {
@@ -222,12 +261,12 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             }
         }
 
-        private ICombatAgent CreateAgent(CombatAgentType agentType)
+        private ICombatAgent CreateAgent(CombatAgentType agentType, Random random)
         {
             switch (agentType)
             {
                 case CombatAgentType.Random:
-                    return _combatAgentFactory.CreateRandomAgent(_random);
+                    return _combatAgentFactory.CreateRandomAgent(random);
 
                 case CombatAgentType.StateMachine:
                     return _combatAgentFactory.CreateStateMachineAgent();

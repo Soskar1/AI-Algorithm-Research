@@ -172,9 +172,9 @@ namespace AiAlgorithmsResearch.Core.Combat.Tests
                 _rolls[entity] = roll;
             }
 
-            public int Roll(IEntityView entity)
+            public int Roll()
             {
-                return _rolls[entity];
+                return 0;
             }
         }
     }
