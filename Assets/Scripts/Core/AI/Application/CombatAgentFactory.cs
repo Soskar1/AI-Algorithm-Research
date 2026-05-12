@@ -35,5 +35,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             var simulationFactory = new SimulationStateFactory(_map);
             return new MinimaxCombatAgent(simulationFactory, _provider, _executor, depth);
         }
+
+        public ICombatAgent CreateMonteCarloAgent(int maxIterations, Random random)
+        {
+            var simulationFactory = new SimulationStateFactory(_map);
+            return new MonteCarloAgent(simulationFactory, _provider, _executor, maxIterations, random);
+        }
     }
 }

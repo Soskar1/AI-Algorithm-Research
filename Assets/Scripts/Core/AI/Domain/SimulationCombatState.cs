@@ -189,6 +189,11 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
             _simulationEntities[entityId].IsStunned = true;
         }
 
+        public void ConsumeStun(EntityId entityId)
+        {
+            _simulationEntities[entityId].IsStunned = false;
+        }
+
         public TeamId GetTeamId(EntityId entityId)
         {
             return _simulationEntities[entityId].TeamId;
@@ -235,6 +240,29 @@ namespace AiAlgorithmsResearch.Core.Ai.Domain
         public int GetMaxEnergy(EntityId entityId)
         {
             return _simulationEntities[entityId].MaxEnergy;
+        }
+
+        public bool IsTerminalState(out TeamId? winner)
+        {
+            winner = null;
+            var firstTeam = _teams.Keys.First();
+            var secondTeam = _teams.Keys.Last();
+
+            var isFirstTeamAlive = IsTeamAlive(firstTeam);
+            var isSecondTeamAlive = IsTeamAlive(secondTeam);
+
+            if (isFirstTeamAlive && isSecondTeamAlive)
+            {
+                return false;
+            }
+
+            winner = isFirstTeamAlive ? firstTeam : secondTeam;
+            return true;
+        }
+
+        private bool IsTeamAlive(TeamId teamId)
+        {
+            return _teams[teamId].Any(entity => GetHealth(entity) > 0);
         }
     }
 }

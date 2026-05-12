@@ -8,7 +8,7 @@ namespace AiAlgorithmsResearch.Core.Combat.Application
     {
         private readonly bool _log = false;
 
-        public CombatLogger(bool log = false)
+        public CombatLogger(bool log = true)
         {
             _log = log;
         }

@@ -13,6 +13,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
         {
             if (simulation.IsStunned(executor) || simulation.GetHealth(executor) <= 0)
             {
+                simulation.ConsumeStun(executor);
                 plan = new CombatPlan(new List<ICombatAction>() { new WaitAction(executor) });
                 return true;
             }

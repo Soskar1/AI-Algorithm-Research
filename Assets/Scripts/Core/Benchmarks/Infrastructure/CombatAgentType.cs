@@ -5,6 +5,7 @@
         Random,
         StateMachine,
         Minimax1,
-        Minimax4
+        Minimax4,
+        MonteCarlo
     }
 }
