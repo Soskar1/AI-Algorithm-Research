@@ -82,7 +82,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 {
                     var planBackup = _combatStateFactory.Create(simulation);
 
-                    var isExecuted = Planning.SimulateTurn(candidate, simulation, executor, _combatActionCandidateProvider, _combatActionExecutor, out var plan);
+                    var isExecuted = Planning.SimulateTurn(candidate, simulation, entity, _combatActionCandidateProvider, _combatActionExecutor, out var plan);
                     if (!isExecuted)
                     {
                         simulation = planBackup;
@@ -111,7 +111,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 {
                     var planBackup = _combatStateFactory.Create(simulation);
 
-                    var isExecuted = Planning.SimulateTurn(candidate, simulation, executor, _combatActionCandidateProvider, _combatActionExecutor, out var plan);
+                    var isExecuted = Planning.SimulateTurn(candidate, simulation, entity, _combatActionCandidateProvider, _combatActionExecutor, out var plan);
                     if (!isExecuted)
                     {
                         simulation = planBackup;
