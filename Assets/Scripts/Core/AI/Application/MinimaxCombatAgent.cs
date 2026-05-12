@@ -39,7 +39,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
             {
                 var backup = _combatStateFactory.Create(simulation);
 
-                var isExecuted = SimulateTurn(candidate, simulation, executor, out var plan);
+                var isExecuted = Planning.SimulateTurn(candidate, simulation, executor, _combatActionCandidateProvider, _combatActionExecutor, out var plan);
                 if (!isExecuted)
                 {
                     simulation = backup;
@@ -82,7 +82,8 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 {
                     var planBackup = _combatStateFactory.Create(simulation);
 
-                    if (!SimulateTurn(candidate, simulation, entity, out var plan))
+                    var isExecuted = Planning.SimulateTurn(candidate, simulation, executor, _combatActionCandidateProvider, _combatActionExecutor, out var plan);
+                    if (!isExecuted)
                     {
                         simulation = planBackup;
                         continue;
@@ -110,7 +111,8 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 {
                     var planBackup = _combatStateFactory.Create(simulation);
 
-                    if (!SimulateTurn(candidate, simulation, entity, out var plan))
+                    var isExecuted = Planning.SimulateTurn(candidate, simulation, executor, _combatActionCandidateProvider, _combatActionExecutor, out var plan);
+                    if (!isExecuted)
                     {
                         simulation = planBackup;
                         continue;
@@ -191,129 +193,6 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
 
                 return stunnedEntities;
             }
-        }
-
-        private bool SimulateTurn(ICombatAction mainAction, SimulationCombatState simulation, EntityId executor, out CombatPlan plan)
-        {
-            if (simulation.IsStunned(executor) || simulation.GetHealth(executor) <= 0)
-            {
-                plan = new CombatPlan(new List<ICombatAction>() { new WaitAction(executor) });
-                return true;
-            }
-
-            var actionsToExecute = new List<ICombatAction>();
-            var energy = simulation.GetEnergy(executor);
-            var candidates = _combatActionCandidateProvider.GetCandidates(simulation, executor);
-            var executionSuccessfull = ExecuteAction(mainAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-            plan = null;
-
-            if (!executionSuccessfull)
-            {
-                return false;
-            }
-            
-            var actionType = mainAction.GetType();
-            if (actionType == typeof(HealAction))
-            {
-                SimulateHealTurnPlan(simulation, executor, actionsToExecute, ref energy);
-            }
-            else if (actionType == typeof(StunAction) || actionType == typeof(RangedAttackAction) || actionType == typeof(AttackAction) || actionType == typeof(MoveAction) || actionType == typeof(TeleportAction))
-            {
-                SimulateAttackTurnPlan(simulation, executor, actionsToExecute, ref energy);
-            }
-
-            plan = new CombatPlan(actionsToExecute);
-            return true;
-        }
-
-        private void SimulateHealTurnPlan(SimulationCombatState simulation, EntityId executor, List<ICombatAction> actionsToExecute, ref int energy)
-        {
-            var candidates = _combatActionCandidateProvider.GetCandidates(simulation, executor);
-
-            if (energy > 0 && TryGetAction(typeof(StunAction), candidates, out var stunAction))
-            {
-                ExecuteAction(stunAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-            }
-
-            SimulateAttackTurnPlan(simulation, executor, actionsToExecute, ref energy);
-
-            if (energy > 0 && TryGetAction(typeof(TeleportAction), candidates, out var teleportAction))
-            {
-                ExecuteAction(teleportAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-
-                SimulateAttackTurnPlan(simulation, executor, actionsToExecute, ref energy);
-            }
-
-            if (energy > 0 && TryGetAction(typeof(MoveAction), candidates, out var moveAction))
-            {
-                ExecuteAction(moveAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-
-                SimulateAttackTurnPlan(simulation, executor, actionsToExecute, ref energy);
-            }
-        }
-
-        private void SimulateAttackTurnPlan(SimulationCombatState simulation, EntityId executor, List<ICombatAction> actionsToExecute, ref int energy)
-        {
-            var candidates = _combatActionCandidateProvider.GetCandidates(simulation, executor);
-
-            while (energy > 0 && (TryGetAction(typeof(RangedAttackAction), candidates, out var attackAction) || TryGetAction(typeof(AttackAction), candidates, out attackAction)))
-            {
-                var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-
-                if (!executionSuccessfull)
-                {
-                    break;
-                }
-            }
-
-            while (energy > 0 && TryGetAction(typeof(MoveAction), candidates, out var moveAction))
-            {
-                ExecuteAction(moveAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-
-                while (energy > 0 && (TryGetAction(typeof(RangedAttackAction), candidates, out var attackAction) || TryGetAction(typeof(AttackAction), candidates, out attackAction)))
-                {
-                    var executionSuccessfull = ExecuteAction(attackAction, simulation, ref actionsToExecute, ref candidates, executor, ref energy);
-
-                    if (!executionSuccessfull)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-
-        private static bool TryGetAction(Type actionType, IEnumerable<ICombatAction> actions, out ICombatAction foundAction)
-        {
-            foundAction = null;
-
-            foreach (var action in actions)
-            {
-                if (action.GetType() == actionType)
-                {
-                    foundAction = action;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private bool ExecuteAction(ICombatAction combatAction, SimulationCombatState simulation, ref List<ICombatAction> actionsToExecute, ref IList<ICombatAction> candidateActions, EntityId executor, ref int energy)
-        {
-            var executionSuccessfull = _combatActionExecutor.TryExecute(combatAction, simulation, simulation);
-
-            if (executionSuccessfull)
-            {
-                actionsToExecute.Add(combatAction);
-                energy = simulation.GetEnergy(executor);
-
-                if (energy > 0)
-                {
-                    candidateActions = _combatActionCandidateProvider.GetCandidates(simulation, executor);
-                }
-            }
-
-            return executionSuccessfull;
         }
     }
 }
