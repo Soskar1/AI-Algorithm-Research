@@ -20,12 +20,16 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
     {
         private class MatchEntry
         {
+            public CombatAgentType FirstAgent { get; }
+            public CombatAgentType SecondAgent { get; }
             public BenchmarkConfiguration Configuration { get; }
             public int Seed { get; }
             public Dictionary<CombatAgentType, IReadOnlyDictionary<Vector2Int, EntityDefinitionId>> AgentTeams { get; }
 
             public MatchEntry(BenchmarkConfiguration configuration, int seed, CombatAgentType firstTeamAgent, CombatAgentType secondTeamAgent)
             {
+                FirstAgent = firstTeamAgent;
+                SecondAgent = secondTeamAgent;
                 Configuration = configuration;
                 Seed = seed;
 
@@ -127,20 +131,23 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             if (_matchView == null)
                 return;
 
-            if (_matchView.State == MatchState.Finished || _matchView.State == MatchState.NotStarted)
+            if (_matchView.State == MatchState.NotStarted)
                 return;
 
-            _matchRunner.Tick();
-
-            var lastTeam = _matchView.LastTeam;
-            var lastExecutedActions = _matchView.ExecutedActions;
-
-            if (lastExecutedActions != null)
+            if (_matchView.State != MatchState.Finished)
             {
-                foreach (var action in lastExecutedActions)
+                _matchRunner.Tick();
+
+                var lastTeam = _matchView.LastTeam;
+                var lastExecutedActions = _matchView.ExecutedActions;
+
+                if (lastExecutedActions != null)
                 {
-                    var agent = _agentTeams[lastTeam];
-                    _actionExecutionStatistics.DisplayExecutedAction(agent, action);
+                    foreach (var action in lastExecutedActions)
+                    {
+                        var agent = _agentTeams[lastTeam];
+                        _actionExecutionStatistics.DisplayExecutedAction(agent, action);
+                    }
                 }
             }
 
@@ -154,21 +161,27 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
                 DisplayStatistics();
 
+                _matchView = null;
+
                 if (_currentMatch < _matchesToPlay.Count)
                 {
-                    StartNewMatch();
-
                     if (_currentMatch % _matchesPerConfig == 0)
                     {
                         AppendDataToDetails();
 
                         ++_currentConfig;
-                        _matchCountText.text = $"Scenario {_benchmarkConfigurationAssets[_currentConfig].name}";
+
+                        if (_currentConfig < _benchmarkConfigurationAssets.Count)
+                        {
+                            _matchCountText.text = $"Scenario {_benchmarkConfigurationAssets[_currentConfig].name}";
+                        }
 
                         _currentConfigurationWinnerCount.Clear();
                         _currentConfigurationWinnerCount.Add(_firstAgent, 0);
                         _currentConfigurationWinnerCount.Add(_secondAgent, 0);
                     }
+
+                    StartNewMatch();
                 }
             }
         }
@@ -205,8 +218,8 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
             }
 
             var random = new Random(matchToPlay.Seed);
-            var firstTeamAgent = CreateAgent(matchToPlay.AgentTeams.Keys.First(), random);
-            var secondTeamAgent = CreateAgent(matchToPlay.AgentTeams.Keys.Last(), random);
+            var firstTeamAgent = CreateAgent(matchToPlay.FirstAgent, random);
+            var secondTeamAgent = CreateAgent(matchToPlay.SecondAgent, random);
 
             var teams = _agentTeams.Keys.ToList();
 
@@ -278,7 +291,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                     return _combatAgentFactory.CreateMinimaxAgent(4);
 
                 case CombatAgentType.MonteCarlo:
-                    return _combatAgentFactory.CreateMonteCarloAgent(300, random);
+                    return _combatAgentFactory.CreateMonteCarloAgent(40, random);
             }
 
             return null;

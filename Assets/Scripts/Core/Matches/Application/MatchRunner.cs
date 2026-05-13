@@ -45,7 +45,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             IWorldEditor worldEditor,
             ICombatLogger combatLogger,
             IRuntimeCombatStateFactory runtimeCombatStateFactory,
-            bool log = true)
+            bool log = false)
         {
             _battleInitializer = battleInitializer;
             _cooldownEditor = cooldownEditor;
@@ -138,7 +138,7 @@ namespace AiAlgorithmsResearch.Core.Matches.Application
             if (plan == null || plan.Actions.Count == 0)
             {
                 _combatLogger.Log(current.Entity.Id, "skipping it's turn: not found any possible actions", _currentStateView);
-                _match.NextTurn(new List<CombatActionId>() { CombatActionIds.Wait });
+                _match.NextTurn(null);
                 ++_currentTurn;
                 return;
             }
