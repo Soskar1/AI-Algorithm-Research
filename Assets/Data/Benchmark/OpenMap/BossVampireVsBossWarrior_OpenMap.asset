@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 557da2200219ae04a903694c10543590, type: 3}
-  m_Name: BossArcherVsBossWarrior_OpenMap
+  m_Name: BossVampireVsBossWarrior_OpenMap
   m_EditorClassIdentifier: AiAlgorithmsResearch.Core.Benchmarks::AiAlgorithmsResearch.Core.Benchmarks.Infrastructure.BenchmarkConfigurationAsset
   _teams:
   - _entities:
