@@ -163,7 +163,7 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
 
                 _matchView = null;
 
-                if (_currentMatch < _matchesToPlay.Count)
+                if (_currentMatch <= _matchesToPlay.Count)
                 {
                     if (_currentMatch % _matchesPerConfig == 0)
                     {
@@ -180,7 +180,10 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                         _currentConfigurationWinnerCount.Add(_firstAgent, 0);
                         _currentConfigurationWinnerCount.Add(_secondAgent, 0);
                     }
+                }
 
+                if (_currentMatch < _matchesToPlay.Count)
+                {
                     StartNewMatch();
                 }
             }
