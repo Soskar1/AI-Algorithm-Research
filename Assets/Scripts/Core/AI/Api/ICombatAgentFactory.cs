@@ -7,6 +7,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Api
         ICombatAgent CreateRandomAgent(Random random);
         ICombatAgent CreateStateMachineAgent();
         ICombatAgent CreateMinimaxAgent(int depth);
+        ICombatAgent CreateDumbMinimaxAgent(int depth);
         ICombatAgent CreateMonteCarloAgent(int maxIterations, Random random);
     }
 }

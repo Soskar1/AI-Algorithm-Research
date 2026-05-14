@@ -293,8 +293,14 @@ namespace AiAlgorithmsResearch.Core.Benchmarks.Infrastructure
                 case CombatAgentType.Minimax4:
                     return _combatAgentFactory.CreateMinimaxAgent(4);
 
-                case CombatAgentType.MonteCarlo:
+                case CombatAgentType.BadMinimax4:
+                    return _combatAgentFactory.CreateDumbMinimaxAgent(4);
+
+                case CombatAgentType.MonteCarlo40:
                     return _combatAgentFactory.CreateMonteCarloAgent(40, random);
+
+                case CombatAgentType.MonteCarlo80:
+                    return _combatAgentFactory.CreateMonteCarloAgent(80, random);
             }
 
             return null;

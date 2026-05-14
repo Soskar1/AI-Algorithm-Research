@@ -6,6 +6,8 @@
         StateMachine,
         Minimax1,
         Minimax4,
-        MonteCarlo
+        BadMinimax4,
+        MonteCarlo40,
+        MonteCarlo80
     }
 }

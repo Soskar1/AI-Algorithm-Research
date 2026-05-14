@@ -3,8 +3,6 @@ using AiAlgorithmsResearch.Core.Ai.Domain;
 using AiAlgorithmsResearch.Core.Combat.Api;
 using AiAlgorithmsResearch.Core.Entities.Api;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace AiAlgorithmsResearch.Core.Ai.Application
 {
@@ -14,13 +12,15 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
         private readonly CombatActionCandidateProvider _combatActionCandidateProvider;
         private readonly ICombatActionExecutor _combatActionExecutor;
         private readonly int _depth;
+        private readonly Func<SimulationCombatState, EntityId, float> _stateEvaluation;
 
-        public MinimaxCombatAgent(SimulationStateFactory combatStateFactory, CombatActionCandidateProvider combatActionCandidateProvider, ICombatActionExecutor combatActionExecutor, int depth)
+        public MinimaxCombatAgent(SimulationStateFactory combatStateFactory, CombatActionCandidateProvider combatActionCandidateProvider, ICombatActionExecutor combatActionExecutor, int depth, Func<SimulationCombatState, EntityId, float> stateEvaluation)
         {
             _combatStateFactory = combatStateFactory;
             _combatActionCandidateProvider = combatActionCandidateProvider;
             _combatActionExecutor = combatActionExecutor;
             _depth = depth;
+            _stateEvaluation = stateEvaluation;
         }
 
         public CombatPlan ChoosePlan(ICombatStateView stateView, EntityId executor)
@@ -66,7 +66,7 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
         private float Minimax(SimulationCombatState simulation, EntityId entity, EntityId executor, int currentDepth, float alpha, float beta)
         {
             if (currentDepth <= 0)
-                return EvaluateState(simulation, executor);
+                return _stateEvaluation(simulation, executor);
 
             simulation.TickCooldowns(entity);
             simulation.RegenerateEnergy(entity);
@@ -131,67 +131,6 @@ namespace AiAlgorithmsResearch.Core.Ai.Application
                 }
 
                 return minEvaluation;
-            }
-        }
-
-        private float EvaluateState(SimulationCombatState simulation, EntityId executor)
-        {
-            var executorTeam = simulation.GetEntityTeam(executor);
-            var enemyTeam = simulation.EntityIds
-                .Where(entity => !simulation.AreFriends(entity, executor))
-                .ToList();
-
-            (var executorHealthSum, var executorOverallHealth, var deadEntitiesExecutorTeam) = GetHealthStatistics(executorTeam);
-            (var enemyHealthSum, var enemyOverallHealth, var deadEntitiesEnemyTeam) = GetHealthStatistics(enemyTeam);
-
-            var executorStunned = GetStunStatistics(executorTeam);
-            var enemyStunned = GetStunStatistics(enemyTeam);
-
-            var executorEnergy = simulation.GetEnergy(executor);
-            var executorMaxEnergy = simulation.GetMaxEnergy(executor);
-            var energyDifference = executorMaxEnergy - executorEnergy;
-
-            return deadEntitiesEnemyTeam * 100 - deadEntitiesExecutorTeam * 100
-                + executorHealthSum * 0.6f - enemyHealthSum * 0.9f
-                + enemyStunned * 10 - executorStunned * 10
-                + energyDifference * 0.1f;
-
-            (int, int, int) GetHealthStatistics(IList<EntityId> entities)
-            {
-                var healthSum = 0;
-                var deadEntities = 0;
-                var overallHealth = 0;
-
-                foreach (var entity in entities)
-                {
-                    var health = simulation.GetHealth(entity);
-                    var maxHealth = simulation.GetMaxHealth(entity);
-
-                    if (health <= 0)
-                    {
-                        ++deadEntities;
-                    }
-
-                    healthSum += health;
-                    overallHealth += maxHealth;
-                }
-
-                return (healthSum, overallHealth, deadEntities);
-            }
-
-            int GetStunStatistics(IList<EntityId> entities)
-            {
-                var stunnedEntities = 0;
-
-                foreach (var entity in entities)
-                {
-                    if (simulation.IsStunned(entity))
-                    {
-                        ++stunnedEntities;
-                    }
-                }
-
-                return stunnedEntities;
             }
         }
     }
